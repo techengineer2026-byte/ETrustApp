@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  SafeAreaView,
   Animated,
   Image,
   ImageBackground,
@@ -9,7 +8,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/AppNavigator';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 type SplashScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Splash'
@@ -27,7 +26,7 @@ export const SplashScreen: React.FC = () => {
       useNativeDriver: true,
     }).start(() => {
       setShowSplash(false);
-      navigation.replace('Welcome'); // 👈 navigate to Welcome when done
+      navigation.replace('Login'); // 👈 navigate to Welcome when done
     });
   }, [fadeAnim, navigation]);
  

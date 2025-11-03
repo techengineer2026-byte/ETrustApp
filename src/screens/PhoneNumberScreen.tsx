@@ -5,12 +5,12 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
 } from "react-native";
 import CountryPicker, { CountryCode } from "react-native-country-picker-modal";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { SafeAreaView } from "react-native-safe-area-context";
 type PhoneNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "PhoneNumber"
@@ -18,6 +18,7 @@ type PhoneNavigationProp = NativeStackNavigationProp<
 
 export default function PhoneNumberScreen() {
   const navigation = useNavigation<PhoneNavigationProp>();
+  const [updating, setUpdating] = useState(false);
 
   const [countryCode, setCountryCode] = useState<CountryCode>("IN");
   const [callingCode, setCallingCode] = useState("91");

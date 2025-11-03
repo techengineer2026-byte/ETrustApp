@@ -4,9 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   StyleSheet,
+  Modal,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
@@ -20,11 +21,20 @@ type FirstNameNavProp = NativeStackNavigationProp<
 export default function FirstnameScreen() {
   const navigation = useNavigation<FirstNameNavProp>();
   const [firstName, setFirstName] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleNext = () => {
     if (firstName.trim().length === 0) return;
-    // Navigate to the next screen, e.g., HumanVerificationScreen
-    navigation.navigate("HumanVerification");
+    setShowPopup(true); // show the popup instead of navigate
+  };
+
+  const handleGo = () => {
+    setShowPopup(false);
+    navigation.navigate("BDAY"); // go to birthday screen
+  };
+
+  const handleEdit = () => {
+    setShowPopup(false);
   };
 
   return (
@@ -70,29 +80,46 @@ export default function FirstnameScreen() {
           <Text style={styles.nextButtonText}>Next</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Popup Modal */}
+      <Modal
+        visible={showPopup}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowPopup(false)}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.popup}>
+            <Text style={styles.wave}>👋</Text>
+            <Text style={styles.welcome}>Welcome, {firstName}!</Text>
+            <Text style={styles.subtitle}>
+              There’s a lot to discover out there.{"\n"}
+              But let’s get your profile set up first.
+            </Text>
+
+            <TouchableOpacity style={styles.goButton} onPress={handleGo}>
+              <Text style={styles.goButtonText}>Let’s go</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleEdit}>
+              <Text style={styles.editText}>Edit name</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  safe: { flex: 1, backgroundColor: "#fff" },
   container: {
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 10,
   },
-  backButton: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#000",
-    marginBottom: 40,
-  },
+  backButton: { marginBottom: 20 },
+  title: { fontSize: 24, fontWeight: "700", color: "#000", marginBottom: 40 },
   input: {
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
@@ -101,11 +128,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 20,
   },
-  helperText: {
-    fontSize: 14,
-    color: "#555",
-    lineHeight: 20,
-  },
+  helperText: { fontSize: 14, color: "#555", lineHeight: 20 },
   bottomContainer: {
     paddingHorizontal: 24,
     paddingBottom: 20,
@@ -116,9 +139,38 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: "center",
   },
-  nextButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+  nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+  // Popup styles
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
+  popup: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 30,
+    alignItems: "center",
+    width: "80%",
+  },
+  wave: { fontSize: 40, marginBottom: 10 },
+  welcome: { fontSize: 20, fontWeight: "700", color: "#000", marginBottom: 10 },
+  subtitle: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 25,
+    lineHeight: 20,
+  },
+  goButton: {
+    backgroundColor: "#000",
+    borderRadius: 25,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    marginBottom: 10,
+  },
+  goButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  editText: { color: "#000", fontSize: 14, fontWeight: "500" },
 });

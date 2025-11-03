@@ -8,10 +8,12 @@ import {
     StyleSheet,
     Alert,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native"; // ✅ Import this
 
 const VerificationCode: React.FC = () => {
     const [code, setCode] = useState(["", "", "", "", "", ""]);
     const inputs = useRef<Array<TextInput | null>>([]);
+    const navigation = useNavigation();
 
     const phoneNumber = "919872521392";
 
@@ -28,7 +30,7 @@ const VerificationCode: React.FC = () => {
     };
 
     const handleSubmit = () => {
-        Alert.alert("Entered code", code.join(""));
+        navigation.navigate("Firstname" as never); // ✅ Navigate to Firstname screen
     };
 
     const handleResend = () => {
