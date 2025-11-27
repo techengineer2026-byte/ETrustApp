@@ -26,7 +26,7 @@ export const SplashScreen: React.FC = () => {
       useNativeDriver: true,
     }).start(() => {
       setShowSplash(false);
-      navigation.replace('Login'); // 👈 navigate to Welcome when done
+      navigation.replace('Welcome'); // 👈 navigate to Welcome when done
     });
   }, [fadeAnim, navigation]);
  
@@ -35,7 +35,7 @@ export const SplashScreen: React.FC = () => {
       <SafeAreaView style={styles.safeArea}>
         <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
           <ImageBackground
-            source={require('../assets/bg.png')}
+            source={require('../assets/bg.jpg')}
             resizeMode="cover"
             style={styles.splashBackground}
           >

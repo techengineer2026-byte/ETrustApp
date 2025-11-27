@@ -10,6 +10,8 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { Dimensions } from "react-native";
+const { width, height } = Dimensions.get("window");
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -36,7 +38,7 @@ const LoginScreen = () => {
 
   return (
     <ImageBackground
-      source={require("../assets/bg.png")}
+      source={require("../assets/bg.jpg")}
       style={styles.background}
       resizeMode="cover"
     >
@@ -100,17 +102,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingTop: 60,
+    paddingTop: height * 0.08, // 8% from top
   },
   logo: {
-    width: 250,
-    height: 140,
+    width: width * 0.6, // 60% of screen width
+    height: height * 0.2, // 20% of screen height
+    marginBottom: height * 0.05,
   },
   title: {
-    fontSize: 22,
+    fontSize: Math.min(width * 0.06, 22), // scales but caps at 22
     fontWeight: "bold",
     color: "#1c005e",
-    marginVertical: 30,
+    marginVertical: height * 0.03,
+    textAlign: "center",
   },
   buttonContainer: {
     width: "100%",
@@ -119,38 +123,39 @@ const styles = StyleSheet.create({
   loginButton: {
     flexDirection: "row",
     alignItems: "center",
-    width: "75%",
+    width: width * 0.75, // 75% of screen width
     backgroundColor: "#fff",
-    paddingVertical: 12,
+    paddingVertical: height * 0.015,
     borderRadius: 30,
-    marginVertical: 8,
+    marginVertical: height * 0.01,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
   },
   icon: {
-    width: 25,
-    height: 25,
-    marginLeft: 20,
-    marginRight: 15,
+    width: width * 0.07, // scales with screen width
+    height: width * 0.07,
+    marginLeft: width * 0.05,
+    marginRight: width * 0.04,
   },
   loginText: {
     color: "#1c005e",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: Math.min(width * 0.04, 16),
   },
   footer: {
     marginTop: "auto",
-    marginBottom: 30,
-    paddingHorizontal: 25,
+    marginBottom: height * 0.04,
+    paddingHorizontal: width * 0.06,
   },
   footerText: {
     color: "#000",
     textAlign: "center",
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: Math.min(width * 0.035, 13),
+    lineHeight: height * 0.025,
   },
 });
+
 
 export default LoginScreen;

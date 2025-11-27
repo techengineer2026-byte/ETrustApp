@@ -29,7 +29,7 @@ const SkillsScreen = ({ navigation }: any) => {
 
   const handleNext = () => {
     console.log("Skills:", skills);
-    navigation.navigate("NextScreen"); // next step like ExperienceScreen
+    navigation.navigate("PhotoUploadScreen");   
   };
 
   return (
@@ -40,7 +40,6 @@ const SkillsScreen = ({ navigation }: any) => {
           Add skills relevant to your job role. Press comma (,) or Enter to add.
         </Text>
 
-        {/* Skill Input */}
         <TextInput
           style={styles.input}
           placeholder="Type a skill and press comma or Enter..."

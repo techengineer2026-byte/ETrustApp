@@ -16,10 +16,10 @@ type WelcomeScreenNavigationProp = NativeStackNavigationProp<
 >;
 const WelcomeScreen = () => {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
-  
+
   return (
     <ImageBackground
-      source={require("../assets/bg.png")} // background image
+      source={require("../assets/bg.jpg")} // background image
       style={styles.background}
       resizeMode="cover"
     >
@@ -46,25 +46,25 @@ const WelcomeScreen = () => {
       </Text>
 
       {/* Buttons */}
-      <View style={styles.buttonContainer}>
+      <View style={styles.buttonContainer}> 
         <TouchableOpacity
-          style={styles.button}
+          style={styles.button} onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.buttonText}>EMPLOYEE</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}
+          style={styles.button} 
         >
           <Text style={styles.buttonText}>EMPLOYER</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.button}
+          style={styles.button} onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.buttonText}>ET CENTER</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("PhoneNumber")}>
           <Text style={styles.linkText}>Sign up </Text>
         </TouchableOpacity>
       </View>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     View,
     Text,
@@ -6,12 +6,15 @@ import {
     TextInput,
     TouchableOpacity,
     FlatList,
+    Animated,
+    Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 const INDIA_LOCATIONS: Record<string, string[]> = {
     Punjab: ["Mohali", "Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Kharar"],
     Haryana: ["Panchkula", "Gurgaon", "Faridabad", "Panipat", "Ambala"],
-    Chandigarh: ["Chandigarh"], // Union Territory (part of Tricity)
+    Chandigarh: ["Chandigarh"],
     HimachalPradesh: ["Shimla", "Solan", "Kullu", "Kangra", "Mandi"],
     UttarPradesh: ["Lucknow", "Noida", "Varanasi", "Kanpur", "Agra"],
     Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
@@ -38,6 +41,21 @@ const LocationSelection = ({ navigation }: any) => {
     const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
 
+    // 🔹 Animation value
+    const scaleAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        if (showConfirm) {
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                useNativeDriver: true,
+                friction: 6,
+            }).start();
+        } else {
+            scaleAnim.setValue(0);
+        }
+    }, [showConfirm]);
+
     const handleSelect = (name: string) => {
         if (!selectedState) {
             setSelectedState(name);
@@ -45,7 +63,7 @@ const LocationSelection = ({ navigation }: any) => {
             setFiltered([]);
         } else {
             setSelectedDistrict(name);
-            setShowConfirm(true); // show confirmation
+            setShowConfirm(true); // show animated popup
         }
     };
 
@@ -54,7 +72,6 @@ const LocationSelection = ({ navigation }: any) => {
         const data = selectedState
             ? INDIA_LOCATIONS[selectedState]
             : Object.keys(INDIA_LOCATIONS);
-
         const results = data.filter((item) =>
             item.toLowerCase().includes(text.toLowerCase())
         );
@@ -73,9 +90,7 @@ const LocationSelection = ({ navigation }: any) => {
             {!selectedState ? (
                 <Text style={styles.subtitle}>First, choose your state</Text>
             ) : (
-                <Text style={styles.subtitle}>
-                    Selected State: {selectedState}
-                </Text>
+                <Text style={styles.subtitle}>Selected State: {selectedState}</Text>
             )}
 
             <TextInput
@@ -99,37 +114,6 @@ const LocationSelection = ({ navigation }: any) => {
                     </TouchableOpacity>
                 )}
             />
-            {showConfirm && (
-                <View style={styles.confirmBox}>
-                    <Text style={styles.confirmText}>
-                        Your Location:
-                    </Text>
-                    <Text style={styles.confirmDetail}>State: {selectedState}</Text>
-                    <Text style={styles.confirmDetail}>District: {selectedDistrict}</Text>
-
-                    <View style={styles.confirmActions}>
-                        <TouchableOpacity
-                            style={styles.editBtn}
-                            onPress={() => setShowConfirm(false)}
-                        >
-                            <Text style={styles.editText}>Edit</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={styles.doneBtn}
-                            onPress={() => {
-                                setShowConfirm(false);
-                                navigation.navigate("EducationForm", {
-                                    state: selectedState,
-                                    district: selectedDistrict,
-                                });
-                            }}
-                        >
-                            <Text style={styles.doneText}>Done</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )}
 
             {selectedState && (
                 <TouchableOpacity
@@ -139,11 +123,54 @@ const LocationSelection = ({ navigation }: any) => {
                     <Text style={styles.backText}>← Change State</Text>
                 </TouchableOpacity>
             )}
+
+            {/* 🔹 Confirmation Popup */}
+            <Modal transparent visible={showConfirm} animationType="fade">
+                <View style={styles.overlay}>
+                    <Animated.View
+                        style={[
+                            styles.popup,
+                            { transform: [{ scale: scaleAnim }] },
+                        ]}
+                    >
+                        <Text style={styles.confirmText}>Your Location:</Text>
+                        <Text style={styles.confirmDetail}>
+                            State: {selectedState}
+                        </Text>
+                        <Text style={styles.confirmDetail}>
+                            District: {selectedDistrict}
+                        </Text>
+
+                        <View style={styles.confirmActions}>
+                            <TouchableOpacity
+                                style={styles.editBtn}
+                                onPress={() => setShowConfirm(false)}
+                            >
+                                <Text style={styles.editText}>Edit</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.doneBtn}
+                                onPress={() => {
+                                    setShowConfirm(false);
+                                    navigation.navigate("EducationForm", {
+                                        state: selectedState,
+                                        district: selectedDistrict,
+                                    });
+                                }}
+                            >
+                                <Text style={styles.doneText}>Done</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Animated.View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
 
 export default LocationSelection;
+
 
 const styles = StyleSheet.create({
     container: {
@@ -174,35 +201,50 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 30,
     },
-    confirmBox: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: "#ddd",
-},
-confirmText: { fontSize: 18, fontWeight: "700", color: "#000" },
-confirmDetail: { fontSize: 16, color: "#333", marginTop: 4 },
-confirmActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 16,
-},
-editBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    backgroundColor: "#eee",
-},
-editText: { color: "#000", fontWeight: "600" },
-doneBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    backgroundColor: "#007BFF",
-},
-doneText: { color: "#fff", fontWeight: "600" },
+    overlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    popup: {
+        backgroundColor: "#fff",
+        borderRadius: 20,
+        padding: 24,
+        alignItems: "center",
+        width: "80%",
+        shadowColor: "#000",
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    confirmText: { fontSize: 18, fontWeight: "700", color: "#000", marginBottom: 8 },
+    confirmDetail: { fontSize: 16, color: "#333", marginBottom: 4 },
+    confirmActions: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+        marginTop: 16,
+    },
+    backText: {
+        color: "#000",
+        fontSize: 14,
+        fontWeight: "600"
+    },
 
-    backText: { color: "#000", fontSize: 14, fontWeight: "600" },
+    editBtn: {
+        backgroundColor: "#eee",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+    },
+    doneBtn: {
+        backgroundColor: "#007BFF",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+    },
+    editText: { color: "#000", fontWeight: "600" },
+    doneText: { color: "#fff", fontWeight: "600" },
+
 });

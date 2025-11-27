@@ -6,7 +6,7 @@ import {
   Image,
   Modal,
   StyleSheet,
-  
+
   FlatList,
 } from "react-native";
 import {
@@ -48,10 +48,13 @@ const PhotoUploadScreen = ({ navigation }: any) => {
 
   const handleNext = () => {
     setUpdating(true);
+
     setTimeout(() => {
       setUpdating(false);
+      navigation.navigate("MainTabs"); // ✅ Navigate here
     }, 2000);
   };
+
 
 
   const renderPhotoSlot = ({ item }: any) => (

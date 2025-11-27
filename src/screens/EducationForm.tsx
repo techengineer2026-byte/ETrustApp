@@ -26,9 +26,9 @@ const EducationForm = ({ navigation }: any) => {
       endDate,
     };
     console.log("Education Data:", educationData);
-    navigation.navigate("NextScreen"); // next step, e.g., experience or skills
+    navigation.navigate("skillsScreen"); // next step, e.g., experience or skills
   };
-
+  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>

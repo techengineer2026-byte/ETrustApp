@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   dateRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 11,
   },
   input: {
     borderBottomWidth: 1,
@@ -120,12 +120,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#000",
     textAlign: "center",
-    width: 40,
     paddingVertical: 6,
   },
   slash: {
     fontSize: 22,
-    marginHorizontal: 6,
+    marginHorizontal: 12,
     color: "#000",
   },
   helperText: {
