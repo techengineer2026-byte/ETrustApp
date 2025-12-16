@@ -37,7 +37,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
               name="fire"
-              size={28}
+              size={30}
               color={focused ? "#FF5864" : "gray"}
             />
           ),
@@ -52,7 +52,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
               name="compass-outline"
-              size={26}
+              size={30}
               color={focused ? "#FF5864" : "gray"}
             />
 
@@ -67,7 +67,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
               name="mother-heart"
-              size={26}
+              size={30}
               color={focused ? "#FF5864" : "gray"}
             />
           ),
@@ -83,7 +83,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <Ionicons
               name="chatbubbles"
-              size={26}
+              size={30}
               color={focused ? "#FF5864" : "gray"}
             />
           ),
@@ -98,7 +98,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <FontAwesome
               name="user"
-              size={24}
+              size={30}
               color={focused ? "#FF5864" : "gray"}
             />
           ),

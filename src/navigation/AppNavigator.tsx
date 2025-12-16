@@ -23,7 +23,13 @@ import ProfileScreen from '../screens/ProfileScreen';
 import BottomTabNavigator from "./BottomTabNavigator";
 import Invitefriend from '../screens/Invitefriend';
 import ChatDetailsScreen from '../screens/ChatDetailsScreen';
-
+import Employeeuser from '../screens/Employeeuser';
+import Employeruser from '../screens/Employeruser';
+import ETcenter from '../screens/ETcenter';
+import CompanyScreen from '../screens/Employer/CompanyScreen';
+import AddressScreen from '../screens/Employer/AddressScreen';
+import EmailScreen from '../screens/Employer/EmailScreen';
+import PhoneScreen from '../screens/Employer/PhoneScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -33,7 +39,6 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
 
         {/* For Testing → Bottom Tabs First */}
-        <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
 
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -52,9 +57,17 @@ export default function AppNavigator() {
         <Stack.Screen name="skillsScreen" component={SkillsScreen} />
         <Stack.Screen name="PhotoUploadScreen" component={PhotoUploadScreen} />
         <Stack.Screen name="invitefriend" component={Invitefriend} />
+        <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="ChatDetails" component={ChatDetailsScreen} />
+        <Stack.Screen name="Employeeuser" component={Employeeuser} />
+        <Stack.Screen name="Employeruser" component={Employeruser} />
+        <Stack.Screen name="ETcenter" component={ETcenter} />
 
+        <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
+        <Stack.Screen name="EmailScreen" component={EmailScreen} />
+        <Stack.Screen name="PhoneScreen" component={PhoneScreen} />
+        <Stack.Screen name="AddressScreen" component={AddressScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,164 +1,203 @@
-    import React, { useState } from "react";
-    import {
-        View,
-        Text,
-        StyleSheet,
-        TouchableOpacity,
-        Image,
-        ScrollView,
-        Dimensions,
-    } from "react-native";
-    import { SafeAreaView } from "react-native-safe-area-context";
-    import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-    import LinearGradient from 'react-native-linear-gradient';
-    import Svg, { Path } from "react-native-svg";
-    import { Modal } from "react-native";
+import React, { useState } from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Image,
+    ScrollView,
+    Dimensions,
+    Modal,
+    Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import LinearGradient from 'react-native-linear-gradient';
+import Svg, { Path } from "react-native-svg";
 
-    const { width } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = width - 40;
 
-    const plans = [
-        {
-            title: 'Priority Package',
-            price: 300,
-            gradient: ['#fde0e1ff', '#ffffffff'], // pink Tinder-style gradient
-            features: [
-                { name: 'Priority over other Job Seekers for Job Interview', free: false, plus: true },
-                { name: 'WhatsApp Support for Government Jobs.', free: false, plus: true },
-                { name: '100% efforts till providing Jobs.', free: false, plus: true },
-            ],
+// --- DATA ---
+const plans = [
+    {
+        id: 'priority',
+        title: 'Priority Package',
+        subtitle: 'Value Added Service',
+        price: 399,
+        gradient: ['#FFF8E1', '#ffffff', '#E8F5E9'], 
+        accent: '#2E7D32', // Green
+        features: [
+            { name: 'Priority over other Job Seekers for Job Interview', free: false, plus: true },
+            { name: 'Personalized Support of Job Guidance & Counselling', free: false, plus: true },
+            { name: '100% efforts till Providing Jobs', free: false, plus: true },
+            { name: 'Free Legal Guidance', free: false, plus: true },
+            { name: 'Whatsapp Support for Private Jobs', free: false, plus: true },
+            { name: 'Whatsapp Support for Government Jobs', free: false, plus: true },
+        ],
+        disclaimer: "Note : Employment Trust don't Guarantee Employment, But we are committed to provide Job opportunity. Employment Trust don't charge for providing of Job.\nThis Priority package is Valid for One Job Placement Opportunity Only."
+    },
+    {
+        id: 'career',
+        title: 'Career Counselling',
+        subtitle: 'Value Added Service',
+        price: 799,
+        gradient: ['#FFF59D', '#FFFFFF', '#FFFFFF'], 
+        accent: '#FBC02D', // Gold/Yellow
+        features: [
+            { name: 'Career counselling by job counselor', free: false, plus: true },
+            { name: 'Guidance and on specialized field', free: false, plus: true },
+            { name: 'One-time Job opportunity.', free: false, plus: true },
+            { name: 'Personalize Support.', free: false, plus: true },
+            { name: 'Hand holding Support on Job\'s Opportunity', free: false, plus: true },
+        ],
+        disclaimer: "Note : We don't guaranty Employment, but we are committed to provide Job opportunity."
+    },
+    {
+        id: 'aip',
+        // --- UPDATED AIP DATA FROM IMAGE ---
+        title: 'AIP Package',
+        subtitle: 'Value Added Service',
+        price: 1499,
+        // Gradient: Very light Yellow (Bottom Left) -> White. 
+        // Using Deep Blue accent to match "EMPLOYMENT TRUST" logo text color.
+        gradient: ['#FFF9C4', '#FFFFFF', '#FFFFFF'], 
+        accent: '#1565C0', 
+        features: [
+            { name: 'Job opportunity', free: false, plus: true },
+            { name: 'Legal Support', free: false, plus: true },
+            { name: 'Personalize Support from Counsellor', free: false, plus: true },
+            { name: 'Career Counselling with Candidate.', free: false, plus: true },
+            { name: 'Priority over other Job Seekers', free: false, plus: true },
+            { name: 'What\'s app Information for interview', free: false, plus: true },
+            { name: 'Govt Job alert (optional) on WhatsApp.', free: false, plus: true },
+        ],
+        disclaimer: "Note : We don't guaranty Employment, but we are committed to provide Job opportunity."
+    },
+];
 
-        },
-        {
-            title: 'Career Counselling',
-            price: 600,
-            gradient: ['#dce1ebff', '#ffffffff'], // pink Tinder-style gradient
-            features: [
-                { name: 'Career counselling by job counselor', free: false, plus: true },
-                { name: 'Personalize Support.', free: false, plus: true },
-                { name: 'One-time Job opportunity.', free: false, plus: true },
-            ],
+type FeatureType = {
+    name: string;
+    free: boolean;
+    plus: boolean;
+};
 
-        },
-        {
-            title: 'AIP Package',
-            price: 1000,
-            gradient: ['#f8ecb6ff', '#ffffffff'], // pink Tinder-style gradient
-            features: [
-                { name: 'Job opportunity', free: false, plus: true },
-                { name: 'Personalize Support from Counsellor', free: false, plus: true },
-                { name: 'Career Counselling with Candidate', free: false, plus: true },
-            ],
+type PlanType = {
+    id: string;
+    title: string;
+    subtitle: string;
+    price: number;
+    gradient: string[];
+    accent: string;
+    features: FeatureType[];
+    disclaimer: string | null;
+};
 
-        },
-    ];
-    type FeatureType = {
-        name: string;
-        free: boolean;
-        plus: boolean;
-    };
+const ProfileScreen = () => {
+    const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
+    const [showModal, setShowModal] = useState(false);
 
-    type PlanType = {
-        title: string;
-        price: number;
-        gradient: string[];
-        features: FeatureType[];
-    };
+    return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+            
+            {/* --- HEADER --- */}
+            <View style={styles.header}>
+                <Image
+                    source={require("../assets/logo2.png")}
+                    style={styles.logo}
+                    resizeMode="contain"
+                />
+                <View style={{ flexDirection: "row" }}>
+                    <TouchableOpacity style={{ marginRight: 10 }}>
+                        <Icon name="shield-check-outline" size={28} color="#555" />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Icon name="cog-outline" size={28} color="#555" />
+                    </TouchableOpacity>
+                </View>
+            </View>
 
-    const ProfileScreen = () => {
-        const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
-        const [showModal, setShowModal] = useState(false);
+            {/* --- SCROLL CONTENT --- */}
+            <ScrollView showsVerticalScrollIndicator={false}>
+                
+                {/* Profile Info */}
+                <View style={styles.profileSection}>
+                    <View style={styles.profilePicContainer}>
+                        <Image
+                            source={require("../assets/profile.png")}
+                            style={styles.profilePic}
+                        />
+                        <View style={styles.progressBadge}>
+                            <Text style={styles.progressText}>15%</Text>
+                        </View>
+                    </View>
 
-        return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Image
-                        source={require("../assets/logo2.png")}
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
-                    <View style={{ flexDirection: "row" }}>
-                        <TouchableOpacity style={{ marginRight: 10 }}>
-                            <Icon name="shield" size={28} color="#555" />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Icon name="cog-outline" size={28} color="#555" />
+                    <View style={styles.profileTextBox}>
+                        <Text style={styles.userName}>Anurag, 24</Text>
+                        <TouchableOpacity style={styles.editProfileBtn}>
+                            <Text style={styles.editProfileText}>Edit Profile</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* Scroll Content */}
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    {/* Profile Info */}
-                    <View style={styles.profileSection}>
-                        <View style={styles.profilePicContainer}>
-                            <Image
-                                source={require("../assets/profile.png")}
-                                style={styles.profilePic}
-                            />
-                            <View style={styles.progressBadge}>
-                                <Text style={styles.progressText}>15%</Text>
-                            </View>
-                        </View>
+                {/* Banner */}
+                <View style={styles.doubleDateBox}>
+                    <Icon name="rocket-launch-outline" size={24} color="#E74C3C" />
+                    <Text style={styles.doubleDateText}>
+                        Try <Text style={{ fontWeight: "600" }}>Fastest Job Search{"\n"}</Text>
+                        Boost your profile visibility now!
+                    </Text>
+                    <Icon name="chevron-right" size={30} color="#000" />
+                </View>
 
-                        <View style={styles.profileTextBox}>
-                            <Text style={styles.userName}>Anurag, 24</Text>
-                            <TouchableOpacity style={styles.editProfileBtn}>
-                                <Text style={styles.editProfileText}>Edit Profile</Text>
-                            </TouchableOpacity>
+                {/* --- BACKGROUND SECTION --- */}
+                <View style={styles.backg}>
+                    <Svg height="80" width="100%" viewBox="0 0 1440 320" style={styles.topWave}>
+                        <Path fill="#ffffff" d="M0,160L60,165.3C120,171,240,181,360,197.3C480,213,600,235,720,229.3C840,224,960,192,1080,170.7C1200,149,1320,139,1380,133.3L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" />
+                    </Svg>
+
+                    {/* Stats Row */}
+                    <View style={styles.cardsRow}>
+                        <View style={styles.card}>
+                            <Icon name="eye-outline" size={30} color="#2D9CDB" />
+                            <Text style={styles.cardText}>0 Views</Text>
+                        </View>
+                        <View style={styles.card}>
+                            <Icon name="flash-outline" size={30} color="#9B51E0" />
+                            <Text style={styles.cardText}>My Boosts</Text>
+                        </View>
+                        <View style={styles.card}>
+                            <Icon name="crown-outline" size={30} color="#F93E3E" />
+                            <Text style={styles.cardText}>Premium</Text>
                         </View>
                     </View>
 
-                    {/* Try Double Date */}
-                    <View style={styles.doubleDateBox}>
-                        <Icon name="image-filter-center-focus-strong" size={24} color="#E74C3C" />
-                        <Text style={styles.doubleDateText}>
-                            Try <Text style={{ fontWeight: "600" }}>Fastest Job{"\n"}</Text>
-                            Invite your friends and find other parts !!
-                        </Text>
-                        <Text style={styles.icon}>
-                            <Icon name="chevron-right" size={39} color="#000000ff" />
-
-                        </Text>
-                    </View>
-                    <View style={styles.backg}>
-                        <Svg
-                            height="80"
-                            width="100%"
-                            viewBox="0 0 1440 320"
-                            style={styles.topWave}
+                    {/* --- SWIPE SECTION --- */}
+                    <View style={styles.swipeSection}>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            snapToInterval={CARD_WIDTH}
+                            snapToAlignment="center"
+                            decelerationRate="fast"
+                            contentContainerStyle={{ paddingHorizontal: 20 }}
                         >
-                            <Path
-                                fill="#ffffffff"
-                                d="M0,160L60,165.3C120,171,240,181,360,197.3C480,213,600,235,720,229.3C840,224,960,192,1080,170.7C1200,149,1320,139,1380,133.3L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"
-                            />
-                        </Svg>
-
-
-                        {/* Small Feature Cards */}
-                        <View style={styles.cardsRow}>
-                            <View style={styles.card}>
-                                <Icon name="star-outline" size={32} color="#2D9CDB" />
-                                <Text style={styles.cardText}>0 Super Likes</Text>
-                            </View>
-                            <View style={styles.card}>
-                                <Icon name="flash-outline" size={32} color="#9B51E0" />
-                                <Text style={styles.cardText}>My Boosts</Text>
-                            </View>
-                            <View style={styles.card}>
-                                <Icon name="fire" size={32} color="#F93E3E" />
-                                <Text style={styles.cardText}>Subscriptions</Text>
-                            </View>
-                        </View>
-                        <View style={styles.swipeSection}>
-                            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
-                                {plans.map((plan, index) => (
-                                    <LinearGradient key={index} colors={plan.gradient} style={styles.planCard}>
-                                        {/* Top Title and Upgrade Button */}
+                            {plans.map((plan, index) => (
+                                <View key={index} style={styles.cardContainer}>
+                                    <LinearGradient
+                                        colors={plan.gradient}
+                                        style={styles.planCard}
+                                        start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}
+                                    >
                                         <View style={styles.headerRow}>
-                                            <Text style={styles.planTitle}>{plan.title}</Text>
+                                            <View>
+                                                <Text style={styles.planTitle}>{plan.title}</Text>
+                                                <Text style={[styles.planPriceSmall, { color: plan.accent }]}>
+                                                    ₹{plan.price}<Text style={{ fontSize: 12, color: '#777' }}>/mo</Text>
+                                                </Text>
+                                            </View>
                                             <TouchableOpacity
-                                                style={styles.upgradeBtn}
+                                                style={[styles.upgradeBtn, { backgroundColor: plan.accent }]}
                                                 onPress={() => {
                                                     setSelectedPlan(plan);
                                                     setShowModal(true);
@@ -169,343 +208,280 @@
                                         </View>
 
                                         <View style={styles.tableHeader}>
-                                            {/* What's Included */}
-                                            <Text style={styles.subtitle}>What’s Included</Text>
-
-                                            {/* Table Header */}
-                                            <View style={styles.featureCol}></View>
-                                            <Text style={styles.headerText}>Free</Text>
-                                            <Text style={styles.headerText}>Plus</Text>
+                                            <Text style={styles.subtitle}>What's Included</Text>
+                                            <View style={styles.headerLabels}>
+                                                <Text style={styles.headerTextDisabled}>Free</Text>
+                                                <Text style={[styles.headerTextActive, { color: plan.accent }]}>Plus</Text>
+                                            </View>
+                                        </View>
+                                        <View style={styles.divider} />
+                                        
+                                        {/* Features Preview (First 3) */}
+                                        <View style={styles.featuresContainer}>
+                                            {plan.features.slice(0, 3).map((f, i) => (
+                                                <View key={i} style={styles.tableRow}>
+                                                    <Text style={styles.featureName} numberOfLines={1}>{f.name}</Text>
+                                                    <View style={styles.iconRow}>
+                                                        <Icon name="lock-outline" size={16} color="#bbb" />
+                                                        <Icon name="check-decagram" size={18} color={plan.accent} />
+                                                    </View>
+                                                </View>
+                                            ))}
                                         </View>
 
-                                        {/* Feature Rows */}
-                                        {plan.features.map((f, i) => (
-                                            <View key={i} style={styles.tableRow}>
-                                                <Text style={styles.featureName}>{f.name}</Text>
-                                                <Text style={styles.icon}>
-                                                    <Icon name="lock" size={20} color="#000000ff" />
-
-                                                </Text>
-                                                <Text style={styles.icon}>
-                                                    <Icon name="check-bold" size={20} color="#000000ff" />
-
-                                                </Text>
-                                            </View>
-                                        ))}
-
-                                        {/* See all features */}
-                                        <Text style={styles.seeAll}>See all Features</Text>
+                                        <TouchableOpacity onPress={() => { setSelectedPlan(plan); setShowModal(true); }}>
+                                            <Text style={[styles.seeAll, { color: plan.accent }]}>View Full Details</Text>
+                                        </TouchableOpacity>
                                     </LinearGradient>
-                                ))}
-                            </ScrollView>
-                        </View>
+                                </View>
+                            ))}
+                        </ScrollView>
                     </View>
-                </ScrollView>
-                <Modal
-                    transparent
-                    visible={showModal}
-                    animationType="slide"
-                >
-                    <View style={styles.modalBg}>
-                        <View style={styles.modalBox}>
-                            <LinearGradient
-                                colors={selectedPlan?.gradient || ["#fff", "#fff"]}
-                                style={styles.modalHeader}
-                            >
-                                <Text style={styles.modalTitle}>{selectedPlan?.title}</Text>
-                                <Text style={styles.modalPrice}>₹{selectedPlan?.price}</Text>
-                            </LinearGradient>
+                </View>
+            </ScrollView>
 
-                            <View style={{ padding: 20 }}>
-                                {selectedPlan?.features?.map((f, i) => (
-                                    <View key={i} style={styles.modalFeatureRow}>
-                                        <Icon name="check-circle" size={22} color="#4CAF50" />
-                                        <Text style={styles.modalFeatureText}>{f.name}</Text>
+            {/* --- CARD REPLICA MODAL --- */}
+            <Modal
+                transparent
+                visible={showModal}
+                animationType="fade"
+                onRequestClose={() => setShowModal(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <TouchableOpacity style={styles.closeArea} onPress={() => setShowModal(false)} />
+
+                    <View style={styles.modalCardWrapper}>
+                        <LinearGradient
+                            colors={selectedPlan?.gradient || ['#fff', '#fff']}
+                            start={{ x: 0, y: 1 }} // Bottom Left
+                            end={{ x: 1, y: 0 }}   // Top Right
+                            style={styles.realCardLook}
+                        >
+                            {/* --- Card Header --- */}
+                            <View style={styles.realCardHeader}>
+                                <View style={{ flex: 1 }}>
+                                    <View style={{borderBottomWidth: 1.5, alignSelf: 'flex-start', marginBottom: 2, borderColor: '#000'}}>
+                                         <Text style={styles.realCardTitle}>{selectedPlan?.title}</Text>
+                                    </View>
+                                    <Text style={styles.realCardSubtitle}>{selectedPlan?.subtitle}</Text>
+                                </View>
+                                <View style={styles.priceTagBox}>
+                                    <Text style={styles.priceTagLabel}>Price</Text>
+                                    <Text style={styles.priceTagValue}>₹{selectedPlan?.price}/-</Text>
+                                </View>
+                            </View>
+
+                            <View style={{ height: 10 }} />
+
+                            {/* --- Card Body --- */}
+                            <ScrollView style={styles.cardBodyScroll} showsVerticalScrollIndicator={false}>
+                                {selectedPlan?.features.map((f, i) => (
+                                    <View key={i} style={styles.bulletRow}>
+                                        <Text style={styles.bulletDot}>•</Text>
+                                        <Text style={styles.bulletText}>{f.name}</Text>
                                     </View>
                                 ))}
+                            </ScrollView>
 
-                                <TouchableOpacity style={styles.modalBuyBtn}>
-                                    <Text style={styles.modalBuyText}>BUY NOW</Text>
-                                </TouchableOpacity>
+                            {/* --- Disclaimer --- */}
+                            {selectedPlan?.disclaimer && (
+                                <View style={styles.disclaimerBox}>
+                                    <Text style={styles.disclaimerText}>
+                                        {selectedPlan.disclaimer}
+                                    </Text>
+                                </View>
+                            )}
 
-                                <TouchableOpacity
-                                    style={styles.modalCloseBtn}
-                                    onPress={() => setShowModal(false)}
-                                >
-                                    <Text style={styles.modalCloseText}>Close</Text>
-                                </TouchableOpacity>
+                            {/* --- Bottom Contact Strip --- */}
+                            <View style={styles.bottomStrip}>
+                                <Text style={styles.bottomStripText}>Toll Free No - 7380000739</Text>
+                                <Text style={styles.bottomStripText}>www.employmenttrust.org</Text>
                             </View>
-                        </View>
+                        </LinearGradient>
+
+                        {/* Payment Button */}
+                        <TouchableOpacity 
+                            style={[styles.payNowBtn, { backgroundColor: selectedPlan?.accent || '#333' }]}
+                            onPress={() => Alert.alert('Proceed to Payment')}
+                        >
+                            <Text style={styles.payNowText}>Buy Now</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => setShowModal(false)} style={styles.closeBtnTextWrapper}>
+                            <Text style={styles.closeBtnText}>Close</Text>
+                        </TouchableOpacity>
+
                     </View>
-                </Modal>
+                </View>
+            </Modal>
 
-            </SafeAreaView>
-        );
-    };
+        </SafeAreaView>
+    );
+};
 
-    export default ProfileScreen;
+export default ProfileScreen;
 
-    const styles = StyleSheet.create({
-        header: {
-            height: 55,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingHorizontal: 15,
-            borderBottomColor: "#eee",
-        },
+const styles = StyleSheet.create({
+    // ... (Standard Styles)
+    header: { height: 60, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 15, backgroundColor: '#fff' },
+    logo: { width: 140, height: 50 },
+    profileSection: { flexDirection: "row", alignItems: "center", marginTop: 20, paddingHorizontal: 20 },
+    profilePicContainer: { position: "relative" },
+    profilePic: { width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#f0f0f0' },
+    progressBadge: { position: "absolute", bottom: 0, right: -5, backgroundColor: "#F93E3E", borderRadius: 12, paddingVertical: 4, paddingHorizontal: 8, borderWidth: 2, borderColor: '#fff' },
+    progressText: { color: "#fff", fontSize: 10, fontWeight: "bold" },
+    profileTextBox: { marginLeft: 15 },
+    userName: { fontSize: 22, fontWeight: "bold", color: "#222" },
+    editProfileBtn: { marginTop: 5, backgroundColor: "#f0f0f0", borderRadius: 20, paddingVertical: 6, paddingHorizontal: 15 },
+    editProfileText: { color: "#333", fontSize: 12, fontWeight: "600" },
+    doubleDateBox: { flexDirection: "row", alignItems: "center", backgroundColor: "#FFF4F4", padding: 15, marginHorizontal: 20, borderRadius: 12, marginTop: 25 },
+    doubleDateText: { fontSize: 14, marginLeft: 10, flex: 1, color: '#333', lineHeight: 20 },
+    backg: { marginTop: 20, backgroundColor: "#f4f7f6", flex: 1, minHeight: 500 },
+    topWave: { position: "absolute", top: 0, left: 0, zIndex: -1 },
+    cardsRow: { flexDirection: "row", justifyContent: "space-around", paddingVertical: 20 },
+    card: { alignItems: "center", backgroundColor: "#fff", padding: 15, borderRadius: 12, width: (width - 60) / 3, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
+    cardText: { fontSize: 11, color: "#555", marginTop: 8, fontWeight: '600' },
+    swipeSection: { height: 360, marginTop: 10, marginBottom: 30 },
+    cardContainer: { width: CARD_WIDTH, paddingHorizontal: 5, justifyContent: 'center' },
+    planCard: { borderRadius: 24, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, height: 320, justifyContent: 'space-between', backgroundColor: '#fff' },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+    planTitle: { fontSize: 18, fontWeight: "800", color: "#333" },
+    planPriceSmall: { fontSize: 22, fontWeight: "bold" },
+    upgradeBtn: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, elevation: 2 },
+    upgradeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 11 },
+    tableHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 5 },
+    subtitle: { fontSize: 14, color: '#777', fontWeight: '600' },
+    headerLabels: { flexDirection: 'row', width: 90, justifyContent: 'space-between' },
+    headerTextDisabled: { fontWeight: '600', color: '#aaa', fontSize: 12 },
+    headerTextActive: { fontWeight: 'bold', fontSize: 12 },
+    divider: { height: 1, backgroundColor: 'rgba(0,0,0,0.05)', marginVertical: 10 },
+    featuresContainer: { flex: 1 },
+    tableRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },
+    featureName: { flex: 1, color: '#444', fontSize: 13, fontWeight: '500', marginRight: 10 },
+    iconRow: { flexDirection: 'row', width: 90, justifyContent: 'space-between' },
+    seeAll: { textAlign: 'center', marginTop: 10, fontWeight: 'bold', fontSize: 13 },
 
-        logo: {
-            width: 150,
-            height: 80,
-        },
-        settingsBtn: {
-            padding: 5,
-        },
-        SafeBtn: {
-        },
-        profileSection: {
-            flexDirection: "row",
-            alignItems: "center",
-            marginTop: 25,
-            paddingHorizontal: 20,
-        },
-        profilePicContainer: {
-            position: "relative",
-        },
-        profilePic: {
-            width: 90,
-            height: 90,
-            borderRadius: 45,
-        },
-        progressBadge: {
-            position: "absolute",
-            bottom: 0,
-            right: 0,
-            backgroundColor: "#F93E3E",
-            borderRadius: 15,
-            paddingVertical: 3,
-            paddingHorizontal: 8,
-        },
-        progressText: {
-            color: "#fff",
-            fontSize: 12,
-            fontWeight: "bold",
-        },
-        profileTextBox: {
-            marginLeft: 20,
-        },
-        userName: {
-            fontSize: 22,
-            fontWeight: "bold",
-            color: "#222",
-        },
-        editProfileBtn: {
-            marginTop: 8,
-            backgroundColor: "#222",
-            borderRadius: 20,
-            paddingVertical: 6,
-            paddingHorizontal: 15,
-        },
-        editProfileText: {
-            color: "#fff",
-            fontSize: 14,
-            fontWeight: "600",
-        },
-        doubleDateBox: {
-            flexDirection: "row",
-            alignItems: "center",
-            backgroundColor: "#FFF4F4",
-            padding: 15,
-            marginHorizontal: 20,
-            borderRadius: 10,
-            marginTop: 25,
-        },
-        doubleDateText: {
-            fontSize: 16,
-            marginLeft: 10,
-            width: width - 140,
-        },
-        cardsRow: {
-            flexDirection: "row",
-            justifyContent: "space-around",
-            paddingVertical: 15,
-        },
-        backg: {
-            marginTop: 20,
-            backgroundColor: "#fff0f0ff",
-            flex: 1,
-            borderTopLeftRadius: 0,
-            borderTopRightRadius: 0,
-            overflow: "hidden",
-        },
-        topWave: {
-            position: "absolute",
-            top: 0,
-            left: 0,
-            zIndex: -1, // ensures your content stays on top
-        },
-        card: {
-            alignItems: "center",
-            backgroundColor: "#fff",
-            padding: 15,
-            textAlign: "center",
-            alignContent: "center",
-            borderRadius: 10,
-            width: (width - 60) / 3,
-        },
-        cardText: {
-            fontSize: 10,
-            color: "#444",
-            marginTop: 8,
-        },
-        swipeSection: {
-            paddingHorizontal: 10,
-            height: 300,
-            paddingVertical: 5,
-        },
-        planCard: {
-            width: width - 20,
-
-            padding: 25,
-            borderRadius: 20,
-            justifyContent: "flex-start",
-        },
-        headerRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-        },
-
-        planTitle: {
-            fontSize: 17,
-            fontWeight: "bold",
-            color: "#000",
-        },
-        subtitle: {
-            fontSize: 16,
-            color: '#000',
-            fontWeight: '600',
-        },
-        tableHeader: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginTop: 8,
-            paddingHorizontal: 5,
-        },
-        tableRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingVertical: 6,
-            paddingHorizontal: 5,
-        },
-        headerText: {
-            fontWeight: '600',
-            color: '#333',
-            width: 50,
-            textAlign: 'center',
-        },
-        featureCol: {
-            flex: 1,
-        },
-        featureName: {
-            flex: 1,
-            color: '#333',
-            fontSize: 11,
-        },
-        icon: {
-            width: 50,
-            textAlign: 'center',
-            fontSize: 18,
-        },
-        seeAll: {
-            textAlign: 'center',
-            marginTop: 10,
-            color: '#000',
-            fontWeight: '600',
-        },
-        upgradeBtn: {
-            backgroundColor: '#F93E3E',
-            paddingVertical: 8,
-            paddingHorizontal: 15,
-            borderRadius: 25,
-        },
-        upgradeBtnText: {
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: 14,
-        },
-        planFeature: {
-            fontSize: 15,
-            color: "#333",
-            marginVertical: 2,
-        },
-        modalBg: {
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-
-        modalBox: {
-            width: width - 40,
-            backgroundColor: "#fff",
-            borderRadius: 20,
-            overflow: "hidden",
-        },
-
-        modalHeader: {
-            padding: 25,
-            alignItems: "center",
-        },
-
-        modalTitle: {
-            fontSize: 22,
-            color: "#fff",
-            fontWeight: "bold",
-        },
-
-        modalPrice: {
-            fontSize: 40,
-            color: "#fff",
-            fontWeight: "bold",
-            marginTop: 10,
-        },
-
-        modalFeatureRow: {
-            flexDirection: "row",
-            alignItems: "center",
-            marginVertical: 8,
-        },
-
-        modalFeatureText: {
-            marginLeft: 10,
-            fontSize: 16,
-            color: "#444",
-        },
-
-        modalBuyBtn: {
-            backgroundColor: "#0066FF",
-            paddingVertical: 12,
-            borderRadius: 30,
-            alignItems: "center",
-            marginTop: 25,
-        },
-
-        modalBuyText: {
-            color: "#fff",
-            fontSize: 18,
-            fontWeight: "bold",
-        },
-
-        modalCloseBtn: {
-            marginTop: 15,
-            alignItems: "center",
-        },
-
-        modalCloseText: {
-            color: "#333",
-            fontSize: 16,
-        },
-
-    });
+    // --- MODAL STYLES ---
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.7)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+    },
+    closeArea: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    modalCardWrapper: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    realCardLook: {
+        width: '100%',
+        backgroundColor: '#fff',
+        borderRadius: 12, 
+        padding: 20,
+        elevation: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.1)',
+        minHeight: 250,
+    },
+    realCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    realCardTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000',
+        letterSpacing: -0.5,
+    },
+    realCardSubtitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#000',
+    },
+    priceTagBox: {
+        alignItems: 'flex-end',
+    },
+    priceTagLabel: {
+        fontSize: 10,
+        color: '#000',
+        fontWeight: 'bold',
+    },
+    priceTagValue: {
+        fontSize: 26,
+        fontWeight: '900',
+        color: '#000',
+    },
+    cardBodyScroll: {
+        maxHeight: 250,
+        marginVertical: 10,
+    },
+    bulletRow: {
+        flexDirection: 'row',
+        marginBottom: 8,
+        paddingRight: 10,
+    },
+    bulletDot: {
+        fontSize: 20,
+        lineHeight: 22,
+        marginRight: 8,
+        color: '#000',
+        fontWeight: 'bold',
+    },
+    bulletText: {
+        fontSize: 14,
+        color: '#000',
+        fontWeight: '600',
+        flex: 1,
+        lineHeight: 20,
+    },
+    disclaimerBox: {
+        marginTop: 15,
+        paddingTop: 10,
+    },
+    disclaimerText: {
+        fontSize: 11,
+        color: '#000',
+        fontWeight: 'bold',
+        lineHeight: 14,
+    },
+    bottomStrip: {
+        marginTop: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    bottomStripText: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    payNowBtn: {
+        width: '80%',
+        paddingVertical: 14,
+        borderRadius: 30,
+        alignItems: 'center',
+        marginTop: 20,
+        elevation: 5,
+        borderWidth: 1,
+        borderColor: '#fff',
+    },
+    payNowText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    closeBtnTextWrapper: {
+        marginTop: 15,
+    },
+    closeBtnText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '500',
+    },
+});

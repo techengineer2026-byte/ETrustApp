@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
+import { RootStackParamList } from "../types/navigation";
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "Welcome"
@@ -48,12 +48,12 @@ const WelcomeScreen = () => {
       {/* Buttons */}
       <View style={styles.buttonContainer}> 
         <TouchableOpacity
-          style={styles.button} onPress={() => navigation.navigate("Login")}
+          style={styles.button} onPress={() => navigation.navigate("Employeeuser")}
         >
           <Text style={styles.buttonText}>EMPLOYEE</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}
+        <TouchableOpacity onPress={() => navigation.navigate("Employeruser")}
           style={styles.button} 
         >
           <Text style={styles.buttonText}>EMPLOYER</Text>

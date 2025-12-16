@@ -1,249 +1,372 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    Modal,
-    ActivityIndicator,
-    Animated, // Import Animated
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+  Animated,
+  Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import TopOtpModal from "./TopOtpModal";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const VerificationCode: React.FC = () => {
-    const [code, setCode] = useState(["", "", "", "", "", ""]);
-    const inputs = useRef<Array<TextInput | null>>([]);
-    const navigation = useNavigation();
-    const [showModal, setShowModal] = useState(true);
-    const [otp, setOtp] = useState("");
+// --- PUZZLE DATA (Simulating images with Icons) ---
+const PUZZLE_ITEMS = [
+  { id: 1, icon: "car-sports", isTarget: true },
+  { id: 2, icon: "pine-tree", isTarget: false },
+  { id: 3, icon: "car-hatchback", isTarget: true },
+  { id: 4, icon: "fire-hydrant", isTarget: false },
+  { id: 5, icon: "car-convertible", isTarget: true }, // Target
+  { id: 6, icon: "traffic-light", isTarget: false },
+  { id: 7, icon: "bus", isTarget: false },
+  { id: 8, icon: "car-pickup", isTarget: true },      // Target
+  { id: 9, icon: "bicycle", isTarget: false },
+];
 
-    // State for verification flow
-    const [verifying, setVerifying] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+export default function HumanVerification() {
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  
+  // State
+  const [showPuzzle, setShowPuzzle] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [verifying, setVerifying] = useState(false); // Spinner inside checkbox
+  const [isVerified, setIsVerified] = useState(false); // Green Checkmark
+
+  // Animation for the checkmark
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  const handleCheckboxClick = () => {
+    if (!isVerified) {
+      setShowPuzzle(true);
+      setSelectedIds([]); // Reset selection
+    }
+  };
+
+  const toggleSelection = (id: number) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((item) => item !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  const handleVerifyPuzzle = () => {
+    // Check if logic is correct (Select only cars)
+    const targetIds = PUZZLE_ITEMS.filter(i => i.isTarget).map(i => i.id);
     
-    // Animation value for the checkmark (starts at scale 0)
-    const scaleValue = useRef(new Animated.Value(0)).current;
+    // Check if user selected all targets and nothing else
+    const isCorrect = 
+      selectedIds.length === targetIds.length && 
+      selectedIds.every(id => targetIds.includes(id));
 
-    const phoneNumber = "919872521392";
+    if (isCorrect) {
+      setShowPuzzle(false);
+      setVerifying(true);
 
-    const handleChange = (value: string, index: number) => {
-        if (!/^\d?$/.test(value)) return;
+      // Simulate network verification delay
+      setTimeout(() => {
+        setVerifying(false);
+        setIsVerified(true);
+        
+        // Animate Checkmark
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 5,
+          useNativeDriver: true,
+        }).start();
 
-        const newCode = [...code];
-        newCode[index] = value;
-        setCode(newCode);
-
-        if (value && index < 5) {
-            inputs.current[index + 1]?.focus();
-        }
-    };
-
-    const handleSubmit = () => {
-        setVerifying(true);
-        setIsSuccess(false);
-        scaleValue.setValue(0); // Reset animation
-
-        // 1. Simulate Verification API Call (1.5 seconds)
+        // Navigate to next screen after success
         setTimeout(() => {
-            setIsSuccess(true);
+          navigation.replace("Firstname");
+        }, 1200);
+
+      }, 1500);
+    } else {
+      Alert.alert("Verification Failed", "Please select all the cars.");
+      setSelectedIds([]); // Clear selection to try again
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={28} color="#1c005e" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Security Check</Text>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.title}>Are you human?</Text>
+        <Text style={styles.subtitle}>
+          Please complete the security check to proceed.
+        </Text>
+
+        {/* --- THE RECAPTCHA WIDGET --- */}
+        <TouchableOpacity 
+          style={[styles.captchaBox, isVerified && styles.captchaBoxSuccess]} 
+          onPress={handleCheckboxClick}
+          activeOpacity={1}
+        >
+          {/* Left Side: Checkbox / Spinner */}
+          <View style={styles.checkboxContainer}>
+            {isVerified ? (
+              <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                <Icon name="check-bold" size={26} color="#0F9D58" />
+              </Animated.View>
+            ) : verifying ? (
+              <ActivityIndicator size="small" color="#4285F4" />
+            ) : (
+              <View style={styles.emptyCheckbox} />
+            )}
+          </View>
+
+          {/* Middle: Text */}
+          <Text style={styles.captchaText}>I'm not a robot</Text>
+
+          {/* Right: Logo */}
+          <View style={styles.logoContainer}>
+            <Icon name="shield-check" size={28} color="#555" />
+            <Text style={styles.logoText}>reCAPTCHA</Text>
+            <Text style={styles.privacyText}>Privacy - Terms</Text>
+          </View>
+        </TouchableOpacity>
+
+      </View>
+
+      {/* --- PUZZLE MODAL --- */}
+      <Modal visible={showPuzzle} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.puzzleCard}>
             
-            // 2. Start Checkmark Animation
-            Animated.spring(scaleValue, {
-                toValue: 1,
-                friction: 5,
-                tension: 40,
-                useNativeDriver: true,
-            }).start();
-
-            // 3. Navigate after showing success for 1 second
-            setTimeout(() => {
-                setVerifying(false);
-                setIsSuccess(false); // Reset state
-                navigation.navigate("Firstname" as never);
-            }, 1200);
-            
-        }, 1500);
-    };
-
-    const allFilled = code.every((digit) => digit !== "");
-    
-    useEffect(() => {
-        const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        setOtp(generatedOtp);
-
-        const timer = setTimeout(() => setShowModal(false), 5500);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-
-    return (
-        <View style={styles.container}>
-            <View style={styles.box}>
-                <Text style={styles.title}>Enter your code</Text>
-                <Text style={styles.subtitle}>{phoneNumber}</Text>
-
-                <View style={styles.inputRow}>
-                    {code.map((digit, index) => (
-                        <TextInput
-                            key={index}
-                            ref={(ref: TextInput | null): void => {
-                                inputs.current[index] = ref;
-                            }}
-                            style={styles.input}
-                            keyboardType="numeric"
-                            maxLength={1}
-                            value={digit}
-                            onChangeText={(val) => handleChange(val, index)}
-                        />
-                    ))}
-                </View>
-                <TopOtpModal visible={showModal} otp={otp} />
-
-                <TouchableOpacity
-                    onPress={handleSubmit}
-                    style={[styles.button, { opacity: allFilled ? 1 : 0.5 }]}
-                    disabled={!allFilled}
-                >
-                    <Text style={styles.buttonText}>Next</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.infoText}>
-                    Didn’t get anything?{" "}
-                    <Text style={styles.resend}>Resend</Text>
-                </Text>
+            {/* Blue Header */}
+            <View style={styles.puzzleHeader}>
+              <View>
+                <Text style={styles.puzzleTitle}>Select all images with</Text>
+                <Text style={styles.puzzleTarget}>CARS</Text>
+              </View>
+              <Icon name="car-side" size={40} color="#fff" style={{ opacity: 0.9 }} />
             </View>
 
-            {/* Verification Modal */}
-            <Modal transparent visible={verifying} animationType="fade">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalBox}>
-                        {!isSuccess ? (
-                            // State 1: Loading
-                            <>
-                                <ActivityIndicator size="large" color="#000" />
-                                <Text style={styles.modalText}>Verifying code...</Text>
-                            </>
-                        ) : (
-                            // State 2: Success with Animation
-                            <>
-                                <Animated.View 
-                                    style={[
-                                        styles.successIconCircle, 
-                                        { transform: [{ scale: scaleValue }] }
-                                    ]}
-                                >
-                                    {/* Simple Checkmark using Text. 
-                                        You can replace this <Text> with an Icon from a library like 
-                                        react-native-vector-icons if you have it installed. */}
-                                    <Text style={styles.checkmark}>✓</Text>
-                                </Animated.View>
-                                <Text style={styles.modalText}>Verified!</Text>
-                            </>
-                        )}
+            {/* Grid */}
+            <View style={styles.gridContainer}>
+              {PUZZLE_ITEMS.map((item) => {
+                const isSelected = selectedIds.includes(item.id);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.gridItem}
+                    activeOpacity={0.8}
+                    onPress={() => toggleSelection(item.id)}
+                  >
+                    {/* Background Icon (Simulating Image) */}
+                    <View style={styles.iconWrapper}>
+                      <Icon name={item.icon} size={40} color="#555" />
                     </View>
-                </View>
-            </Modal>
+
+                    {/* Selection Overlay */}
+                    {isSelected && (
+                      <View style={styles.selectedOverlay}>
+                        <Icon name="check-circle" size={24} color="#fff" />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Footer */}
+            <View style={styles.puzzleFooter}>
+              <TouchableOpacity onPress={() => setShowPuzzle(false)}>
+                <Icon name="refresh" size={24} color="#555" />
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.verifyBtn} 
+                onPress={handleVerifyPuzzle}
+              >
+                <Text style={styles.verifyText}>VERIFY</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
         </View>
-    );
-};
+      </Modal>
+
+    </SafeAreaView>
+  );
+}
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fff",
-        paddingHorizontal: 20,
-    },
-    box: {
-        width: "100%",
-        maxWidth: 300,
-        alignItems: "center",
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 8,
-    },
-    subtitle: {
-        color: "#666",
-        marginBottom: 24,
-    },
-    inputRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-        marginBottom: 24,
-    },
-    input: {
-        width: 40,
-        height: 50,
-        fontSize: 20,
-        textAlign: "center",
-        borderBottomWidth: 2,
-        borderBottomColor: "#ccc",
-    },
-    button: {
-        width: "100%",
-        paddingVertical: 12,
-        backgroundColor: "#000",
-        borderRadius: 24,
-        alignItems: "center",
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "500",
-    },
-    infoText: {
-        color: "#666",
-        fontSize: 14,
-        marginTop: 16,
-        textAlign: "center",
-    },
-    resend: {
-        color: "#007bff",
-        fontWeight: "500",
-    },
-    // --- Modal Styles ---
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    modalBox: {
-        width: 160,
-        height: 140, // Fixed height to prevent jumping
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 16,
-        alignItems: "center",
-        justifyContent: 'center'
-    },
-    modalText: {
-        marginTop: 12,
-        fontSize: 14,
-        fontWeight: '600',
-        color: "#000",
-    },
-    // Success Icon Styles
-    successIconCircle: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: '#4CAF50', // Green
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    checkmark: {
-        color: 'white',
-        fontSize: 24,
-        fontWeight: 'bold',
-    }
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1c005e',
+    marginLeft: 15,
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+    paddingBottom: 100,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#000",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 40,
+  },
+  // --- CAPTCHA BOX STYLES ---
+  captchaBox: {
+    width: "100%",
+    backgroundColor: "#F9F9F9",
+    borderWidth: 1,
+    borderColor: "#D3D3D3",
+    borderRadius: 4,
+    padding: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    height: 78,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  captchaBoxSuccess: {
+    borderColor: "#0F9D58", // Green border on success (optional)
+  },
+  checkboxContainer: {
+    width: 28,
+    height: 28,
+    marginRight: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyCheckbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: "#C1C1C1",
+    borderRadius: 2,
+    backgroundColor: "#fff",
+  },
+  captchaText: {
+    flex: 1,
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "500",
+  },
+  logoContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingLeft: 10,
+  },
+  logoText: {
+    fontSize: 10,
+    color: "#555",
+    fontWeight: "bold",
+    marginTop: 2,
+  },
+  privacyText: {
+    fontSize: 8,
+    color: "#999",
+    marginTop: 2,
+  },
+  // --- MODAL STYLES ---
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  puzzleCard: {
+    width: 320,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 20,
+  },
+  puzzleHeader: {
+    backgroundColor: "#4285F4", // Google Blue
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  puzzleTitle: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  puzzleTarget: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "900",
+  },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    padding: 5,
+  },
+  gridItem: {
+    width: "33.33%",
+    aspectRatio: 1,
+    padding: 3,
+  },
+  iconWrapper: {
+    flex: 1,
+    backgroundColor: "#f0f0f0", // Placeholder for image
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  selectedOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(66, 133, 244, 0.4)", // Blue tint
+    borderWidth: 3,
+    borderColor: "#4285F4",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  puzzleFooter: {
+    padding: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
+  verifyBtn: {
+    backgroundColor: "#4285F4",
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 4,
+  },
+  verifyText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
 });
-
-export default VerificationCode;

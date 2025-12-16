@@ -6,116 +6,170 @@ import {
   TextInput,
   Alert,
   TouchableOpacity,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import CountryPicker, { CountryCode } from "react-native-country-picker-modal";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
+import { RootStackParamList } from "../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Icon Library
+
 type PhoneNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "PhoneNumber"
 >;
-import { Modal } from "react-native";
 
 export default function PhoneNumberScreen() {
   const navigation = useNavigation<PhoneNavigationProp>();
-  const [updating, setUpdating] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
   const [countryCode, setCountryCode] = useState<CountryCode>("IN");
   const [callingCode, setCallingCode] = useState("91");
   const [phoneNumber, setPhoneNumber] = useState("");
+  
   const isValidNumber = /^[0-9]{10}$/.test(phoneNumber); // exactly 10 digits
+
+  const handlePhoneChange = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, "");
+    setPhoneNumber(numericValue);
+  };
 
   const handleVerify = () => {
     if (!isValidNumber) {
-      Alert.alert("Enter a valid 10-digit phone number");
+      Alert.alert("Invalid Number", "Please enter a valid 10-digit phone number");
       return;
     }
     setConfirmVisible(true);
   };
-  const handlenext = () => {
+
+  const handleNext = () => {
+    setConfirmVisible(false);
     navigation.navigate("HumanVerification", {
       phone: phoneNumber,
       country: callingCode,
     });
   };
+
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        {/* Back arrow */}
-        <Text style={styles.backArrow}>←</Text>
-
-        {/* Title */}
-        <Text style={styles.title}>Can we get your number?</Text>
-
-        {/* Row for country code + phone input */}
-        <View style={styles.inputRow}>
-          <View style={styles.countryPickerContainer}>
-            <CountryPicker
-              countryCode={countryCode}
-              withFilter
-              withFlag
-              withCallingCode
-              onSelect={(country) => {
-                setCountryCode(country.cca2);
-                setCallingCode(country.callingCode[0]);
-              }}
-            />
-            <Text style={styles.callingCode}>+{callingCode}</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="9872521392"
-            keyboardType="phone-pad"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-          />
-        </View>
-
-        {/* Helper text */}
-        <Text style={styles.helperText}>
-          We'll text you a code to verify you’re really you. Message and data
-          rates may apply.{" "}
-          <Text style={styles.linkText}>
-            What happens if your number changes?
-          </Text>
-        </Text>
-
-        {/* Next button */}
-        <TouchableOpacity
-          style={[styles.button, !isValidNumber && styles.buttonDisabled]}
-          onPress={handleVerify}
-          disabled={!isValidNumber}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.container}
         >
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
-        {!isValidNumber && phoneNumber.length > 0 && (
-          <Text style={{ color: "red", marginTop: 5 }}>
-            Phone number must be 10 digits
-          </Text>
-        )}
+          
+          {/* Header with Back Icon */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Icon name="arrow-left" size={28} color="#1c005e" />
+            </TouchableOpacity>
+          </View>
 
-      </View>
+          {/* Main Content */}
+          <View style={styles.content}>
+            <Text style={styles.title}>What's your number?</Text>
+            <Text style={styles.subTitle}>
+              We'll send you a verification code to secure your account.
+            </Text>
+
+            {/* Modern Input Container */}
+            <View style={styles.inputContainer}>
+              
+              {/* Country Picker Section */}
+              <View style={styles.countrySection}>
+                <CountryPicker
+                  countryCode={countryCode}
+                  withFilter
+                  withFlag
+                  withCallingCode
+                  withEmoji
+                  onSelect={(country) => {
+                    setCountryCode(country.cca2);
+                    setCallingCode(country.callingCode[0]);
+                  }}
+                  containerButtonStyle={styles.countryPickerBtn}
+                />
+                <Text style={styles.callingCode}>+{callingCode}</Text>
+                <View style={styles.verticalDivider} />
+              </View>
+              
+              {/* Phone Input */}
+              <TextInput
+                style={styles.input}
+                placeholder="Mobile Number"
+                placeholderTextColor="#A0A0A0"
+                keyboardType="number-pad"
+                value={phoneNumber}
+                onChangeText={handlePhoneChange}
+                maxLength={10}
+                returnKeyType="done"
+              />
+            </View>
+
+            {/* Validation Error Message */}
+            {!isValidNumber && phoneNumber.length > 0 && (
+              <View style={styles.errorContainer}>
+                <Icon name="alert-circle-outline" size={16} color="#D32F2F" />
+                <Text style={styles.errorText}>Please enter exactly 10 digits</Text>
+              </View>
+            )}
+
+            {/* Helper Text */}
+            <Text style={styles.helperText}>
+              By clicking Next, you agree to receive SMS for verification. Message and data rates may apply.
+            </Text>
+
+          </View>
+
+          {/* Bottom Button */}
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={[styles.button, !isValidNumber && styles.buttonDisabled]}
+              onPress={handleVerify}
+              disabled={!isValidNumber}
+            >
+              <Text style={styles.buttonText}>Send Code</Text>
+              <Icon name="arrow-right" size={20} color="#fff" style={{marginLeft: 10}} />
+            </TouchableOpacity>
+          </View>
+
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+
+      {/* Confirmation Modal */}
       <Modal
         visible={confirmVisible}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setConfirmVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Is this your number?</Text>
+            <View style={styles.modalIconBg}>
+              <Icon name="cellphone-check" size={40} color="#1c005e" />
+            </View>
+            
+            <Text style={styles.modalTitle}>Confirm Number</Text>
+            <Text style={styles.modalSub}>
+              Is this the correct number to send the verification code?
+            </Text>
+            
             <Text style={styles.modalNumber}>+{callingCode} {phoneNumber}</Text>
 
-            <TouchableOpacity style={styles.modalConfirmBtn} onPress={handlenext}>
-              <Text style={styles.modalConfirmText}>Yes, continue</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setConfirmVisible(false)}>
-              <Text style={styles.modalCancelText}>Edit</Text>
-            </TouchableOpacity>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setConfirmVisible(false)}>
+                <Text style={styles.modalCancelText}>Edit</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.modalConfirmBtn} onPress={handleNext}>
+                <Text style={styles.modalConfirmText}>Yes, Send</Text>
+              </TouchableOpacity>
+            </View>
           </View> 
         </View>
       </Modal>
@@ -131,136 +185,196 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 24,
   },
-  buttonDisabled: {
-    backgroundColor: "#999", // gray out
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
-
-  backArrow: {
-    fontSize: 26,
-    marginBottom: 20,
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 30,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#000",
-    marginBottom: 25,
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1c005e", // Jobseeker Brand Color
+    marginBottom: 10,
   },
-  inputRow: {
+  subTitle: {
+    fontSize: 15,
+    color: "#666",
+    marginBottom: 40,
+    lineHeight: 22,
+  },
+  // --- Modern Input Style ---
+  inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 1.3,
-    borderColor: "#ccc",
-    paddingBottom: 4,
-    marginBottom: 15,
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    height: 60,
+    paddingHorizontal: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
-  countryPickerContainer: {
+  countrySection: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  countryPickerBtn: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   callingCode: {
     fontSize: 16,
-    marginLeft: 4,
-    color: "#000",
+    fontWeight: "600",
+    color: "#333",
+    marginLeft: 5,
+  },
+  verticalDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: "#ddd",
+    marginHorizontal: 12,
   },
   input: {
     flex: 1,
-    fontSize: 17,
-    color: "#000",
-    marginLeft: 12,
+    fontSize: 18,
+    color: "#1c005e",
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+  // --- Error & Helper ---
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginLeft: 5,
+  },
+  errorText: {
+    color: "#D32F2F",
+    fontSize: 12,
+    marginLeft: 5,
   },
   helperText: {
-    fontSize: 13,
-    color: "#555",
-    marginTop: 12,
+    fontSize: 12,
+    color: "#888",
+    marginTop: 20,
+    textAlign: 'center',
     lineHeight: 18,
   },
-  linkText: {
-    color: "#0056b3",
+  // --- Footer Button ---
+  footer: {
+    padding: 24,
   },
   button: {
-    backgroundColor: "#000",
+    backgroundColor: "#1c005e", // Brand Color
     borderRadius: 30,
+    flexDirection: 'row',
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    marginTop: 30,
-    minHeight: 52,           // ← fixes clipping
+    paddingVertical: 18,
+    shadowColor: "#1c005e",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-
+  buttonDisabled: {
+    backgroundColor: "#A0A0A0",
+    shadowOpacity: 0,
+    elevation: 0,
+  },
   buttonText: {
     color: "#fff",
-    fontSize: 17,
-    fontWeight: "600",
-    includeFontPadding: false,  // fix android trimming
-    textAlignVertical: "center", // android fix
+    fontSize: 18,
+    fontWeight: "bold",
   },
-
+  // --- Modal Styles ---
   modalOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
     alignItems: "center",
     justifyContent: "center",
   },
-
   modalBox: {
-    width: "80%",
+    width: "85%",
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 24,
+    padding: 25,
     alignItems: "center",
+    elevation: 10,
   },
-
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 10,
-    color: "#000",
-  },
-
-  modalNumber: {
-    fontSize: 20,
-    fontWeight: "600",
+  modalIconBg: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "#F3E5F5",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1c005e",
+    marginBottom: 10,
+  },
+  modalSub: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  modalNumber: {
+    fontSize: 22,
+    fontWeight: "bold",
     color: "#000",
+    marginBottom: 30,
   },
-
-  modalConfirmBtn: {
-    width: "100%",
-    backgroundColor: "#000",
-    paddingVertical: 1,
-    borderRadius: 8,
+  modalActions: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  modalCancelBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    marginRight: 10,
+    borderRadius: 12,
+    backgroundColor: "#f5f5f5",
     alignItems: "center",
-    minHeight: 48,   // important to stop cutting
   },
-
-
+  modalCancelText: {
+    color: "#555",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalConfirmBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    marginLeft: 10,
+    borderRadius: 12,
+    backgroundColor: "#1c005e",
+    alignItems: "center",
+  },
   modalConfirmText: {
     color: "#fff",
     fontSize: 16,
-    marginTop: 8,
-    fontWeight: "600",
-    includeFontPadding: false,
-    textAlignVertical: "center",
-  },
-
-
-  modalCancelBtn: {
-    width: "100%",
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-
-  modalCancelText: {
-    marginTop: 8,
-    color: "#007AFF",
-    fontSize: 16,
     fontWeight: "600",
   },
-
 });

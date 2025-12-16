@@ -6,8 +6,9 @@ import {
   Image,
   Modal,
   StyleSheet,
-
   FlatList,
+  Dimensions,
+  Alert,
 } from "react-native";
 import {
   launchCamera,
@@ -15,30 +16,39 @@ import {
   ImageLibraryOptions,
   CameraOptions,
 } from "react-native-image-picker";
-import UpdatingCodeModal from "./UpdatingCodeModal";
 import { SafeAreaView } from "react-native-safe-area-context";
-const MAX_PHOTOS = 6;
+import { useNavigation } from "@react-navigation/native";
+import UpdatingCodeModal from "./UpdatingCodeModal";
 
-const PhotoUploadScreen = ({ navigation }: any) => {
+const MAX_PHOTOS = 6;
+const { width } = Dimensions.get("window");
+const IMAGE_SIZE = (width - 48) / 3;
+
+const PhotoUploadScreen = () => {
+  const navigation = useNavigation<any>();
   const [photos, setPhotos] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   const handlePickImage = async (fromCamera: boolean) => {
-    const options: ImageLibraryOptions | CameraOptions = {
-      mediaType: "photo",
-      quality: 1,
-    };
+    try {
+      const options: ImageLibraryOptions | CameraOptions = {
+        mediaType: "photo",
+        quality: 0.8,
+        selectionLimit: 1,
+      };
 
-    const result = fromCamera
-      ? await launchCamera(options)
-      : await launchImageLibrary(options);
+      const result = fromCamera
+        ? await launchCamera(options)
+        : await launchImageLibrary(options);
 
-    if (result.assets && result.assets.length > 0) {
-      const uri = result.assets[0].uri!;
-      setPhotos((prev) => [...prev, uri]);
+      if (result.assets && result.assets.length > 0) {
+        const uri = result.assets[0].uri!;
+        setPhotos((prev) => [...prev, uri]);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Could not open camera or gallery.");
     }
-
     setModalVisible(false);
   };
 
@@ -48,19 +58,16 @@ const PhotoUploadScreen = ({ navigation }: any) => {
 
   const handleNext = () => {
     setUpdating(true);
-
     setTimeout(() => {
       setUpdating(false);
-      navigation.navigate("MainTabs"); // ✅ Navigate here
+      navigation.navigate("MainTabs");
     }, 2000);
   };
-
-
 
   const renderPhotoSlot = ({ item }: any) => (
     <View style={styles.photoSlot}>
       {item ? (
-        <View>
+        <View style={styles.imageContainer}>
           <Image source={{ uri: item }} style={styles.image} />
           <TouchableOpacity
             style={styles.removeBtn}
@@ -72,7 +79,10 @@ const PhotoUploadScreen = ({ navigation }: any) => {
       ) : (
         <TouchableOpacity
           style={styles.addBtn}
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            if (photos.length < MAX_PHOTOS) setModalVisible(true);
+            else Alert.alert("Limit Reached", "You can only upload 6 photos.");
+          }}
         >
           <Text style={styles.plus}>＋</Text>
         </TouchableOpacity>
@@ -96,39 +106,72 @@ const PhotoUploadScreen = ({ navigation }: any) => {
           numColumns={3}
           keyExtractor={(_, index) => index.toString()}
           contentContainerStyle={styles.grid}
+          columnWrapperStyle={{ justifyContent: "space-between" }}
         />
 
         <TouchableOpacity
-          style={[styles.nextBtn, { opacity: photos.length >= 2 ? 1 : 0.5 }]}
+          style={[
+            styles.nextBtn,
+            { opacity: photos.length >= 2 ? 1 : 0.5, backgroundColor: "#000" },
+          ]}
           disabled={photos.length < 2}
           onPress={handleNext}
         >
           <Text style={styles.nextText}>Next</Text>
         </TouchableOpacity>
 
-        {/* Camera/Gallery Modal */}
-        <Modal transparent visible={modalVisible} animationType="slide">
-          <View style={styles.modalBg}>
-            <View style={styles.modal}>
-              <Text style={styles.modalTitle}>Select source</Text>
+        {/* --- MODERN BOTTOM SHEET MODAL --- */}
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            {/* Invisible touchable to close modal when clicking background */}
+            <TouchableOpacity
+              style={styles.modalBackdrop}
+              onPress={() => setModalVisible(false)}
+            />
+
+            <View style={styles.bottomSheet}>
+              {/* Little Handle Bar */}
+              <View style={styles.handleBar} />
+
+              <Text style={styles.sheetTitle}>Upload Photo</Text>
+
               <TouchableOpacity
-                style={styles.modalBtn}
+                style={styles.sheetOption}
                 onPress={() => handlePickImage(true)}
               >
-                <Text style={styles.modalText}>📷 Camera</Text>
+                <Text style={styles.sheetIcon}>📷</Text>
+                <Text style={styles.sheetText}>Take a Photo</Text>
               </TouchableOpacity>
+
+              <View style={styles.divider} />
+
               <TouchableOpacity
-                style={styles.modalBtn}
+                style={styles.sheetOption}
                 onPress={() => handlePickImage(false)}
               >
-                <Text style={styles.modalText}>🖼️ Gallery</Text>
+                <Text style={styles.sheetIcon}>🖼️</Text>
+                <Text style={styles.sheetText}>Choose from Gallery</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancel}>Cancel</Text>
+
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
         </Modal>
+
+        <UpdatingCodeModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+        />
       </View>
     </SafeAreaView>
   );
@@ -138,78 +181,123 @@ export default PhotoUploadScreen;
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
-  container: { flex: 1, padding: 20, alignItems: "center" },
-  title: { fontSize: 24, fontWeight: "700", color: "#000", marginTop: 20 },
+  container: { flex: 1, padding: 20 },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#000",
+    marginTop: 10,
+  },
   subtitle: {
-    fontSize: 14,
-    color: "#555",
-    textAlign: "center",
-    marginVertical: 10,
+    fontSize: 15,
+    color: "#666",
+    marginTop: 8,
+    marginBottom: 20,
+    lineHeight: 22,
   },
-  grid: { alignItems: "center", marginTop: 10 },
-  photoSlot: {
-    width: 100,
-    height: 100,
-    margin: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    alignItems: "center",
-    justifyContent: "center",
+  grid: { marginTop: 10, paddingBottom: 20 },
+  photoSlot: { width: IMAGE_SIZE, height: IMAGE_SIZE, marginBottom: 12 },
+  imageContainer: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 12,
+    overflow: "hidden",
   },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-  },
+  image: { width: "100%", height: "100%", resizeMode: "cover" },
   addBtn: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    backgroundColor: "#f2f2f2",
+    width: "100%",
+    height: "100%",
+    borderRadius: 12,
+    backgroundColor: "#F2F2F7",
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+    borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
   },
-  plus: { fontSize: 28, color: "#999" },
+  plus: { fontSize: 32, color: "#C7C7CC" },
   removeBtn: {
     position: "absolute",
-    top: 4,
-    right: 4,
-    backgroundColor: "#00000080",
-    borderRadius: 12,
-    padding: 2,
-  },
-  removeText: { color: "#fff", fontSize: 12 },
-  nextBtn: {
-    width: "90%",
-    backgroundColor: "#000",
-    borderRadius: 25,
-    paddingVertical: 14,
-    alignItems: "center",
-    marginTop: 30,
-  },
-  nextText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  modalBg: {
-    flex: 1,
-    backgroundColor: "#00000070",
+    top: 6,
+    right: 6,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 15,
+    width: 24,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
   },
-  modal: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    width: "80%",
-    alignItems: "center",
-  },
-  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 15 },
-  modalBtn: {
+  removeText: { color: "#fff", fontSize: 12, fontWeight: "bold" },
+  nextBtn: {
     width: "100%",
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderRadius: 30,
+    paddingVertical: 18,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  nextText: { color: "#fff", fontSize: 17, fontWeight: "600" },
+
+  /* --- NEW MODAL STYLES --- */
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end", // Pushes content to bottom
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalBackdrop: {
+    flex: 1, // Takes up remaining space so you can click to close
+  },
+  bottomSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40, // Extra padding for iPhone home bar
     alignItems: "center",
   },
-  modalText: { fontSize: 16, color: "#000" },
-  cancel: { marginTop: 10, color: "#007AFF", fontSize: 16 },
+  handleBar: {
+    width: 40,
+    height: 5,
+    backgroundColor: "#E5E5EA",
+    borderRadius: 3,
+    marginBottom: 15,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#000",
+    marginBottom: 20,
+  },
+  sheetOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    paddingVertical: 18,
+  },
+  sheetIcon: {
+    fontSize: 22,
+    marginRight: 15,
+  },
+  sheetText: {
+    fontSize: 17,
+    fontWeight: "500",
+    color: "#000",
+  },
+  divider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#F2F2F7",
+  },
+  cancelButton: {
+    marginTop: 20,
+    width: "100%",
+    paddingVertical: 16,
+    backgroundColor: "#F2F2F7",
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  cancelText: {
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#000",
+  },
 });

@@ -1,190 +1,333 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, Animated } from 'react-native';
-import Swiper from 'react-native-deck-swiper';
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  TouchableOpacity,
 
-const { width, height } = Dimensions.get('window');
-  
-const profiles = [
-  { id: 1, name: 'John Doe', profession: 'Software Engineer', image: 'https://randomuser.me/api/portraits/men/11.jpg' },
-  { id: 2, name: 'Jane Smith', profession: 'UI/UX Designer', image: 'https://randomuser.me/api/portraits/women/21.jpg' },
-  { id: 3, name: 'Michael Johnson', profession: 'Product Manager', image: 'https://randomuser.me/api/portraits/men/31.jpg' },
-  { id: 4, name: 'Emily Clark', profession: 'QA Tester', image: 'https://randomuser.me/api/portraits/women/41.jpg' },
-  { id: 5, name: 'David Lee', profession: 'DevOps Engineer', image: 'https://randomuser.me/api/portraits/men/51.jpg' },
-  { id: 6, name: 'Sophia Brown', profession: 'Data Analyst', image: 'https://randomuser.me/api/portraits/women/61.jpg' },
-  { id: 7, name: 'Chris Wilson', profession: 'Mobile Developer', image: 'https://randomuser.me/api/portraits/men/71.jpg' },
-  { id: 8, name: 'Olivia Taylor', profession: 'Frontend Developer', image: 'https://randomuser.me/api/portraits/women/81.jpg' },
-  { id: 9, name: 'Daniel Martinez', profession: 'Backend Developer', image: 'https://randomuser.me/api/portraits/men/91.jpg' },
+  Alert,
+} from 'react-native';
+import Swiper from 'react-native-deck-swiper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+const { width } = Dimensions.get('window');
+
+const JOBS = [
+  {
+    id: 1,
+    company: 'Google',
+    role: 'Senior React Native Dev',
+    salary: '$140k - $180k',
+    location: 'Remote / NY',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 2,
+    company: 'Spotify',
+    role: 'UI/UX Designer',
+    salary: '$110k - $150k',
+    location: 'Stockholm, Sweden',
+    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 3,
+    company: 'Tesla',
+    role: 'Product Manager',
+    salary: '$130k - $170k',
+    location: 'Austin, TX',
+    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 4,
+    company: 'Airbnb',
+    role: 'Backend Engineer',
+    salary: '$150k - $200k',
+    location: 'San Francisco, CA',
+    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 5,
+    company: 'Netflix',
+    role: 'Data Scientist',
+    salary: '$160k - $220k',
+    location: 'Los Gatos, CA',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80'
+  },
 ];
 
-const HomeScreen: React.FC = () => {
+const JobSwipeScreen: React.FC = () => {
   const swiperRef = useRef<Swiper<any>>(null);
-  const [swipedAll, setSwipedAll] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
 
-  // Animations
-  const shake = useRef(new Animated.Value(0)).current;
-  const pulse = useRef(new Animated.Value(1)).current;
 
-  const triggerShake = () => {
-    shake.setValue(0);
-    Animated.sequence([
-      Animated.timing(shake, { toValue: 1, duration: 70, useNativeDriver: true }),
-      Animated.timing(shake, { toValue: -1, duration: 70, useNativeDriver: true }),
-      Animated.timing(shake, { toValue: 0, duration: 70, useNativeDriver: true }),
-    ]).start();
+  // 1. REWIND (Undo)
+  const handleRewind = () => swiperRef.current?.swipeBack();
+
+  // 2. PASS (Not Interested)
+  const handlePass = () => swiperRef.current?.swipeLeft();
+
+  // 3. PRIORITY APPLY (Super Like)
+  const handlePriorityApply = () => swiperRef.current?.swipeTop();
+
+  // 4. APPLY (Like)
+  const handleApply = () => swiperRef.current?.swipeRight();
+
+  // 5. BOOST (Visibility)
+  const handleBoost = () => {
+    Alert.alert(
+      "Profile Boosted! ⚡",
+      "Your resume is now visible to top recruiters in your area for 30 minutes."
+    );
   };
 
-  const triggerPulse = () => {
-    pulse.setValue(1);
-    Animated.sequence([
-      Animated.timing(pulse, { toValue: 1.2, duration: 120, useNativeDriver: true }),
-      Animated.timing(pulse, { toValue: 1, duration: 120, useNativeDriver: true }),
-    ]).start();
-  };
+  // --- RENDER CARD ---
+  const renderCard = (job: any) => {
+    if (!job) return null;
+    return (
+      <View style={styles.card}>
+        <Image source={{ uri: job.image }} style={styles.cardImage} />
 
-  const shakeAnimStyle = {
-    transform: [{
-      translateX: shake.interpolate({ inputRange: [-1, 1], outputRange: [-10, 10] })
-    }]
-  };
+        {/* Gradient Overlay for text readability */}
+        <View style={styles.cardGradient} />
 
-  const pulseAnimStyle = {
-    transform: [{ scale: pulse }]
-  };
-
-  const renderCard = (profile: any) => (
-    <View style={styles.card}>
-      <Image source={{ uri: profile.image }} style={styles.cardImage} />
-
-      {/* DARKEN OVERLAY */}
-      <View style={styles.swipeOverlay} />
-
-      <View style={styles.cardOverlay}>
-        <Text style={styles.name}>{profile.name}, {profile.age}</Text>
-        <Text style={styles.bio}>{profile.bio}</Text>
+        <View style={styles.cardDetails}>
+          <Text style={styles.role}>{job.role}</Text>
+          <Text style={styles.company}>{job.company}</Text>
+          <View style={styles.tagRow}>
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>{job.salary}</Text>
+            </View>
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>{job.location}</Text>
+            </View>
+          </View>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      {swipedAll ? (
-        <Text style={styles.noMoreCards}>No more profiles! Check back later.</Text>
-      ) : (
-        <Swiper
-          ref={swiperRef}
-          cards={profiles}
-          renderCard={renderCard}
-          onSwipedAll={() => setSwipedAll(true)}
-          stackSize={5}
-          stackSeparation={20}
-          cardVerticalMargin={20} // vertical margin so cards peek from bottom
+    <SafeAreaView style={styles.container}>
 
-          animateOverlayLabelsOpacity
-          animateCardOpacity
-          swipeBackCard
-          verticalSwipe={true}
-          disableBottomSwipe={true}
+      {/* --- SWIPER AREA --- */}
+      <View style={styles.swiperContainer}>
+        {isFinished ? (
+          <View style={styles.noCardsView}>
+            <Icon name="briefcase-search" size={60} color="#ddd" />
+            <Text style={styles.noCardsText}>No more jobs in your area.</Text>
+            <TouchableOpacity onPress={() => { setIndex(0); setIsFinished(false) }} style={styles.refreshBtn}>
+              <Text style={styles.refreshText}>Refresh Listings</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Swiper
+            ref={swiperRef}
+            cards={JOBS}
+            cardIndex={index}
+            renderCard={renderCard}
+            onSwipedAll={() => setIsFinished(true)}
+            onSwiped={(cardIndex) => setIndex(cardIndex + 1)}
+            stackSize={3}
+            stackSeparation={15}
+            backgroundColor={'transparent'}
+            cardVerticalMargin={10}
+            animateOverlayLabelsOpacity
+            animateCardOpacity
+            swipeBackCard
 
-          onSwipedLeft={triggerShake}
-          onSwipedRight={triggerPulse}
-          onSwipedTop={() => console.log("SUPERLIKE!")}
+            // --- OVERLAY LABELS (The Text that appears when swiping) ---
+            overlayLabels={{
+              left: {
+                title: 'PASS',
+                style: {
+                  label: { backgroundColor: 'transparent', borderColor: '#ec5e67', color: '#ec5e67', borderWidth: 4, fontSize: 32, transform: [{ rotate: '15deg' }] },
+                  wrapper: { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start', marginTop: 30, marginLeft: -30 }
+                }
+              },
+              right: {
+                title: 'APPLY',
+                style: {
+                  label: { backgroundColor: 'transparent', borderColor: '#4ccc93', color: '#4ccc93', borderWidth: 4, fontSize: 32, transform: [{ rotate: '-15deg' }] },
+                  wrapper: { flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', marginTop: 30, marginLeft: 30 }
+                }
+              },
+              top: {
+                title: 'PRIORITY',
+                style: {
+                  label: { backgroundColor: 'transparent', borderColor: '#3ca4ff', color: '#3ca4ff', borderWidth: 4, fontSize: 32 },
+                  wrapper: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }
+                }
+              }
+            }}
+          />
+        )}
+      </View>
 
-          overlayLabels={{
-            left: {
-              element: (
-                <Animated.View style={[styles.leftOverlay, shakeAnimStyle]}>
-                  <Text style={styles.leftOverlayText}>❌ LOSE</Text>
-                </Animated.View>
-              ),
-              style: { wrapper: styles.leftOverlayWrapper }
-            },
-            right: {
-              element: (
-                <Animated.View style={[styles.rightOverlay, pulseAnimStyle]}>
-                  <Text style={styles.rightOverlayText}>😄🔥 LIKE</Text>
-                </Animated.View>
-              ),
-              style: { wrapper: styles.rightOverlayWrapper }
-            },
-            top: {
-              element: (
-                <View style={styles.superLikeOverlay}>
-                  <Text style={styles.superLikeText}>⭐ SUPERLIKE ✨</Text>
-                </View>
-              ),
-              style: { wrapper: styles.superLikeWrapper }
-            }
-          }}
-        />
-      )}
-    </View>
+      {/* --- BOTTOM CONTROLS --- */}
+      <View style={styles.bottomBar}>
+
+        {/* 1. REWIND (Yellow) */}
+        <TouchableOpacity style={[styles.roundButton, styles.smallButton]} onPress={handleRewind}>
+          <Icon name="replay" size={24} color="#f5b915" />
+        </TouchableOpacity>
+
+        {/* 2. NOPE / PASS (Red) */}
+        <TouchableOpacity style={[styles.roundButton, styles.largeButton]} onPress={handlePass}>
+          <Icon name="close" size={36} color="#ec5e67" />
+        </TouchableOpacity>
+
+        {/* 3. PRIORITY / SUPER LIKE (Blue) */}
+        <TouchableOpacity style={[styles.roundButton, styles.smallButton, styles.superLikeBtn]} onPress={handlePriorityApply}>
+          <Icon name="star" size={24} color="#3ca4ff" />
+        </TouchableOpacity>
+
+        {/* 4. APPLY / LIKE (Green) */}
+        {/* Changed Icon to CHECK (Checkmark) to signify 'Apply' */}
+        <TouchableOpacity style={[styles.roundButton, styles.largeButton]} onPress={handleApply}>
+          <Icon name="check" size={36} color="#4ccc93" />
+        </TouchableOpacity>
+
+        {/* 5. BOOST (Purple) */}
+        <TouchableOpacity style={[styles.roundButton, styles.smallButton]} onPress={handleBoost}>
+          <Icon name="flash" size={24} color="#915dd1" />
+        </TouchableOpacity>
+
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default HomeScreen;
+export default JobSwipeScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f8f8' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f4f6f8',
+  },
+  swiperContainer: {
+    flex: 1,
+    marginBottom: 90, // Space for bottom bar
+  },
+
+  // --- CARD STYLES ---
   card: {
-    width: width * 0.9,
-    height: height * 0.7,
+    flex: 0.75,
     borderRadius: 20,
-    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+    overflow: 'hidden',
   },
-  cardImage: { width: '100%', height: '100%' },
-  cardOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, backgroundColor: 'rgba(0,0,0,0.4)' },
-  name: { color: 'white', fontSize: 24, fontWeight: 'bold' },
-  bio: { color: 'white', fontSize: 16 },
-  noMoreCards: { fontSize: 20, color: '#666' },
-
-  // LEFT swipe overlay
-  leftOverlay: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 4,
-    borderColor: 'red',
-    backgroundColor: 'rgba(255,0,0,0.65)',
-    borderRadius: 12,
-    transform: [{ rotate: '-12deg' }]
+  cardImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
-  leftOverlayText: { color: 'white', fontSize: 32, fontWeight: 'bold', letterSpacing: 1 },
-  leftOverlayWrapper: { position: 'absolute', top: 45, left: 20 },
-
-  // RIGHT swipe overlay
-  rightOverlay: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 4,
-    borderColor: 'green',
-    backgroundColor: 'rgba(0,200,0,0.65)',
-    borderRadius: 12,
-    transform: [{ rotate: '12deg' }]
+  cardGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    backgroundColor: 'rgba(0,0,0,0.6)', // Darken bottom for text
   },
-  rightOverlayText: { color: 'white', fontSize: 32, fontWeight: 'bold', letterSpacing: 1 },
-  rightOverlayWrapper: { position: 'absolute', top: 45, right: 20 },
+  cardDetails: {
+    position: 'absolute',
+    bottom: 25,
+    left: 20,
+    right: 20,
+  },
+  role: {
+    fontSize: 28,
+    color: 'white',
+    fontWeight: '700',
+    marginBottom: 5,
+  },
+  company: {
+    fontSize: 20,
+    color: '#ddd',
+    fontWeight: '500',
+    marginBottom: 10,
+  },
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  tag: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginRight: 8,
+    marginTop: 5,
+  },
+  tagText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
 
-  // TOP swipe overlay (SUPERLIKE)
-  superLikeOverlay: {
-    paddingVertical: 10,
+  // --- NO CARDS VIEW ---
+  noCardsView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noCardsText: {
+    fontSize: 16,
+    color: '#757575',
+    marginVertical: 20,
+  },
+  refreshBtn: {
+    backgroundColor: '#000',
     paddingHorizontal: 25,
-    borderWidth: 4,
-    borderColor: '#0095ff',
-    backgroundColor: 'rgba(0,150,255,0.75)',
-    borderRadius: 12,
-    transform: [{ rotate: '0deg' }]
+    paddingVertical: 12,
+    borderRadius: 30,
   },
-  superLikeText: { color: 'white', fontSize: 32, fontWeight: 'bold', letterSpacing: 1 },
-  superLikeWrapper: { position: 'absolute', top: 20, alignSelf: 'center' },
-  swipeOverlay: {
-    ...StyleSheet.absoluteFillObject, // cover the whole card
-    backgroundColor: 'black',
-    opacity: 0.1, // start invisible
+  refreshText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 
+  // --- BOTTOM BAR ---
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 20,
+  },
+  roundButton: {
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  smallButton: {
+    width: 45,
+    height: 45,
+    borderRadius: 25,
+  },
+  largeButton: {
+    width: 65,
+    height: 65,
+    borderRadius: 35,
+  },
+  superLikeBtn: {
+    marginBottom: 10, // Slight offset
+  }
 });
