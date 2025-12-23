@@ -65,7 +65,6 @@ export default function EmployerUser() {
 
             {/* Company Email Input */}
             <View style={styles.inputWrapper}>
-              {/* Changed icon to 'domain' (Building) to represent Company */}
               <Icon name="domain" size={24} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
@@ -105,7 +104,8 @@ export default function EmployerUser() {
           {/* Footer (Register) */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>New Company? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("EmployerRegister")}>
+            {/* 👇 UPDATED THIS LINE 👇 */}
+            <TouchableOpacity onPress={() => navigation.navigate("CompanyScreen")}>
               <Text style={styles.registerText}>Register Here</Text>
             </TouchableOpacity>
           </View>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     alignItems: "center",
-    paddingTop: height * 0.08, // Consistent spacing from top
+    paddingTop: height * 0.08,
     paddingBottom: 30,
   },
   logoContainer: {
@@ -138,8 +138,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    fontWeight: "800", // Extra bold for Business feel
-    color: "#0f172a", // Dark Slate Color
+    fontWeight: "800",
+    color: "#0f172a",
     textAlign: "center",
   },
   subtitle: {
@@ -153,14 +153,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
   },
-  // --- Input Styling ---
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     width: width * 0.85,
     backgroundColor: "#fff",
     height: 55,
-    borderRadius: 30, // Pill shape
+    borderRadius: 30,
     marginBottom: 15,
     paddingHorizontal: 20,
     shadowColor: "#000",
@@ -177,7 +176,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
-  // --- Button Styling ---
   forgotBtn: {
     width: width * 0.85,
     alignItems: "flex-end",
@@ -191,7 +189,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     width: width * 0.85,
-    backgroundColor: "#0f172a", // Dark Corporate Slate (Professional look)
+    backgroundColor: "#0f172a",
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: "center",
@@ -207,7 +205,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 1,
   },
-  // --- Footer ---
   footer: {
     flexDirection: "row",
     marginTop: "auto",

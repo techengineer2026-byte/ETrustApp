@@ -18,15 +18,14 @@ import Svg, { Path } from "react-native-svg";
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
 
-// --- DATA ---
 const plans = [
     {
         id: 'priority',
         title: 'Priority Package',
         subtitle: 'Value Added Service',
         price: 399,
-        gradient: ['#FFF8E1', '#ffffff', '#E8F5E9'], 
-        accent: '#2E7D32', // Green
+        gradient: ['#FFF8E1', '#ffffff', '#E8F5E9'],
+        accent: '#2E7D32',
         features: [
             { name: 'Priority over other Job Seekers for Job Interview', free: false, plus: true },
             { name: 'Personalized Support of Job Guidance & Counselling', free: false, plus: true },
@@ -42,8 +41,8 @@ const plans = [
         title: 'Career Counselling',
         subtitle: 'Value Added Service',
         price: 799,
-        gradient: ['#FFF59D', '#FFFFFF', '#FFFFFF'], 
-        accent: '#FBC02D', // Gold/Yellow
+        gradient: ['#FFF59D', '#FFFFFF', '#FFFFFF'],
+        accent: '#FBC02D',
         features: [
             { name: 'Career counselling by job counselor', free: false, plus: true },
             { name: 'Guidance and on specialized field', free: false, plus: true },
@@ -55,14 +54,11 @@ const plans = [
     },
     {
         id: 'aip',
-        // --- UPDATED AIP DATA FROM IMAGE ---
         title: 'AIP Package',
         subtitle: 'Value Added Service',
         price: 1499,
-        // Gradient: Very light Yellow (Bottom Left) -> White. 
-        // Using Deep Blue accent to match "EMPLOYMENT TRUST" logo text color.
-        gradient: ['#FFF9C4', '#FFFFFF', '#FFFFFF'], 
-        accent: '#1565C0', 
+        gradient: ['#FFF9C4', '#FFFFFF', '#FFFFFF'],
+        accent: '#1565C0',
         features: [
             { name: 'Job opportunity', free: false, plus: true },
             { name: 'Legal Support', free: false, plus: true },
@@ -99,8 +95,7 @@ const ProfileScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-            
-            {/* --- HEADER --- */}
+
             <View style={styles.header}>
                 <Image
                     source={require("../assets/logo2.png")}
@@ -117,10 +112,8 @@ const ProfileScreen = () => {
                 </View>
             </View>
 
-            {/* --- SCROLL CONTENT --- */}
             <ScrollView showsVerticalScrollIndicator={false}>
-                
-                {/* Profile Info */}
+
                 <View style={styles.profileSection}>
                     <View style={styles.profilePicContainer}>
                         <Image
@@ -140,7 +133,6 @@ const ProfileScreen = () => {
                     </View>
                 </View>
 
-                {/* Banner */}
                 <View style={styles.doubleDateBox}>
                     <Icon name="rocket-launch-outline" size={24} color="#E74C3C" />
                     <Text style={styles.doubleDateText}>
@@ -150,13 +142,11 @@ const ProfileScreen = () => {
                     <Icon name="chevron-right" size={30} color="#000" />
                 </View>
 
-                {/* --- BACKGROUND SECTION --- */}
                 <View style={styles.backg}>
                     <Svg height="80" width="100%" viewBox="0 0 1440 320" style={styles.topWave}>
                         <Path fill="#ffffff" d="M0,160L60,165.3C120,171,240,181,360,197.3C480,213,600,235,720,229.3C840,224,960,192,1080,170.7C1200,149,1320,139,1380,133.3L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" />
                     </Svg>
 
-                    {/* Stats Row */}
                     <View style={styles.cardsRow}>
                         <View style={styles.card}>
                             <Icon name="eye-outline" size={30} color="#2D9CDB" />
@@ -172,7 +162,6 @@ const ProfileScreen = () => {
                         </View>
                     </View>
 
-                    {/* --- SWIPE SECTION --- */}
                     <View style={styles.swipeSection}>
                         <ScrollView
                             horizontal
@@ -190,12 +179,15 @@ const ProfileScreen = () => {
                                         start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}
                                     >
                                         <View style={styles.headerRow}>
-                                            <View>
-                                                <Text style={styles.planTitle}>{plan.title}</Text>
+                                            <View style={{ flex: 1, paddingRight: 5 }}>
+                                                <Text style={styles.planTitle} numberOfLines={1} adjustsFontSizeToFit>
+                                                    {plan.title}
+                                                </Text>
                                                 <Text style={[styles.planPriceSmall, { color: plan.accent }]}>
-                                                    ₹{plan.price}<Text style={{ fontSize: 12, color: '#777' }}>/mo</Text>
+                                                    ₹{plan.price}<Text style={{ fontSize: 12, color: '#777', fontWeight: 'normal' }}>/mo</Text>
                                                 </Text>
                                             </View>
+
                                             <TouchableOpacity
                                                 style={[styles.upgradeBtn, { backgroundColor: plan.accent }]}
                                                 onPress={() => {
@@ -215,8 +207,8 @@ const ProfileScreen = () => {
                                             </View>
                                         </View>
                                         <View style={styles.divider} />
-                                        
-                                        {/* Features Preview (First 3) */}
+
+                                        {/* Features Preview */}
                                         <View style={styles.featuresContainer}>
                                             {plan.features.slice(0, 3).map((f, i) => (
                                                 <View key={i} style={styles.tableRow}>
@@ -248,49 +240,48 @@ const ProfileScreen = () => {
                 onRequestClose={() => setShowModal(false)}
             >
                 <View style={styles.modalOverlay}>
+                    {/* Background tap to close */}
                     <TouchableOpacity style={styles.closeArea} onPress={() => setShowModal(false)} />
 
-                    <View style={styles.modalCardWrapper}>
+                    <View style={styles.modalContentContainer}>
                         <LinearGradient
                             colors={selectedPlan?.gradient || ['#fff', '#fff']}
-                            start={{ x: 0, y: 1 }} // Bottom Left
-                            end={{ x: 1, y: 0 }}   // Top Right
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
                             style={styles.realCardLook}
                         >
                             {/* --- Card Header --- */}
                             <View style={styles.realCardHeader}>
-                                <View style={{ flex: 1 }}>
-                                    <View style={{borderBottomWidth: 1.5, alignSelf: 'flex-start', marginBottom: 2, borderColor: '#000'}}>
-                                         <Text style={styles.realCardTitle}>{selectedPlan?.title}</Text>
+                                <View style={styles.titleWrapper}>
+                                    <View style={styles.titleUnderlineContainer}>
+                                        <Text style={styles.realCardTitle}>{selectedPlan?.title}</Text>
                                     </View>
                                     <Text style={styles.realCardSubtitle}>{selectedPlan?.subtitle}</Text>
                                 </View>
                                 <View style={styles.priceTagBox}>
                                     <Text style={styles.priceTagLabel}>Price</Text>
-                                    <Text style={styles.priceTagValue}>₹{selectedPlan?.price}/-</Text>
+                                    <Text style={styles.priceTagValue}>₹{selectedPlan?.price}</Text>
                                 </View>
                             </View>
 
-                            <View style={{ height: 10 }} />
-
                             {/* --- Card Body --- */}
-                            <ScrollView style={styles.cardBodyScroll} showsVerticalScrollIndicator={false}>
+                            <ScrollView style={styles.cardBodyScroll} showsVerticalScrollIndicator={true}>
                                 {selectedPlan?.features.map((f, i) => (
                                     <View key={i} style={styles.bulletRow}>
                                         <Text style={styles.bulletDot}>•</Text>
                                         <Text style={styles.bulletText}>{f.name}</Text>
                                     </View>
                                 ))}
-                            </ScrollView>
 
-                            {/* --- Disclaimer --- */}
-                            {selectedPlan?.disclaimer && (
-                                <View style={styles.disclaimerBox}>
-                                    <Text style={styles.disclaimerText}>
-                                        {selectedPlan.disclaimer}
-                                    </Text>
-                                </View>
-                            )}
+                                {/* --- Disclaimer (Moved inside ScrollView to ensure fit) --- */}
+                                {selectedPlan?.disclaimer && (
+                                    <View style={styles.disclaimerBox}>
+                                        <Text style={styles.disclaimerText}>
+                                            {selectedPlan.disclaimer}
+                                        </Text>
+                                    </View>
+                                )}
+                            </ScrollView>
 
                             {/* --- Bottom Contact Strip --- */}
                             <View style={styles.bottomStrip}>
@@ -300,11 +291,11 @@ const ProfileScreen = () => {
                         </LinearGradient>
 
                         {/* Payment Button */}
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[styles.payNowBtn, { backgroundColor: selectedPlan?.accent || '#333' }]}
                             onPress={() => Alert.alert('Proceed to Payment')}
                         >
-                            <Text style={styles.payNowText}>Buy Now</Text>
+                            <Text style={styles.payNowText}>BUY</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={() => setShowModal(false)} style={styles.closeBtnTextWrapper}>
@@ -330,7 +321,7 @@ const styles = StyleSheet.create({
     profilePic: { width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#f0f0f0' },
     progressBadge: { position: "absolute", bottom: 0, right: -5, backgroundColor: "#F93E3E", borderRadius: 12, paddingVertical: 4, paddingHorizontal: 8, borderWidth: 2, borderColor: '#fff' },
     progressText: { color: "#fff", fontSize: 10, fontWeight: "bold" },
-    profileTextBox: { marginLeft: 15 },
+    profileTextBox: { marginLeft: 15 }, 
     userName: { fontSize: 22, fontWeight: "bold", color: "#222" },
     editProfileBtn: { marginTop: 5, backgroundColor: "#f0f0f0", borderRadius: 20, paddingVertical: 6, paddingHorizontal: 15 },
     editProfileText: { color: "#333", fontSize: 12, fontWeight: "600" },
@@ -341,118 +332,186 @@ const styles = StyleSheet.create({
     cardsRow: { flexDirection: "row", justifyContent: "space-around", paddingVertical: 20 },
     card: { alignItems: "center", backgroundColor: "#fff", padding: 15, borderRadius: 12, width: (width - 60) / 3, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
     cardText: { fontSize: 11, color: "#555", marginTop: 8, fontWeight: '600' },
-    swipeSection: { height: 360, marginTop: 10, marginBottom: 30 },
-    cardContainer: { width: CARD_WIDTH, paddingHorizontal: 5, justifyContent: 'center' },
-    planCard: { borderRadius: 24, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, height: 320, justifyContent: 'space-between', backgroundColor: '#fff' },
-    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-    planTitle: { fontSize: 18, fontWeight: "800", color: "#333" },
-    planPriceSmall: { fontSize: 22, fontWeight: "bold" },
-    upgradeBtn: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, elevation: 2 },
-    upgradeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 11 },
     tableHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 5 },
     subtitle: { fontSize: 14, color: '#777', fontWeight: '600' },
-    headerLabels: { flexDirection: 'row', width: 90, justifyContent: 'space-between' },
     headerTextDisabled: { fontWeight: '600', color: '#aaa', fontSize: 12 },
     headerTextActive: { fontWeight: 'bold', fontSize: 12 },
     divider: { height: 1, backgroundColor: 'rgba(0,0,0,0.05)', marginVertical: 10 },
     featuresContainer: { flex: 1 },
     tableRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },
     featureName: { flex: 1, color: '#444', fontSize: 13, fontWeight: '500', marginRight: 10 },
-    iconRow: { flexDirection: 'row', width: 90, justifyContent: 'space-between' },
     seeAll: { textAlign: 'center', marginTop: 10, fontWeight: 'bold', fontSize: 13 },
-
-    // --- MODAL STYLES ---
+    
+    // --- Card List Styles ---
+    swipeSection: {
+        height: 360,
+        marginTop: 10,
+        marginBottom: 30
+    },
+    cardContainer: {
+        width: CARD_WIDTH,
+        paddingHorizontal: 8, // Added gap between cards
+        justifyContent: 'center'
+    },
+    planCard: {
+        borderRadius: 20,
+        padding: 15, // REDUCED from 20 to 15 to give content more room
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        height: 320,
+        justifyContent: 'space-between',
+        backgroundColor: '#fff'
+    },
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center', // Aligns the button with the text vertically
+        marginBottom: 5
+    },
+    planTitle: {
+        fontSize: 18,
+        fontWeight: "800",
+        color: "#333",
+        marginBottom: 2
+    },
+    planPriceSmall: {
+        fontSize: 20,
+        fontWeight: "bold"
+    },
+    upgradeBtn: {
+        paddingVertical: 8,
+        paddingHorizontal: 12, // REDUCED from 16 to fit smoothly
+        borderRadius: 20,
+        elevation: 2,
+        minWidth: 80, // Ensures button doesn't get crushed
+        alignItems: 'center'
+    },
+    upgradeBtnText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 10
+    },
+    headerLabels: {
+        flexDirection: 'row',
+        width: 80,
+        justifyContent: 'space-between'
+    },
+    iconRow: {
+        flexDirection: 'row',
+        width: 80,
+        justifyContent: 'space-between'
+    },
     modalOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.7)",
+        backgroundColor: "rgba(0,0,0,0.8)",
         justifyContent: "center",
         alignItems: "center",
-        padding: 20,
     },
     closeArea: {
         ...StyleSheet.absoluteFillObject,
     },
-    modalCardWrapper: {
-        width: '100%',
+    modalContentContainer: {
+        width: width - 40,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     realCardLook: {
         width: '100%',
         backgroundColor: '#fff',
-        borderRadius: 12, 
-        padding: 20,
+        borderRadius: 20,
+        paddingVertical: 25,
+        paddingHorizontal: 20,
         elevation: 10,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.1)',
-        minHeight: 250,
     },
     realCardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
+        marginBottom: 15,
+    },
+    titleWrapper: {
+        flex: 1,
+        paddingRight: 10,
+    },
+    titleUnderlineContainer: {
+        borderBottomWidth: 2,
+        alignSelf: 'flex-start',
+        marginBottom: 4,
+        borderColor: '#000',
+        paddingBottom: 2,
     },
     realCardTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#000',
-        letterSpacing: -0.5,
     },
     realCardSubtitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: '#000',
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#333',
     },
     priceTagBox: {
         alignItems: 'flex-end',
+        minWidth: 80,
     },
     priceTagLabel: {
-        fontSize: 10,
+        fontSize: 12,
         color: '#000',
         fontWeight: 'bold',
+        marginBottom: -5,
     },
     priceTagValue: {
-        fontSize: 26,
+        fontSize: 30,
         fontWeight: '900',
         color: '#000',
     },
     cardBodyScroll: {
-        maxHeight: 250,
+        maxHeight: 280,
         marginVertical: 10,
     },
     bulletRow: {
         flexDirection: 'row',
-        marginBottom: 8,
-        paddingRight: 10,
+        marginBottom: 10,
+        alignItems: 'flex-start',
     },
     bulletDot: {
-        fontSize: 20,
+        fontSize: 22,
         lineHeight: 22,
-        marginRight: 8,
+        marginRight: 10,
         color: '#000',
         fontWeight: 'bold',
     },
     bulletText: {
-        fontSize: 14,
+        fontSize: 15,
         color: '#000',
         fontWeight: '600',
         flex: 1,
-        lineHeight: 20,
+        lineHeight: 22,
     },
     disclaimerBox: {
-        marginTop: 15,
+        marginTop: 20,
         paddingTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0,0,0,0.1)',
     },
     disclaimerText: {
         fontSize: 11,
         color: '#000',
-        fontWeight: 'bold',
-        lineHeight: 14,
+        fontWeight: '600',
+        lineHeight: 15,
+        fontStyle: 'italic',
     },
     bottomStrip: {
         marginTop: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        flexWrap: 'wrap',
     },
     bottomStripText: {
         fontSize: 10,
@@ -460,28 +519,34 @@ const styles = StyleSheet.create({
         color: '#000',
     },
     payNowBtn: {
-        width: '80%',
-        paddingVertical: 14,
+        width: '85%',
+        paddingVertical: 15,
         borderRadius: 30,
         alignItems: 'center',
-        marginTop: 20,
+        marginTop: 25,
         elevation: 5,
-        borderWidth: 1,
+        borderWidth: 2,
         borderColor: '#fff',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     payNowText: {
         color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 20,
+        fontWeight: '900',
         textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 1.5,
     },
     closeBtnTextWrapper: {
         marginTop: 15,
+        padding: 10,
     },
     closeBtnText: {
         color: '#fff',
-        fontSize: 14,
-        fontWeight: '500',
+        fontSize: 16,
+        fontWeight: '600',
+        textDecorationLine: 'underline',
     },
 });

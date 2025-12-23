@@ -60,11 +60,11 @@ const WelcomeScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.button} onPress={() => navigation.navigate("Login")}
+          style={styles.button} onPress={() => navigation.navigate("ETCenterLogin")}
         >
-          <Text style={styles.buttonText}>ET CENTER</Text>
+          <Text style={styles.buttonText}>ET CENTER</Text>  
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("PhoneNumber")}>
+        <TouchableOpacity onPress={() => navigation.navigate("MainTabs")}>
           <Text style={styles.linkText}>Sign up </Text>
         </TouchableOpacity>
       </View>

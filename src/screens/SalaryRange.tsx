@@ -7,23 +7,29 @@ import {
 } from "react-native";
 import Slider from "@react-native-community/slider";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 const SalaryRange = ({ navigation }: any) => {
   const [salary, setSalary] = useState(15000);
 
   const handleNext = () => {
     console.log("Selected salary:", salary);
-    navigation.navigate("DistancePreference"); // replace with next screen
+    navigation.navigate("DistancePreference"); 
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Select your salary range</Text>
-      <Text style={styles.subtitle}>
+      {/* Added allowFontScaling={false} to keep layout consistent */}
+      <Text style={styles.title} allowFontScaling={false}>
+        Select your salary range
+      </Text>
+      <Text style={styles.subtitle} allowFontScaling={false}>
         Move the slider to set your expected monthly salary.
       </Text>
 
-      {/* Display current value */}
-      <Text style={styles.salaryText}>₹{salary.toLocaleString()}</Text>
+      {/* Large numbers often break layouts, so we disable scaling here too */}
+      <Text style={styles.salaryText} allowFontScaling={false}>
+        ₹{salary.toLocaleString()}
+      </Text>
 
       {/* Slider control */}
       <Slider
@@ -40,13 +46,20 @@ const SalaryRange = ({ navigation }: any) => {
 
       {/* Range label */}
       <View style={styles.rangeLabels}>
-        <Text style={styles.rangeText}>₹10K</Text>
-        <Text style={styles.rangeText}>₹30K+</Text>
+        <Text style={styles.rangeText} allowFontScaling={false}>₹10K</Text>
+        <Text style={styles.rangeText} allowFontScaling={false}>₹30K+</Text>
       </View>
 
-      {/* Next button */}
+      {/* Next button - FIXED */}
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextText}>Next</Text>
+        <Text 
+          style={styles.nextText}
+          allowFontScaling={false}      // 1. Prevents "Large Text" from blowing up the font
+          numberOfLines={1}             // 2. Keeps text on one line
+          adjustsFontSizeToFit={true}   // 3. Shrinks text slightly if it's still too big
+        >
+          Next
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -70,6 +83,7 @@ const styles = StyleSheet.create({
   subtitle: {
     color: "#555",
     marginBottom: 40,
+    fontSize: 14, 
   },
   salaryText: {
     fontSize: 32,
@@ -93,6 +107,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 50,
+    width: '100%', // Ensures button uses full available width
   },
   nextText: {
     color: "#fff",

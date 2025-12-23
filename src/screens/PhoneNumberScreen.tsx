@@ -17,7 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Icon Library
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; 
 
 type PhoneNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -32,7 +32,7 @@ export default function PhoneNumberScreen() {
   const [callingCode, setCallingCode] = useState("91");
   const [phoneNumber, setPhoneNumber] = useState("");
   
-  const isValidNumber = /^[0-9]{10}$/.test(phoneNumber); // exactly 10 digits
+  const isValidNumber = /^[0-9]{10}$/.test(phoneNumber); 
 
   const handlePhoneChange = (text: string) => {
     const numericValue = text.replace(/[^0-9]/g, "");
@@ -63,7 +63,7 @@ export default function PhoneNumberScreen() {
           style={styles.container}
         >
           
-          {/* Header with Back Icon */}
+          {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Icon name="arrow-left" size={28} color="#1c005e" />
@@ -72,15 +72,12 @@ export default function PhoneNumberScreen() {
 
           {/* Main Content */}
           <View style={styles.content}>
-            <Text style={styles.title}>What's your number?</Text>
-            <Text style={styles.subTitle}>
+            <Text style={styles.title} allowFontScaling={false}>What's your number?</Text>
+            <Text style={styles.subTitle} allowFontScaling={false}>
               We'll send you a verification code to secure your account.
             </Text>
 
-            {/* Modern Input Container */}
             <View style={styles.inputContainer}>
-              
-              {/* Country Picker Section */}
               <View style={styles.countrySection}>
                 <CountryPicker
                   countryCode={countryCode}
@@ -93,12 +90,13 @@ export default function PhoneNumberScreen() {
                     setCallingCode(country.callingCode[0]);
                   }}
                   containerButtonStyle={styles.countryPickerBtn}
+                  // Note: CountryPicker library might need internal prop adjustments or a custom button 
+                  // to fully disable font scaling, but usually it inherits styles.
                 />
-                <Text style={styles.callingCode}>+{callingCode}</Text>
+                <Text style={styles.callingCode} allowFontScaling={false}>+{callingCode}</Text>
                 <View style={styles.verticalDivider} />
               </View>
               
-              {/* Phone Input */}
               <TextInput
                 style={styles.input}
                 placeholder="Mobile Number"
@@ -108,19 +106,18 @@ export default function PhoneNumberScreen() {
                 onChangeText={handlePhoneChange}
                 maxLength={10}
                 returnKeyType="done"
+                allowFontScaling={false} // Prevents input text from being huge
               />
             </View>
 
-            {/* Validation Error Message */}
             {!isValidNumber && phoneNumber.length > 0 && (
               <View style={styles.errorContainer}>
                 <Icon name="alert-circle-outline" size={16} color="#D32F2F" />
-                <Text style={styles.errorText}>Please enter exactly 10 digits</Text>
+                <Text style={styles.errorText} allowFontScaling={false}>Please enter exactly 10 digits</Text>
               </View>
             )}
 
-            {/* Helper Text */}
-            <Text style={styles.helperText}>
+            <Text style={styles.helperText} allowFontScaling={false}>
               By clicking Next, you agree to receive SMS for verification. Message and data rates may apply.
             </Text>
 
@@ -133,7 +130,7 @@ export default function PhoneNumberScreen() {
               onPress={handleVerify}
               disabled={!isValidNumber}
             >
-              <Text style={styles.buttonText}>Send Code</Text>
+              <Text style={styles.buttonText} allowFontScaling={false}>Send Code</Text>
               <Icon name="arrow-right" size={20} color="#fff" style={{marginLeft: 10}} />
             </TouchableOpacity>
           </View>
@@ -154,20 +151,34 @@ export default function PhoneNumberScreen() {
               <Icon name="cellphone-check" size={40} color="#1c005e" />
             </View>
             
-            <Text style={styles.modalTitle}>Confirm Number</Text>
-            <Text style={styles.modalSub}>
+            {/* FIX 1: Prevent Title Cutoff */}
+            <Text style={styles.modalTitle} allowFontScaling={false}>
+                Confirm Number
+            </Text>
+            
+            <Text style={styles.modalSub} allowFontScaling={false}>
               Is this the correct number to send the verification code?
             </Text>
             
-            <Text style={styles.modalNumber}>+{callingCode} {phoneNumber}</Text>
+            {/* FIX 2: Ensure Number fits in one line and doesn't wrap/cutoff */}
+            <Text 
+                style={styles.modalNumber} 
+                allowFontScaling={false}
+                numberOfLines={1} 
+                adjustsFontSizeToFit={true}
+            >
+                +{callingCode} {phoneNumber}
+            </Text>
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setConfirmVisible(false)}>
-                <Text style={styles.modalCancelText}>Edit</Text>
+                {/* FIX 3: Prevent Button text cutoff */}
+                <Text style={styles.modalCancelText} allowFontScaling={false}>Edit</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.modalConfirmBtn} onPress={handleNext}>
-                <Text style={styles.modalConfirmText}>Yes, Send</Text>
+                {/* FIX 4: Prevent Button text cutoff */}
+                <Text style={styles.modalConfirmText} allowFontScaling={false} numberOfLines={1}>Yes, Send</Text>
               </TouchableOpacity>
             </View>
           </View> 
@@ -206,7 +217,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#1c005e", // Jobseeker Brand Color
+    color: "#1c005e", 
     marginBottom: 10,
   },
   subTitle: {
@@ -215,7 +226,6 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     lineHeight: 22,
   },
-  // --- Modern Input Style ---
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -258,7 +268,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     letterSpacing: 0.5,
   },
-  // --- Error & Helper ---
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -277,12 +286,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
   },
-  // --- Footer Button ---
   footer: {
     padding: 24,
   },
   button: {
-    backgroundColor: "#1c005e", // Brand Color
+    backgroundColor: "#1c005e", 
     borderRadius: 30,
     flexDirection: 'row',
     alignItems: "center",
@@ -304,7 +312,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-  // --- Modal Styles ---
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",
@@ -333,6 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1c005e",
     marginBottom: 10,
+    textAlign: 'center',
   },
   modalSub: {
     fontSize: 14,
@@ -345,6 +353,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
     marginBottom: 30,
+    textAlign: 'center',
+    width: '100%', // Ensures it uses full width to center properly
   },
   modalActions: {
     flexDirection: 'row',
@@ -358,6 +368,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
+    justifyContent: "center",
   },
   modalCancelText: {
     color: "#555",
@@ -371,6 +382,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#1c005e",
     alignItems: "center",
+    justifyContent: "center",
   },
   modalConfirmText: {
     color: "#fff",

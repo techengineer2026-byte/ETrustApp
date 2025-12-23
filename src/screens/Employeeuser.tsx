@@ -14,7 +14,7 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Make sure to install vector icons or use Images
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const { width, height } = Dimensions.get("window");
 
@@ -29,9 +29,8 @@ const EmployeeLogin = () => {
       Alert.alert("Missing Info", "Please enter both email and password.");
       return;
     }
-    // Navigate to your main employee dashboard
     console.log("Employee Login:", email);
-    navigation.replace("MainTabs"); 
+    navigation.replace("MainTabs");
   };
 
   return (
@@ -40,6 +39,9 @@ const EmployeeLogin = () => {
       style={styles.background}
       resizeMode="cover"
     >
+      {/* Darker overlay to make White text pop and form easier to read */}
+      <View style={styles.overlay} />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1, width: "100%" }}
@@ -49,7 +51,7 @@ const EmployeeLogin = () => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Logo Section (Same as LoginScreen) */}
+          {/* Logo Section */}
           <View style={styles.logoContainer}>
             <Image
               source={require("../assets/logo.png")}
@@ -58,12 +60,17 @@ const EmployeeLogin = () => {
             />
           </View>
 
-          <Text style={styles.title}>Employee Login</Text>
-          <Text style={styles.subtitle}>Sign in to manage jobs</Text>
+          {/* Title - Changed to White for visibility */}
+          <Text style={styles.title} allowFontScaling={false}>
+            Employee Login
+          </Text>
+          <Text style={styles.subtitle} allowFontScaling={false}>
+            Sign in to manage jobs
+          </Text>
 
           {/* Form Container */}
           <View style={styles.formContainer}>
-            
+
             {/* Email Input */}
             <View style={styles.inputWrapper}>
               <Icon name="email-outline" size={24} color="#666" style={styles.inputIcon} />
@@ -75,6 +82,7 @@ const EmployeeLogin = () => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                allowFontScaling={false} // Prevents input text from becoming huge
               />
             </View>
 
@@ -88,25 +96,58 @@ const EmployeeLogin = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
+                allowFontScaling={false} // Prevents input text from becoming huge
               />
             </View>
 
-            {/* Forgot Password */}
+            {/* Forgot Password - Changed to White */}
             <TouchableOpacity style={styles.forgotBtn}>
-              <Text style={styles.forgotText}>Forgot Password?</Text>
+              <Text style={styles.forgotText} allowFontScaling={false}>
+                Forgot Password?
+              </Text>
             </TouchableOpacity>
 
             {/* Login Button */}
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>LOGIN</Text>
+              <Text
+                style={styles.loginButtonText}
+                allowFontScaling={false} // FIX: Prevents "LOGI" cutoff
+                numberOfLines={1}
+                adjustsFontSizeToFit={true} // Shrinks text if it's still too big
+              >
+                LOGIN
+              </Text>
             </TouchableOpacity>
+            {/* OR Divider */}
+            <View style={styles.orContainer}>
+              <View style={styles.orLine} />
+              <Text style={styles.orText}>OR</Text>
+              <View style={styles.orLine} />
+            </View>
+
+            {/* One Time Click Button */}
+            <TouchableOpacity
+              style={styles.oneTimeButton}
+              onPress={() => {
+                navigation.navigate("PhoneNumber");
+              }}
+            >
+              <Text style={styles.oneTimeButtonText} allowFontScaling={false}>
+                CLICK ONE TIME
+              </Text>
+            </TouchableOpacity>
+
           </View>
 
-          {/* Footer (Register) */}
+          {/* Footer (Register) - Changed to White */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("EmployeeRegister")}>
-              <Text style={styles.registerText}>Sign Up</Text>
+            <Text style={styles.footerText} allowFontScaling={false}>
+              Don't have an account?{" "}
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("EmployeeStep1")}>
+              <Text style={styles.registerText} allowFontScaling={false}>
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -122,44 +163,97 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.15)', // Adds slight dim to background so text is readable
+  },
   scrollContainer: {
     flexGrow: 1,
     alignItems: "center",
-    paddingTop: height * 0.08, // Matches LoginScreen padding
+    paddingTop: height * 0.08,
     paddingBottom: 30,
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: height * 0.02,
+    // Add a white pill behind logo if logo has transparency issues on red bg
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 15,
+    width: width * 0.85,
+    elevation: 5,
   },
   logo: {
-    width: width * 0.6,
-    height: height * 0.15, // Slightly smaller than Splash to fit form
+    width: '100%',
+    height: height * 0.1,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "#1c005e",
+    color: "#fff", // CHANGED TO WHITE
     textAlign: "center",
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   subtitle: {
     fontSize: 16,
-    color: "#555",
+    color: "#f0f0f0", // CHANGED TO OFF-WHITE
     marginBottom: height * 0.04,
     marginTop: 5,
+    textAlign: "center",
   },
   formContainer: {
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 20,
   },
-  // --- Input Styling (Looks like the social buttons) ---
+  orContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: width * 0.85,
+    marginVertical: 25,
+  },
+
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.6)",
+  },
+
+  orText: {
+    marginHorizontal: 10,
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowRadius: 2,
+  },
+
+  oneTimeButton: {
+    width: width * 0.85,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderWidth: 1,
+    borderColor: "#fff",
+    paddingVertical: 14,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  oneTimeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    letterSpacing: 1,
+  },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    width: width * 0.85, // 85% width
+    width: width * 0.85,
     backgroundColor: "#fff",
-    height: 55, // Fixed height for consistency
+    height: 55,
     borderRadius: 30,
     marginBottom: 15,
     paddingHorizontal: 20,
@@ -176,8 +270,8 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+    height: '100%', // Ensures input takes full height of wrapper
   },
-  // --- Button Styling ---
   forgotBtn: {
     width: width * 0.85,
     alignItems: "flex-end",
@@ -185,16 +279,19 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   forgotText: {
-    color: "#1c005e",
+    color: "#fff", // CHANGED TO WHITE
     fontWeight: "600",
     fontSize: 14,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowRadius: 2,
   },
   loginButton: {
     width: width * 0.85,
-    backgroundColor: "#1c005e", // Dark Blue/Purple from Logo
+    backgroundColor: "#1c005e",
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: "center",
+    justifyContent: 'center', // Ensures text is centered vertically
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -207,21 +304,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 1,
   },
-  // --- Footer ---
   footer: {
     flexDirection: "row",
-    marginTop: "auto", // Pushes to bottom if space allows
+    marginTop: "auto",
     paddingTop: height * 0.05,
     marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   footerText: {
-    color: "#333",
+    color: "#fff", // CHANGED TO WHITE
     fontSize: 15,
   },
   registerText: {
-    color: "#1c005e",
+    color: "#fff", // CHANGED TO WHITE
     fontWeight: "bold",
     fontSize: 15,
+    textDecorationLine: 'underline',
   },
 });
 

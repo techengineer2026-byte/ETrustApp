@@ -24,7 +24,7 @@ export default function AddressScreen() {
         console.log("FINAL REGISTRATION DATA:", finalData);
 
         Alert.alert("Success", "Account Registered Successfully!", [
-            { text: "Login Now", onPress: () => navigation.replace("EmployerLogin") }
+            { text: "Login Now", onPress: () => navigation.replace("MainTabs") }
         ]);
     };
 
