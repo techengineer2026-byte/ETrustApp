@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  
+
   StyleSheet,
   Linking,
 } from "react-native";
@@ -145,7 +145,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     borderRadius: 25,
     paddingVertical: 16,
+    paddingHorizontal: 30, // add this
     alignItems: "center",
+    minWidth: 120, // optional: ensures text fits
   },
+
   nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });

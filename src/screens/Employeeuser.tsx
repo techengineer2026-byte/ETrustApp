@@ -60,9 +60,9 @@ const EmployeeLogin = () => {
             />
           </View>
 
-          {/* Title - Changed to White for visibility */}
+          {/* Title */}
           <Text style={styles.title} allowFontScaling={false}>
-            Employee Login
+            Employee
           </Text>
           <Text style={styles.subtitle} allowFontScaling={false}>
             Sign in to manage jobs
@@ -82,7 +82,7 @@ const EmployeeLogin = () => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                allowFontScaling={false} // Prevents input text from becoming huge
+                allowFontScaling={false}
               />
             </View>
 
@@ -96,14 +96,14 @@ const EmployeeLogin = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                allowFontScaling={false} // Prevents input text from becoming huge
+                allowFontScaling={false}
               />
             </View>
 
-            {/* Forgot Password - Changed to White */}
+            {/* Forgot Password - Updated text to "Forgot" */}
             <TouchableOpacity style={styles.forgotBtn}>
               <Text style={styles.forgotText} allowFontScaling={false}>
-                Forgot Password?
+                Forgot password
               </Text>
             </TouchableOpacity>
 
@@ -111,21 +111,22 @@ const EmployeeLogin = () => {
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
               <Text
                 style={styles.loginButtonText}
-                allowFontScaling={false} // FIX: Prevents "LOGI" cutoff
+                allowFontScaling={false}
                 numberOfLines={1}
-                adjustsFontSizeToFit={true} // Shrinks text if it's still too big
+                adjustsFontSizeToFit={true}
               >
                 LOGIN
               </Text>
             </TouchableOpacity>
-            {/* OR Divider */}
-            <View style={styles.orContainer}>
-              <View style={styles.orLine} />
-              <Text style={styles.orText}>OR</Text>
-              <View style={styles.orLine} />
+
+            {/* Divider with Circle (Replaced "OR" text) */}
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.dividerLine} />
             </View>
 
-            {/* One Time Click Button */}
+            {/* One Time Click Button - Updated Text to "CLICK ONE" */}
             <TouchableOpacity
               style={styles.oneTimeButton}
               onPress={() => {
@@ -133,20 +134,20 @@ const EmployeeLogin = () => {
               }}
             >
               <Text style={styles.oneTimeButtonText} allowFontScaling={false}>
-                CLICK ONE TIME
+                CLICK ONE
               </Text>
             </TouchableOpacity>
 
           </View>
 
-          {/* Footer (Register) - Changed to White */}
+          {/* Footer - Updated Text to "Sign" */}
           <View style={styles.footer}>
             <Text style={styles.footerText} allowFontScaling={false}>
               Don't have an account?{" "}
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate("EmployeeStep1")}>
               <Text style={styles.registerText} allowFontScaling={false}>
-                Sign Up
+                Sign
               </Text>
             </TouchableOpacity>
           </View>
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.15)', // Adds slight dim to background so text is readable
+    backgroundColor: 'rgba(0,0,0,0.1)', 
   },
   scrollContainer: {
     flexGrow: 1,
@@ -176,7 +177,6 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: height * 0.02,
-    // Add a white pill behind logo if logo has transparency issues on red bg
     backgroundColor: 'white',
     padding: 10,
     borderRadius: 15,
@@ -185,68 +185,25 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: '100%',
-    height: height * 0.1,
+    height: height * 0.08, // Adjusted slightly to fit card better
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#fff", // CHANGED TO WHITE
+    color: "#fff",
     textAlign: "center",
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: "#f0f0f0", // CHANGED TO OFF-WHITE
+    color: "#f0f0f0",
     marginBottom: height * 0.04,
-    marginTop: 5,
     textAlign: "center",
   },
   formContainer: {
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 20,
-  },
-  orContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: width * 0.85,
-    marginVertical: 25,
-  },
-
-  orLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.6)",
-  },
-
-  orText: {
-    marginHorizontal: 10,
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-    textShadowColor: "rgba(0,0,0,0.3)",
-    textShadowRadius: 2,
-  },
-
-  oneTimeButton: {
-    width: width * 0.85,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderWidth: 1,
-    borderColor: "#fff",
-    paddingVertical: 14,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-  },
-
-  oneTimeButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-    letterSpacing: 1,
   },
   inputWrapper: {
     flexDirection: "row",
@@ -270,7 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
-    height: '100%', // Ensures input takes full height of wrapper
+    height: '100%',
   },
   forgotBtn: {
     width: width * 0.85,
@@ -279,11 +236,9 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   forgotText: {
-    color: "#fff", // CHANGED TO WHITE
+    color: "#fff",
     fontWeight: "600",
     fontSize: 14,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowRadius: 2,
   },
   loginButton: {
     width: width * 0.85,
@@ -291,7 +246,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: "center",
-    justifyContent: 'center', // Ensures text is centered vertically
+    justifyContent: 'center',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -304,6 +259,46 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 1,
   },
+  
+  // New Styles for the Circle Divider
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: width * 0.85,
+    marginVertical: 30,
+    justifyContent: 'center',
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.5)",
+  },
+  dividerText: {
+    borderRadius: 6,
+    marginHorizontal: 10,
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+
+  oneTimeButton: {
+    width: width * 0.85,
+    backgroundColor: "rgba(255,255,255,0.15)", // Slightly more transparent
+    borderWidth: 1.5,
+    borderColor: "#fff",
+    paddingVertical: 14,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  oneTimeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
   footer: {
     flexDirection: "row",
     marginTop: "auto",
@@ -313,11 +308,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    color: "#fff", // CHANGED TO WHITE
+    color: "#fff",
     fontSize: 15,
   },
   registerText: {
-    color: "#fff", // CHANGED TO WHITE
+    color: "#fff",
     fontWeight: "bold",
     fontSize: 15,
     textDecorationLine: 'underline',

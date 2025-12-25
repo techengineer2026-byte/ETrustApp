@@ -133,12 +133,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 20,
   },
-  nextButton: {
-    backgroundColor: "#000",
-    borderRadius: 25,
-    paddingVertical: 16,
-    alignItems: "center",
-  },
+nextButton: {
+  backgroundColor: "#000",
+  borderRadius: 25,
+  paddingVertical: 16,
+  paddingHorizontal: 30, // add this
+  alignItems: "center",
+  minWidth: 120, // optional: ensures text fits
+},
+
+
   nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 
   // Popup styles

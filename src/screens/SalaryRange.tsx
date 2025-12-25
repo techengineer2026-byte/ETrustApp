@@ -13,7 +13,7 @@ const SalaryRange = ({ navigation }: any) => {
 
   const handleNext = () => {
     console.log("Selected salary:", salary);
-    navigation.navigate("DistancePreference"); 
+    navigation.navigate("DistancePreference");
   };
 
   return (
@@ -52,7 +52,7 @@ const SalaryRange = ({ navigation }: any) => {
 
       {/* Next button - FIXED */}
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text 
+        <Text
           style={styles.nextText}
           allowFontScaling={false}      // 1. Prevents "Large Text" from blowing up the font
           numberOfLines={1}             // 2. Keeps text on one line
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   subtitle: {
     color: "#555",
     marginBottom: 40,
-    fontSize: 14, 
+    fontSize: 14,
   },
   salaryText: {
     fontSize: 32,
@@ -104,11 +104,12 @@ const styles = StyleSheet.create({
   nextButton: {
     backgroundColor: "#000",
     borderRadius: 25,
-    paddingVertical: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 30, // add this
     alignItems: "center",
-    marginTop: 50,
-    width: '100%', // Ensures button uses full available width
+    minWidth: 120, // optional: ensures text fits
   },
+
   nextText: {
     color: "#fff",
     fontSize: 16,

@@ -28,14 +28,17 @@ const PhotoUploadScreen = () => {
   const navigation = useNavigation<any>();
   const [photos, setPhotos] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [updating, setUpdating] = useState(false);
+  const [pickerVisible, setPickerVisible] = useState(false); // Upload modal
+  const [updating, setUpdating] = useState(false); // Loading modal
 
   const handlePickImage = async (fromCamera: boolean) => {
     try {
+      setUpdating(true); // Start updating
       const options: ImageLibraryOptions | CameraOptions = {
         mediaType: "photo",
-        quality: 0.8,
-        selectionLimit: 1,
+        quality: 0.7,
+        maxWidth: 1024,
+        maxHeight: 1024,
       };
 
       const result = fromCamera
@@ -44,12 +47,14 @@ const PhotoUploadScreen = () => {
 
       if (result.assets && result.assets.length > 0) {
         const uri = result.assets[0].uri!;
-        setPhotos((prev) => [...prev, uri]);
+        setPhotos(prev => [...prev, uri]);
       }
     } catch (error) {
       Alert.alert("Error", "Could not open camera or gallery.");
+    } finally {
+      setUpdating(false); // Stop updating
+      setPickerVisible(false); // Close the picker modal
     }
-    setModalVisible(false);
   };
 
   const handleRemove = (uri: string) => {
@@ -80,12 +85,13 @@ const PhotoUploadScreen = () => {
         <TouchableOpacity
           style={styles.addBtn}
           onPress={() => {
-            if (photos.length < MAX_PHOTOS) setModalVisible(true);
+            if (photos.length < MAX_PHOTOS) setPickerVisible(true);
             else Alert.alert("Limit Reached", "You can only upload 6 photos.");
           }}
         >
           <Text style={styles.plus}>＋</Text>
         </TouchableOpacity>
+
       )}
     </View>
   );
@@ -122,10 +128,10 @@ const PhotoUploadScreen = () => {
 
         {/* --- MODERN BOTTOM SHEET MODAL --- */}
         <Modal
-          visible={modalVisible}
+          visible={pickerVisible}
           transparent
           animationType="slide"
-          onRequestClose={() => setModalVisible(false)}
+          onRequestClose={() => setPickerVisible(false)}
         >
           <View style={styles.modalOverlay}>
             {/* Invisible touchable to close modal when clicking background */}
@@ -169,8 +175,8 @@ const PhotoUploadScreen = () => {
         </Modal>
 
         <UpdatingCodeModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
+          visible={updating}
+          onClose={() => setUpdating(false)}
         />
       </View>
     </SafeAreaView>

@@ -80,9 +80,11 @@ const styles = StyleSheet.create({
   nextButton: {
     backgroundColor: "#000",
     borderRadius: 25,
-    paddingVertical: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 30, // add this
     alignItems: "center",
-    marginTop: 40,
+    minWidth: 120, // optional: ensures text fits
   },
+
   nextText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });

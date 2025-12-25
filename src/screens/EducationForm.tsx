@@ -6,8 +6,114 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+/* ===== REAL INDIAN DATA ===== */
+const DEGREES = [
+  "BA",
+  "BSc",
+  "BTech",
+  "BCom",
+  "BBA",
+  "MA",
+  "MSc",
+  "MTech",
+  "MBA",
+  "Polytechnic",
+  "Diploma",
+  "PhD",
+];
+
+const FIELDS = [
+  "Computer Science",
+  "Information Technology",
+  "Mechanical Engineering",
+  "Civil Engineering",
+  "Electrical Engineering",
+  "Electronics & Communication",
+  "Business Administration",
+  "Commerce",
+  "Arts",
+  "Medical",
+  "Nursing",
+  "Pharmacy",
+];
+
+const COLLEGES = [
+  "Panjab University, Chandigarh",
+  "Punjab Engineering College (PEC), Chandigarh",
+  "Chandigarh University",
+  "DAV College, Chandigarh",
+  "Post Graduate Government College, Chandigarh",
+  "Punjabi University, Patiala",
+  "Thapar Institute of Engineering & Technology, Patiala",
+  "Guru Nanak Dev University, Amritsar",
+  "Lovely Professional University, Phagwara",
+  "Kurukshetra University, Haryana",
+  "Maharshi Dayanand University, Rohtak",
+  "Amity University, Haryana",
+];
+
+/* ===== AUTOCOMPLETE INPUT ===== */
+const AutoComplete = ({
+  label,
+  placeholder,
+  value,
+  setValue,
+  data,
+}: any) => {
+  const [list, setList] = useState<string[]>([]);
+  const [show, setShow] = useState(false);
+
+  const onChange = (text: string) => {
+    setValue(text);
+    if (text.length > 0) {
+      const filtered = data.filter((item: string) =>
+        item.toLowerCase().includes(text.toLowerCase())
+      );
+      setList(filtered);
+      setShow(true);
+    } else {
+      setShow(false);
+    }
+  };
+
+  return (
+    <View>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChange}
+      />
+
+      {show && (
+        <View style={styles.dropdown}>
+          <FlatList
+            data={list}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setValue(item);
+                  setShow(false);
+                }}
+              >
+                <Text>{item}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      )}
+    </View>
+  );
+};
+
+/* ===== MAIN SCREEN ===== */
 const EducationForm = ({ navigation }: any) => {
   const [degree, setDegree] = useState("");
   const [field, setField] = useState("");
@@ -16,83 +122,61 @@ const EducationForm = ({ navigation }: any) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const handleNext = () => {
-    const educationData = {
-      degree,
-      field,
-      institution,
-      location,
-      startDate,
-      endDate,
-    };
-    console.log("Education Data:", educationData);
-    navigation.navigate("skillsScreen"); // next step, e.g., experience or skills
-  };
-  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Education Details</Text>
-        <Text style={styles.subtitle}>
-          Fill in your academic qualifications below.
-        </Text>
 
-        {/* Degree / Qualification */}
-        <Text style={styles.label}>Degree / Qualification</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Bachelor of Science"
+
+        <AutoComplete
+          label="Degree"
+          placeholder="e.g. BTech"
           value={degree}
-          onChangeText={setDegree}
+          setValue={setDegree}
+          data={DEGREES}
         />
 
-        {/* Field of Study / Major */}
-        <Text style={styles.label}>Field of Study / Major</Text>
-        <TextInput
-          style={styles.input}
+        <AutoComplete
+          label="Field of Study"
           placeholder="e.g. Computer Science"
           value={field}
-          onChangeText={setField}
+          setValue={setField}
+          data={FIELDS}
         />
 
-        {/* Institution Name */}
-        <Text style={styles.label}>Institution Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Stanford University"
+        <AutoComplete
+          label="College / University"
+          placeholder="e.g. Panjab University"
           value={institution}
-          onChangeText={setInstitution}
+          setValue={setInstitution}
+          data={COLLEGES}
         />
 
-        {/* Location (Optional) */}
-        <Text style={styles.label}>Location (Optional)</Text>
+        <Text style={styles.label}>Location</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g. New York, USA"
+          placeholder="e.g. Chandigarh"
           value={location}
           onChangeText={setLocation}
         />
 
-        {/* Start Date */}
         <Text style={styles.label}>Start Date</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g. August 2018"
+          placeholder="e.g. August 2019"
           value={startDate}
           onChangeText={setStartDate}
         />
 
-        {/* End Date */}
-        <Text style={styles.label}>End Date / Expected End Date</Text>
+        <Text style={styles.label}>End Date</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g. May 2022"
+          placeholder="e.g. May 2023"
           value={endDate}
           onChangeText={setEndDate}
         />
 
-        {/* Next Button */}
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
+        <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -102,27 +186,29 @@ const EducationForm = ({ navigation }: any) => {
 
 export default EducationForm;
 
+/* ===== STYLES ===== */
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 24,
-  },
-  title: { fontSize: 24, fontWeight: "700", color: "#000", marginBottom: 8 },
-  subtitle: { color: "#555", marginBottom: 24 },
-  label: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginTop: 14,
-    marginBottom: 6,
-    color: "#000",
-  },
+  container: { flex: 1, backgroundColor: "#fff", padding: 24 },
+  title: { fontSize: 24, fontWeight: "700", marginBottom: 6 },
+  subtitle: { color: "#555", marginBottom: 20 },
+  label: { fontSize: 16, fontWeight: "500", marginTop: 14, marginBottom: 6 },
   input: {
-    borderWidth: 1.3,
+    borderWidth: 1.2,
     borderColor: "#ccc",
     borderRadius: 10,
     padding: 12,
-    fontSize: 15,
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    maxHeight: 160,
+    marginTop: 4,
+  },
+  dropdownItem: {
+    padding: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#eee",
   },
   button: {
     backgroundColor: "#000",
@@ -130,7 +216,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 40,
-    marginBottom: 20,
   },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });

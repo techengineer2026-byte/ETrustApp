@@ -113,10 +113,12 @@ const styles = StyleSheet.create({
   checkboxLabel: { color: "#333", fontSize: 14 },
   nextButton: {
     backgroundColor: "#000",
-    borderRadius: 24,
-    paddingVertical: 14,
+    borderRadius: 25,
+    paddingVertical: 16,
+    paddingHorizontal: 30, // add this
     alignItems: "center",
-    marginTop: 40,
+    minWidth: 120, // optional: ensures text fits
   },
+
   nextText: { color: "#fff", fontWeight: "600", fontSize: 16 },
 });

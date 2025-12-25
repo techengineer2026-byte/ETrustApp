@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -20,9 +20,13 @@ export default function BDAYScreen() {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
 
+  // Refs to jump focus
+  const monthRef = useRef<TextInput>(null);
+  const yearRef = useRef<TextInput>(null);
+
   const handleNext = () => {
     if (!isValidDate()) return;
-    navigation.navigate("Gender"); // change this to your next screen name
+    navigation.navigate("Gender");
   };
 
   const isValidDate = () => {
@@ -30,13 +34,33 @@ export default function BDAYScreen() {
     const m = parseInt(month);
     const y = parseInt(year);
     if (isNaN(d) || isNaN(m) || isNaN(y)) return false;
-    return d > 0 && d <= 31 && m > 0 && m <= 12 && y > 1900 && y <= new Date().getFullYear();
+    return (
+      d > 0 &&
+      d <= 31 &&
+      m > 0 &&
+      m <= 12 &&
+      y > 1900 &&
+      y <= new Date().getFullYear()
+    );
+  };
+
+  const handleDayChange = (text: string) => {
+    setDay(text);
+    if (text.length === 2) {
+      monthRef.current?.focus();
+    }
+  };
+
+  const handleMonthChange = (text: string) => {
+    setMonth(text);
+    if (text.length === 2) {
+      yearRef.current?.focus();
+    }
   };
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        {/* Back button */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
@@ -44,10 +68,8 @@ export default function BDAYScreen() {
           <Icon name="chevron-back" size={26} color="#000" />
         </TouchableOpacity>
 
-        {/* Title */}
         <Text style={styles.title}>Your b-day?</Text>
 
-        {/* Date Input Fields */}
         <View style={styles.dateRow}>
           <TextInput
             style={styles.input}
@@ -55,19 +77,21 @@ export default function BDAYScreen() {
             keyboardType="numeric"
             maxLength={2}
             value={day}
-            onChangeText={setDay}
+            onChangeText={handleDayChange}
           />
           <Text style={styles.slash}>/</Text>
           <TextInput
+            ref={monthRef}
             style={styles.input}
             placeholder="MM"
             keyboardType="numeric"
             maxLength={2}
             value={month}
-            onChangeText={setMonth}
+            onChangeText={handleMonthChange}
           />
           <Text style={styles.slash}>/</Text>
           <TextInput
+            ref={yearRef}
             style={[styles.input, { width: 70 }]}
             placeholder="YYYY"
             keyboardType="numeric"
@@ -77,19 +101,14 @@ export default function BDAYScreen() {
           />
         </View>
 
-        {/* Helper text */}
         <Text style={styles.helperText}>
           Your profile shows your age, not your date of birth.
         </Text>
       </View>
 
-      {/* Bottom Next Button */}
       <View style={styles.bottomContainer}>
         <TouchableOpacity
-          style={[
-            styles.nextButton,
-            { opacity: isValidDate() ? 1 : 0.4 },
-          ]}
+          style={[styles.nextButton, { opacity: isValidDate() ? 1 : 0.4 }]}
           onPress={handleNext}
           disabled={!isValidDate()}
         >
@@ -102,18 +121,10 @@ export default function BDAYScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 10,
-  },
+  container: { flex: 1, paddingHorizontal: 24, paddingTop: 10 },
   backButton: { marginBottom: 20 },
   title: { fontSize: 24, fontWeight: "700", color: "#000", marginBottom: 40 },
-  dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 11,
-  },
+  dateRow: { flexDirection: "row", alignItems: "center", marginBottom: 11 },
   input: {
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
@@ -122,25 +133,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 6,
   },
-  slash: {
-    fontSize: 22,
-    marginHorizontal: 12,
-    color: "#000",
-  },
-  helperText: {
-    fontSize: 14,
-    color: "#555",
-    marginTop: 10,
-  },
-  bottomContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 20,
-  },
-  nextButton: {
-    backgroundColor: "#000",
-    borderRadius: 25,
-    paddingVertical: 16,
-    alignItems: "center",
-  },
+  slash: { fontSize: 22, marginHorizontal: 12, color: "#000" },
+  helperText: { fontSize: 14, color: "#555", marginTop: 10 },
+  bottomContainer: { paddingHorizontal: 24, paddingBottom: 20 },
+nextButton: {
+  backgroundColor: "#000",
+  borderRadius: 25,
+  paddingVertical: 16,
+  paddingHorizontal: 30, // add this
+  alignItems: "center",
+  minWidth: 120, // optional: ensures text fits
+},
+
   nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });
