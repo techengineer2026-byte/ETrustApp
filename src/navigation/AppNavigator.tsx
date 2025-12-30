@@ -37,7 +37,12 @@ import ETCenterLogin from '../screens/ET-Center/ETCenterLogin';
 import ETCenterStep1 from '../screens/ET-Center/ETCenterStep1';
 import ETCenterStep2 from '../screens/ET-Center/ETCenterStep2';
 import ETCenterStep3 from '../screens/ET-Center/ETCenterStep3';
-
+import ForgotPassword from '../screens/ForgetPassword/ForgotPasswordScreen';
+import ResetPassword from '../screens/ForgetPassword/ResetPassword';
+import OTPScreen from '../screens/ForgetPassword/OTPScreen';
+import EmployeeBottomNav from './EmployeeBottomTabs';
+import EmployerBottomNav from './EmployerBottomNav';
+import EtrustBottomNav from './EtrustBottomTabNavigator';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
@@ -82,6 +87,12 @@ export default function AppNavigator() {
         <Stack.Screen name="ETCenterStep1" component={ETCenterStep1} />
         <Stack.Screen name="ETCenterStep2" component={ETCenterStep2} />
         <Stack.Screen name="ETCenterStep3" component={ETCenterStep3} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="OTPScreen" component={OTPScreen} />
+        <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
+        <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
+        <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
       </Stack.Navigator>
     </NavigationContainer>
   );

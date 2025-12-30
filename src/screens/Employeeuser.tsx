@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -11,26 +11,54 @@ import {
   Platform,
   ScrollView,
   Dimensions,
-  Alert,
+  StatusBar,
+  Animated, // Import Animated
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const EmployeeLogin = () => {
   const navigation = useNavigation<any>();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // --- PASSWORD VISIBILITY STATE ---
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  // --- TOAST STATE & ANIMATION ---
+  const [toastMessage, setToastMessage] = useState("");
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    // Fade In
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    // Wait 3 seconds, then Fade Out
+    setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setToastMessage(""));
+    }, 3000);
+  };
+  // -------------------------------
+
   const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert("Missing Info", "Please enter both email and password.");
+      showToast("Please enter both email and password."); // Replaced Alert
       return;
     }
     console.log("Employee Login:", email);
-    navigation.replace("MainTabs");
+    navigation.navigate("MainTabs");
   };
 
   return (
@@ -39,283 +67,213 @@ const EmployeeLogin = () => {
       style={styles.background}
       resizeMode="cover"
     >
-      {/* Darker overlay to make White text pop and form easier to read */}
-      <View style={styles.overlay} />
+      <View style={styles.overlay}>
+        <SafeAreaView style={styles.safeArea}>
+          <StatusBar barStyle="light-content" />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1, width: "100%" }}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Logo Section */}
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../assets/logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
+          {/* --- CUSTOM ERROR TOAST --- */}
+          {toastMessage ? (
+            <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }]}>
+              <Icon name="alert-circle-outline" size={24} color="#fff" />
+              <Text style={styles.toastText}>{toastMessage}</Text>
+            </Animated.View>
+          ) : null}
 
-          {/* Title */}
-          <Text style={styles.title} allowFontScaling={false}>
-            Employee
-          </Text>
-          <Text style={styles.subtitle} allowFontScaling={false}>
-            Sign in to manage jobs
-          </Text>
-
-          {/* Form Container */}
-          <View style={styles.formContainer}>
-
-            {/* Email Input */}
-            <View style={styles.inputWrapper}>
-              <Icon name="email-outline" size={24} color="#666" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                placeholder="Email Address"
-                placeholderTextColor="#888"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                allowFontScaling={false}
-              />
-            </View>
-
-            {/* Password Input */}
-            <View style={styles.inputWrapper}>
-              <Icon name="lock-outline" size={24} color="#666" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                placeholder="Password"
-                placeholderTextColor="#888"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                allowFontScaling={false}
-              />
-            </View>
-
-            {/* Forgot Password - Updated text to "Forgot" */}
-            <TouchableOpacity style={styles.forgotBtn}>
-              <Text style={styles.forgotText} allowFontScaling={false}>
-                Forgot password
-              </Text>
-            </TouchableOpacity>
-
-            {/* Login Button */}
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text
-                style={styles.loginButtonText}
-                allowFontScaling={false}
-                numberOfLines={1}
-                adjustsFontSizeToFit={true}
-              >
-                LOGIN
-              </Text>
-            </TouchableOpacity>
-
-            {/* Divider with Circle (Replaced "OR" text) */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* One Time Click Button - Updated Text to "CLICK ONE" */}
+          {/* BACK BUTTON SECTION */}
+          <View style={styles.navBar}>
             <TouchableOpacity
-              style={styles.oneTimeButton}
-              onPress={() => {
-                navigation.navigate("PhoneNumber");
-              }}
+              onPress={() => navigation.goBack()}
+              style={styles.backBtn}
             >
-              <Text style={styles.oneTimeButtonText} allowFontScaling={false}>
-                CLICK ONE
-              </Text>
-            </TouchableOpacity>
-
-          </View>
-
-          {/* Footer - Updated Text to "Sign" */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText} allowFontScaling={false}>
-              Don't have an account?{" "}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("EmployeeStep1")}>
-              <Text style={styles.registerText} allowFontScaling={false}>
-                Sign
-              </Text>
+              <Icon name="arrow-left" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
 
-        </ScrollView>
-      </KeyboardAvoidingView>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+          >
+            <ScrollView
+              contentContainerStyle={styles.scrollContainer}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+
+              {/* Logo */}
+              <View style={styles.headerContainer}>
+                <View style={styles.logoWrapper}>
+                  <Image
+                    source={require("../assets/logo.png")}
+                    style={styles.logo}
+                    resizeMode="contain"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.titleContainer}>
+                <Text style={styles.title}>Welcome Back</Text>
+                <Text style={styles.subtitle}>Sign in to manage your jobs</Text>
+              </View>
+
+              <View style={styles.formContainer}>
+
+                {/* Email Input */}
+                <View style={styles.inputWrapper}>
+                  <Icon name="email-outline" size={22} color="#1c005e" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Email / mobile"
+                    placeholderTextColor="#999"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+
+                {/* Password Input with Toggle */}
+                <View style={styles.inputWrapper}>
+                  <Icon name="lock-outline" size={22} color="#1c005e" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Password"
+                    placeholderTextColor="#999"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!isPasswordVisible} // Toggle visibility logic
+                  />
+                  {/* Eye Icon Button */}
+                  <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+                    <Icon
+                      name={isPasswordVisible ? "eye" : "eye-off"}
+                      size={22}
+                      color="#888"
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("ForgotPassword")}>
+                  <Text style={styles.forgotText}>Forgot password?</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.8}>
+                  <Text style={styles.loginButtonText}>Sign in</Text>
+                </TouchableOpacity>
+
+
+              </View>
+
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Don't have an account? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate("EmployeeStep1")}>
+                  <Text style={styles.registerText}>Sign Up</Text>
+                </TouchableOpacity>
+              </View>
+
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </View>
     </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
+  background: { flex: 1 },
+  overlay: { flex: 1  },
+  safeArea: { flex: 1 },
+
+  // Back Button Styles
+  navBar: {
     width: "100%",
-    height: "100%",
+    paddingHorizontal: 20,
+    marginTop: 10,
+    zIndex: 10,
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.1)', 
-  },
-  scrollContainer: {
-    flexGrow: 1,
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
-    paddingTop: height * 0.08,
-    paddingBottom: 30,
+    justifyContent: "center",
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: height * 0.02,
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 15,
-    width: width * 0.85,
-    elevation: 5,
+
+  scrollContainer: { flexGrow: 1, alignItems: "center", paddingBottom: 30 },
+  headerContainer: { width: "100%", alignItems: "center", marginBottom: 30, marginTop: 10 },
+  logoWrapper: {
+    elevation: 8,
   },
   logo: {
-    width: '100%',
-    height: height * 0.08, // Adjusted slightly to fit card better
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#f0f0f0",
-    marginBottom: height * 0.04,
-    textAlign: "center",
-  },
-  formContainer: {
-    width: "100%",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
+    width: 400,
+    height: 105,
+  }, titleContainer: { alignItems: "center", marginBottom: 30 },
+  title: { fontSize: 28, fontWeight: "bold", color: "#fff", marginBottom: 5 },
+  subtitle: { fontSize: 16, color: "#e0e0e0", opacity: 0.9 },
+
+  formContainer: { width: "100%", paddingHorizontal: 25, alignItems: "center" },
+
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    width: width * 0.85,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
+    width: "100%",
     height: 55,
-    borderRadius: 30,
+    borderRadius: 12,
     marginBottom: 15,
-    paddingHorizontal: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    paddingHorizontal: 15,
+    elevation: 2,
   },
-  inputIcon: {
-    marginRight: 10,
-  },
-  textInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-    height: '100%',
-  },
-  forgotBtn: {
-    width: width * 0.85,
-    alignItems: "flex-end",
-    marginBottom: 20,
-    paddingRight: 10,
-  },
-  forgotText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
-  },
+  inputIcon: { marginRight: 10, opacity: 0.7 },
+  textInput: { flex: 1, fontSize: 16, color: "#333", height: "100%" },
+
+  forgotBtn: { width: "100%", alignItems: "flex-end", marginBottom: 25 },
+  forgotText: { color: "#fff", fontWeight: "600", fontSize: 14, textDecorationLine: "underline" },
+
   loginButton: {
-    width: width * 0.85,
-    backgroundColor: "#1c005e",
+    width: "100%",
+    backgroundColor: "#ffffff",
     paddingVertical: 16,
-    borderRadius: 30,
+    borderRadius: 12,
     alignItems: "center",
-    justifyContent: 'center',
+    justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
-  loginButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18,
-    letterSpacing: 1,
-  },
-  
-  // New Styles for the Circle Divider
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: width * 0.85,
-    marginVertical: 30,
-    justifyContent: 'center',
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.5)",
-  },
-  dividerText: {
-    borderRadius: 6,
-    marginHorizontal: 10,
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
-  },
+  loginButtonText: { color: "#1c005e", fontWeight: "800", fontSize: 16, letterSpacing: 1 },
 
-  oneTimeButton: {
-    width: width * 0.85,
-    backgroundColor: "rgba(255,255,255,0.15)", // Slightly more transparent
-    borderWidth: 1.5,
-    borderColor: "#fff",
-    paddingVertical: 14,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-  },
-  oneTimeButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  footer: {
+  footer: { flexDirection: "row", marginTop: 40, alignItems: "center" },
+  footerText: { color: "#e0e0e0", fontSize: 15 },
+  registerText: { color: "#fff", fontWeight: "bold", fontSize: 15, textDecorationLine: "underline" },
+
+  // --- TOAST STYLES ---
+  toastContainer: {
+    position: "absolute",
+    top: 60,
+    left: 20,
+    right: 20,
+    backgroundColor: "#FF5252",
+    borderRadius: 10,
+    padding: 15,
     flexDirection: "row",
-    marginTop: "auto",
-    paddingTop: height * 0.05,
-    marginBottom: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: "center",
+    justifyContent: "flex-start",
+    elevation: 10,
+    zIndex: 1000,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  footerText: {
+  toastText: {
     color: "#fff",
-    fontSize: 15,
-  },
-  registerText: {
-    color: "#fff",
+    fontSize: 14,
     fontWeight: "bold",
-    fontSize: 15,
-    textDecorationLine: 'underline',
+    marginLeft: 10,
+    flex: 1,
   },
 });
 

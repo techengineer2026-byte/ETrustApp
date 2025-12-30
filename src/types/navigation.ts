@@ -27,6 +27,10 @@ export type RootStackParamList = {
 
   // --- Main App ---
   MainTabs: undefined;
+  BottomTabNavigator: undefined;
+  EmployerBottomNav: undefined;
+  EmployeeBottomNav: undefined;
+  EtrustBottomNav: undefined;
   invitefriend: undefined;
   ChatDetails: {
     name: string;
@@ -116,4 +120,13 @@ export type RootStackParamList = {
     district: string;
     pincode: string;
   };
+  // --- FORGOT PASSWORD FLOW ---
+  ForgotPassword: undefined;
+  OTPScreen: {
+    email: string;
+  };
+  ResetPassword: {
+    email: string;
+  };
+  
 };
