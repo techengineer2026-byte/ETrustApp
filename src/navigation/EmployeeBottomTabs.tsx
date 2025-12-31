@@ -115,7 +115,6 @@ const EmployeeBottomNav = () => {
         }}
       />
 
-      {/* PROFILE */}
       <Tab.Screen
         name="Profile"
         component={EmployeeProfileScreen}

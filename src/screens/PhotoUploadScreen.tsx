@@ -27,7 +27,6 @@ const IMAGE_SIZE = (width - 48) / 3;
 const PhotoUploadScreen = () => {
   const navigation = useNavigation<any>();
   const [photos, setPhotos] = useState<string[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false); // Upload modal
   const [updating, setUpdating] = useState(false); // Loading modal
 
@@ -96,7 +95,10 @@ const PhotoUploadScreen = () => {
     </View>
   );
 
-  const data = [...photos, ...Array(MAX_PHOTOS - photos.length).fill(null)];
+  const data = [
+    ...photos,
+    ...Array(Math.max(0, MAX_PHOTOS - photos.length)).fill(null),
+  ];
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -137,7 +139,7 @@ const PhotoUploadScreen = () => {
             {/* Invisible touchable to close modal when clicking background */}
             <TouchableOpacity
               style={styles.modalBackdrop}
-              onPress={() => setModalVisible(false)}
+              onPress={() => setPickerVisible(false)}
             />
 
             <View style={styles.bottomSheet}>
@@ -166,7 +168,7 @@ const PhotoUploadScreen = () => {
 
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => setModalVisible(false)}
+                onPress={() => setPickerVisible(false)}
               >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>

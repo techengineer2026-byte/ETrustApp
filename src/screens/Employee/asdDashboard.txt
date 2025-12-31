@@ -1,8 +1,6 @@
-// src/screens/Employee/Dashboard.tsx
-
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity } from 'react-native';
-import { GestureHandlerRootView, GestureDetector, Gesture, PureNativeButton } from 'react-native-gesture-handler';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -10,9 +8,8 @@ import Animated, {
     interpolate,
     runOnJS,
     withTiming,
-    Extrapolation
+    Extrapolation,
 } from 'react-native-reanimated';
-import { kebabizeCamelCase } from 'react-native-reanimated/lib/typescript/common';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -40,7 +37,6 @@ const JOBS_DATA: Job[] = [
     { id: 3, title: 'Restaurant Manager', company: 'Florence Oriental', location: 'Mohali', exp: '2-3 year', color: '#fff3e0' },
     { id: 4, title: 'Steward', company: 'Florence Oriental', location: 'Mohali', exp: '0-1 year', color: '#f3e5f5' },
 ];
-
 
 const Card: React.FC<CardProps> = ({
     item,
@@ -154,7 +150,7 @@ const Card: React.FC<CardProps> = ({
 export default function Dashboard() {
 
 
-    
+
     const [jobs, setJobs] = useState<Job[]>(JOBS_DATA);
 
     const handleSwipeLeft = useCallback((id: number) => {

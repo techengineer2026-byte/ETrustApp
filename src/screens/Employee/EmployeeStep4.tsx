@@ -50,7 +50,6 @@ export default function EmployeeStep4() {
 
     console.log("FINAL EMPLOYEE DATA:", finalData);
 
-    // Success Alert & Navigation
     Alert.alert(
       "Account Created!",
       "Your profile has been set up successfully. Welcome aboard!",

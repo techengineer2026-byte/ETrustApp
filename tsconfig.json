@@ -1,6 +1,6 @@
 {
   "extends": "@react-native/typescript-config",
-  "include": ["**/*.ts", "**/*.tsx", "@types/**/*.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "@types/**/*.d.ts", "src/screens/Employee/asdDashboard.atsx"],
   "exclude": ["**/node_modules", "**/Pods"],
   "compilerOptions": {
     "typeRoots": ["./@types", "./node_modules/@types"]

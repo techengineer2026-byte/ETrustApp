@@ -107,6 +107,7 @@ const ChatScreen = () => {
           {item.isOnline && <View style={styles.onlineDot} />}
         </View>
 
+
         {/* Info */}
         <View style={styles.textContainer}>
           <View style={styles.topRow}>

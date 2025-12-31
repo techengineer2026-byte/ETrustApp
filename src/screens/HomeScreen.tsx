@@ -15,6 +15,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
+const swiperRef = useRef<Swiper>(null);
 
 // --- LAYOUT CONSTANTS ---
 const HEADER_HEIGHT = 60;
@@ -82,7 +83,6 @@ const JOBS = [
 ];
 
 const HomeScreen: React.FC = () => {
-  const swiperRef = useRef<Swiper<any>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [userStatus, setUserStatus] = useState<'Searching' | 'Hired'>('Searching');
