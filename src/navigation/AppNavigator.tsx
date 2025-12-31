@@ -43,6 +43,15 @@ import OTPScreen from '../screens/ForgetPassword/OTPScreen';
 import EmployeeBottomNav from './EmployeeBottomTabs';
 import EmployerBottomNav from './EmployerBottomNav';
 import EtrustBottomNav from './EtrustBottomTabNavigator';
+
+import CurrentCTCScreen from '../screens/CurrentCTCScreen';
+import JobProfileScreen from '../screens/JobProfileScreen';
+import PreferredCityScreen from '../screens/PreferredCityScreen';
+import ReferenceScreen from '../screens/ReferenceScreen';
+import UploadResumeScreen from '../screens/UploadResumeScreen';
+import WorkExperienceScreen from '../screens/WorkExperienceScreen';
+import WorkStatusScreen from '../screens/WorkStatusScreen';
+import SyncLoading from '../screens/SyncLoading';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
@@ -93,6 +102,15 @@ export default function AppNavigator() {
         <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
         <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
         <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
+
+        <Stack.Screen name="CurrentCTC" component={CurrentCTCScreen} />
+        <Stack.Screen name="JobProfile" component={JobProfileScreen} />
+        <Stack.Screen name="PreferredCity" component={PreferredCityScreen} />
+        <Stack.Screen name="Reference" component={ReferenceScreen} />
+        <Stack.Screen name="UploadResume" component={UploadResumeScreen} />
+        <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
+        <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
+        <Stack.Screen name="SyncLoading" component={SyncLoading} />
       </Stack.Navigator>
     </NavigationContainer>
   );

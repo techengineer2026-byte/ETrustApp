@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   FlatList,
+  ImageBackground,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -123,6 +124,11 @@ const EducationForm = ({ navigation }: any) => {
   const [endDate, setEndDate] = useState("");
 
   return (
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Education Details</Text>
@@ -176,11 +182,12 @@ const EducationForm = ({ navigation }: any) => {
           onChangeText={setEndDate}
         />
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("JobType"); }  }>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -188,7 +195,8 @@ export default EducationForm;
 
 /* ===== STYLES ===== */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 24 },
+  background: { flex: 1 },
+  container: { flex: 1, padding: 24 },
   title: { fontSize: 24, fontWeight: "700", marginBottom: 6 },
   subtitle: { color: "#555", marginBottom: 20 },
   label: { fontSize: 16, fontWeight: "500", marginTop: 14, marginBottom: 6 },
@@ -219,3 +227,5 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });
+
+

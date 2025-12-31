@@ -6,6 +6,7 @@ import {
 
   StyleSheet,
   Linking,
+  ImageBackground,
 } from "react-native";
 import CheckBox from "@react-native-community/checkbox";
 import { useNavigation } from "@react-navigation/native";
@@ -24,10 +25,15 @@ export default function GenderScreen() {
 
   const handleNext = () => {
     if (!selectedGender) return;
-    navigation.navigate("JobType"); // replace with next screen name
+    navigation.navigate("EducationForm"); // replace with next screen name
   };
 
   return (
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         {/* Back button */}
@@ -77,7 +83,7 @@ export default function GenderScreen() {
           <CheckBox
             value={showOnProfile}
             onValueChange={setShowOnProfile}
-            tintColors={{ true: "#000", false: "#999" }}
+            tintColors={{ true: "#000", false: "#000000ff" }}
           />
           <Text style={styles.checkboxLabel}>Show gender on profile</Text>
         </View>
@@ -94,11 +100,13 @@ export default function GenderScreen() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+  safe: { flex: 1 },
+    background: { flex: 1 },
   container: {
     flex: 1,
     paddingHorizontal: 24,
@@ -121,8 +129,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   optionSelected: {
-    borderColor: "#000",
-    backgroundColor: "#f5f5f5",
+    borderColor: "#ff0000ff",
+    backgroundColor: "#cacacadc",
   },
   optionText: { fontSize: 16, color: "#000" },
   optionTextSelected: { fontWeight: "600" },

@@ -5,6 +5,7 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
+    ImageBackground,
     Alert,
     StatusBar,
     KeyboardAvoidingView,
@@ -34,6 +35,11 @@ export default function EmployeeStep3() {
     };
 
     return (
+                <ImageBackground
+            source={require("../../assets/bg.jpg")}
+            style={styles.background}
+            resizeMode="cover"
+        >
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
@@ -136,11 +142,14 @@ export default function EmployeeStep3() {
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: "#fff" },
+    safeArea: { flex: 1 },
+    background: { flex: 1 },
+
     scrollContainer: { flexGrow: 1 },
     // Header
     header: {
@@ -167,7 +176,7 @@ const styles = StyleSheet.create({
     content: { paddingHorizontal: 24, flex: 1 },
     iconCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: "#f3e5f5", justifyContent: "center", alignItems: "center", marginBottom: 15 },
     title: { fontSize: 28, fontWeight: "800", color: "#1c005e", marginBottom: 8 },
-    subtitle: { fontSize: 16, color: "#666", marginBottom: 30, lineHeight: 22 },
+    subtitle: { fontSize: 16, color: "#e0e0e0ff", marginBottom: 30, lineHeight: 22 },
     // Inputs
     inputGroup: { marginBottom: 20 },
     label: { fontSize: 14, fontWeight: "700", color: "#333", marginBottom: 8 },

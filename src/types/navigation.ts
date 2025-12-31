@@ -128,5 +128,13 @@ export type RootStackParamList = {
   ResetPassword: {
     email: string;
   };
-  
+  // --- ADDITIONAL JOB SEEKER SCREENS ---
+  CurrentCTC: undefined;
+  JobProfile: undefined;
+  PreferredCity: undefined;
+  Reference: undefined;
+  UploadResume: undefined;
+  WorkExperience: undefined;
+  WorkStatus: undefined;
+  SyncLoading: undefined;
 };

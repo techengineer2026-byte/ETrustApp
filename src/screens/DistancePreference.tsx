@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import Slider from "@react-native-community/slider";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,49 +17,56 @@ const DistancePreference = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Your distance preference?</Text>
-      <Text style={styles.subtitle}>
-        Use the slider to set the maximum distance you’d like jobs or matches to
-        appear.
-      </Text>
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.title}>Your distance preference?</Text>
+        <Text style={styles.subtitle}>
+          Use the slider to set the maximum distance you’d like jobs or matches to
+          appear.
+        </Text>
 
-      <View style={styles.sliderContainer}>
-        <View style={styles.labelRow}>
-          <Text style={styles.label}>Distance preference</Text>
-          <Text style={styles.value}>{distance} km</Text>
+        <View style={styles.sliderContainer}>
+          <View style={styles.labelRow}>
+            <Text style={styles.label}>Distance preference</Text>
+            <Text style={styles.value}>{distance} km</Text>
+          </View>
+
+          <Slider
+            style={{ width: "100%", height: 40 }}
+            minimumValue={1}
+            maximumValue={50}
+            step={1}
+            minimumTrackTintColor="#700c07ff"
+            maximumTrackTintColor="#d3d3d3"
+            thumbTintColor="#700c07ff"
+            value={distance}
+            onValueChange={(val) => setDistance(Math.round(val))}
+          />
         </View>
 
-        <Slider
-          style={{ width: "100%", height: 40 }}
-          minimumValue={1}
-          maximumValue={50}
-          step={1}
-          minimumTrackTintColor="#ff3b30"
-          maximumTrackTintColor="#d3d3d3"
-          thumbTintColor="#ff3b30"
-          value={distance}
-          onValueChange={(val) => setDistance(Math.round(val))}
-        />
-      </View>
+        <Text style={styles.footerText}>
+          You can change this preference later in Settings.
+        </Text>
 
-      <Text style={styles.footerText}>
-        You can change this preference later in Settings.
-      </Text>
-
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextText}>Next</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextText}>Next</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 export default DistancePreference;
 
 const styles = StyleSheet.create({
+  background: { flex: 1 },
+
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     padding: 24,
     justifyContent: "center",
   },
@@ -83,6 +91,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 30, // add this
     alignItems: "center",
+    marginTop: 40,
     minWidth: 120, // optional: ensures text fits
   },
 

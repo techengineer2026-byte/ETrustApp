@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  ImageBackground,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -38,6 +39,11 @@ export default function FirstnameScreen() {
   };
 
   return (
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         {/* Back button */}
@@ -57,7 +63,7 @@ export default function FirstnameScreen() {
           value={firstName}
           onChangeText={setFirstName}
           placeholder="Your first name"
-          placeholderTextColor="#999"
+          placeholderTextColor="rgba(255, 255, 255, 0.66)"
         />
 
         {/* Helper text */}
@@ -108,11 +114,13 @@ export default function FirstnameScreen() {
         </View>
       </Modal>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+  safe: { flex: 1 },
+  background: { flex: 1 },
   container: {
     flex: 1,
     paddingHorizontal: 24,
@@ -128,19 +136,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 20,
   },
-  helperText: { fontSize: 14, color: "#555", lineHeight: 20 },
+  helperText: { fontSize: 14, color: "#ffffffff", lineHeight: 20 },
   bottomContainer: {
     paddingHorizontal: 24,
     paddingBottom: 20,
   },
-nextButton: {
-  backgroundColor: "#000",
-  borderRadius: 25,
-  paddingVertical: 16,
-  paddingHorizontal: 30, // add this
-  alignItems: "center",
-  minWidth: 120, // optional: ensures text fits
-},
+  nextButton: {
+    backgroundColor: "#000",
+    borderRadius: 25,
+    paddingVertical: 16,
+    paddingHorizontal: 30, // add this
+    alignItems: "center",
+    minWidth: 120, // optional: ensures text fits
+  },
 
 
   nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },

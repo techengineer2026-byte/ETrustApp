@@ -22,18 +22,15 @@ const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const handleGoogleLogin = () => {
-    // implement your Google login logic here
     console.log("Google login clicked");
   };
 
   const handleFacebookLogin = () => {
-    // implement your Facebook login logic here
-    console.log("Facebook login clicked");
+    navigation.navigate("Welcome");
   };
 
   const handlePhoneLogin = () => {
-    // implement your phone login logic here
-  navigation.navigate("PhoneNumber");
+    navigation.navigate("Welcome");
   };
 
   return (
@@ -69,11 +66,11 @@ const LoginScreen = () => {
           onPress={handleFacebookLogin}
         >
           <Image
-            source={require("../assets/facebook.webp")}
+            source={require("../assets/mail.png")}
             style={styles.icon}
             resizeMode="contain"
           />
-          <Text style={styles.loginText}>Continue with Facebook</Text>
+          <Text style={styles.loginText}>Continue with mail</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.loginButton} onPress={handlePhoneLogin}>
@@ -105,9 +102,8 @@ const styles = StyleSheet.create({
     paddingTop: height * 0.08, // 8% from top
   },
   logo: {
-    width: width * 0.6, // 60% of screen width
-    height: height * 0.2, // 20% of screen height
-    marginBottom: height * 0.05,
+    width: 400,
+    height: 105,
   },
   title: {
     fontSize: Math.min(width * 0.06, 22), // scales but caps at 22
@@ -125,7 +121,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: width * 0.75, // 75% of screen width
     backgroundColor: "#fff",
-    paddingVertical: height * 0.015,
+    paddingVertical: height * 0.025,
     borderRadius: 30,
     marginVertical: height * 0.01,
     shadowColor: "#000",

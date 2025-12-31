@@ -8,6 +8,7 @@ import {
   Alert,
   StatusBar,
   KeyboardAvoidingView,
+  ImageBackground,
   Platform,
   ScrollView,
 } from "react-native";
@@ -29,7 +30,7 @@ export default function EmployeeStep2() {
     if (!emailRegex.test(email)) {
       return Alert.alert("Invalid Email", "Please enter a valid email address.");
     }
-    
+
     // Simulate Verification
     Alert.alert("Verification Link Sent", `A verification link has been sent to ${email}. (Simulated: Verified)`);
     setIsVerified(true);
@@ -44,98 +45,106 @@ export default function EmployeeStep2() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <ImageBackground
+      source={require("../../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"} 
-        style={{ flex: 1 }}
-      >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContainer} 
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
         >
-          
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-              <Icon name="arrow-left" size={24} color="#1c005e" />
-            </TouchableOpacity>
-            <Text style={styles.stepIndicator}>Step 2 of 4</Text>
-          </View>
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
 
-          {/* Progress Bar (50%) */}
-          <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: "50%" }]} />
-          </View>
-
-          {/* Main Content */}
-          <View style={styles.content}>
-            <View style={styles.iconCircle}>
-                <Icon name="email-check-outline" size={32} color="#1c005e" />
+            {/* Header */}
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+                <Icon name="arrow-left" size={24} color="#1c005e" />
+              </TouchableOpacity>
+              <Text style={styles.stepIndicator}>Step 2 of 4</Text>
             </View>
 
-            <Text style={styles.title}>Email Address</Text>
-            <Text style={styles.subtitle}>
-              We'll send important job alerts and interview schedules here.
-            </Text>
+            {/* Progress Bar (50%) */}
+            <View style={styles.progressBarBg}>
+              <View style={[styles.progressBarFill, { width: "50%" }]} />
+            </View>
 
-            {/* Email Input */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Official Email ID</Text>
-              <View style={styles.rowInput}>
-                <TextInput
-                  style={[styles.input, styles.inputFlex]}
-                  placeholder="john@example.com"
-                  placeholderTextColor="#999"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  value={email}
-                  onChangeText={(t) => { 
-                    setIsVerified(false); 
-                    setEmail(t); 
-                  }}
-                  editable={!isVerified}
-                />
-                <TouchableOpacity 
-                  style={[styles.verifyBtn, isVerified && styles.verifiedBtn]} 
-                  onPress={handleVerifyLink}
-                  disabled={isVerified}
-                >
-                  {isVerified ? (
-                     <View style={{flexDirection:'row', alignItems:'center'}}>
-                         <Icon name="check-circle" size={16} color="#fff" />
-                         <Text style={[styles.verifyText, {marginLeft: 4}]}>Verified</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.verifyText}>Verify Link</Text>
-                  )}
-                </TouchableOpacity>
+            {/* Main Content */}
+            <View style={styles.content}>
+              <View style={styles.iconCircle}>
+                <Icon name="email-check-outline" size={32} color="#1c005e" />
+              </View>
+
+              <Text style={styles.title}>Email Address</Text>
+              <Text style={styles.subtitle}>
+                We'll send important job alerts and interview schedules here.
+              </Text>
+
+              {/* Email Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Official Email ID</Text>
+                <View style={styles.rowInput}>
+                  <TextInput
+                    style={[styles.input, styles.inputFlex]}
+                    placeholder="john@example.com"
+                    placeholderTextColor="#999"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={(t) => {
+                      setIsVerified(false);
+                      setEmail(t);
+                    }}
+                    editable={!isVerified}
+                  />
+                  <TouchableOpacity
+                    style={[styles.verifyBtn, isVerified && styles.verifiedBtn]}
+                    onPress={handleVerifyLink}
+                    disabled={isVerified}
+                  >
+                    {isVerified ? (
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Icon name="check-circle" size={16} color="#fff" />
+                        <Text style={[styles.verifyText, { marginLeft: 4 }]}>Verified</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.verifyText}>Verify Link</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <TouchableOpacity 
-              style={[styles.nextBtn, !isVerified && styles.disabledBtn]} 
-              onPress={handleNext} 
-              disabled={!isVerified}
-            >
-              <Text style={styles.nextText}>Next Step</Text>
-              <Icon name="arrow-right" size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
+            {/* Footer */}
+            <View style={styles.footer}>
+              <TouchableOpacity
+                style={[styles.nextBtn, !isVerified && styles.disabledBtn]}
+                onPress={handleNext}
+                disabled={!isVerified}
+              >
+                <Text style={styles.nextText}>Next Step</Text>
+                <Icon name="arrow-right" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
 
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#fff" },
+  background: { flex: 1 },
+
+  safeArea: { flex: 1, },
   scrollContainer: { flexGrow: 1 },
   // Header
   header: {
@@ -162,7 +171,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 24, flex: 1 },
   iconCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: "#f3e5f5", justifyContent: "center", alignItems: "center", marginBottom: 15 },
   title: { fontSize: 28, fontWeight: "800", color: "#1c005e", marginBottom: 8 },
-  subtitle: { fontSize: 16, color: "#666", marginBottom: 30, lineHeight: 22 },
+  subtitle: { fontSize: 16, color: "#ffffffff", marginBottom: 30, lineHeight: 22 },
   // Inputs
   inputGroup: { marginBottom: 20 },
   label: { fontSize: 14, fontWeight: "700", color: "#333", marginBottom: 8 },

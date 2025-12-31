@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity,ImageBackground, StyleSheet, Modal, Alert, ActivityIndicator } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -39,6 +39,11 @@ export default function EmailScreen() {
     };
 
     return (
+                <ImageBackground
+      source={require("../../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}><Icon name="arrow-left" size={24} color="#0f172a" /></TouchableOpacity>
@@ -95,11 +100,14 @@ export default function EmailScreen() {
                 </View>
             </Modal>
         </SafeAreaView>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#fff" },
+            background: { flex: 1 },
+
+    container: { flex: 1 },
     header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 20 },
     backBtn: { padding: 5, backgroundColor: '#f1f5f9', borderRadius: 8 },
     stepIndicator: { fontWeight: "bold", color: "#64748B" },

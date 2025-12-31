@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  ImageBackground,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 const JobType = ({ navigation }: any) => {
@@ -16,6 +17,11 @@ const JobType = ({ navigation }: any) => {
     { id: "contract", title: "Contract", desc: "Work on specific projects" },];
 
   return (
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>What type of job are you looking for?</Text>
       <Text style={styles.subtitle}>
@@ -65,18 +71,21 @@ const JobType = ({ navigation }: any) => {
           !selected && { opacity: 0.5 },
         ]}
         disabled={!selected}
-        onPress={() => navigation.navigate("SalaryRange")}
+        onPress={() => navigation.navigate("WorkStatus")}
       >
         <Text style={styles.nextText}>Next</Text>
       </TouchableOpacity>
     </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 export default JobType;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 24 },
+  background: { flex: 1 },
+
+  container: { flex: 1,  padding: 24 },
   title: { fontSize: 24, fontWeight: "700", marginBottom: 6 },
   subtitle: { color: "#555", marginBottom: 20 },
   option: {
@@ -113,6 +122,7 @@ const styles = StyleSheet.create({
   checkboxLabel: { color: "#333", fontSize: 14 },
   nextButton: {
     backgroundColor: "#000",
+    marginTop: 30,
     borderRadius: 25,
     paddingVertical: 16,
     paddingHorizontal: 30, // add this

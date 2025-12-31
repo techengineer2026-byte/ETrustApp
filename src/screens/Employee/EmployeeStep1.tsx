@@ -13,6 +13,7 @@ import {
     Platform,
     ScrollView,
     Dimensions,
+    ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -66,153 +67,160 @@ export default function EmployeeStep1() {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+        <ImageBackground
+            source={require("../../assets/bg.jpg")}
+            style={styles.background}
+            resizeMode="cover"
+        >
+            <SafeAreaView style={styles.safeArea}>
+                <StatusBar barStyle="dark-content" />
 
-            <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flex: 1 }}
-            >
-                <ScrollView
-                    contentContainerStyle={styles.scrollContainer}
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={{ flex: 1 }}
                 >
+                    <ScrollView
+                        contentContainerStyle={styles.scrollContainer}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                    >
 
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                            <Icon name="arrow-left" size={24} color="#1c005e" />
-                        </TouchableOpacity>
-                        <Text style={styles.stepIndicator}>Step 1 of 4</Text>
-                    </View>
-
-                    {/* Progress Bar (25%) */}
-                    <View style={styles.progressBarBg}>
-                        <View style={[styles.progressBarFill, { width: "25%" }]} />
-                    </View>
-
-                    {/* Main Content */}
-                    <View style={styles.content}>
-                        <View style={styles.iconCircle}>
-                            <Icon name="account-details" size={32} color="#1c005e" />
+                        {/* Header */}
+                        <View style={styles.header}>
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+                                <Icon name="arrow-left" size={24} color="#1c005e" />
+                            </TouchableOpacity>
+                            <Text style={styles.stepIndicator}>Step 1 of 4</Text>
                         </View>
 
-                        <Text style={styles.title}>Let's Get Started</Text>
-                        <Text style={styles.subtitle}>Create your employee account to find jobs.</Text>
-
-                        {/* Name Input */}
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Full Name</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Ex. Rahul Verma"
-                                placeholderTextColor="#999"
-                                value={name}
-                                onChangeText={setName}
-                                autoCapitalize="words"
-                            />
+                        {/* Progress Bar (25%) */}
+                        <View style={styles.progressBarBg}>
+                            <View style={[styles.progressBarFill, { width: "25%" }]} />
                         </View>
 
-                        {/* Phone Input with OTP Button */}
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Mobile Number</Text>
-                            <View style={styles.rowInput}>
-                                <TextInput
-                                    style={[styles.input, styles.inputFlex]}
-                                    placeholder="9876543210"
-                                    placeholderTextColor="#999"
-                                    keyboardType="number-pad"
-                                    maxLength={10}
-                                    value={phone}
-                                    onChangeText={(t) => {
-                                        setIsVerified(false);
-                                        setPhone(t.replace(/[^0-9]/g, ""));
-                                    }}
-                                    editable={!isVerified}
-                                />
-                                <TouchableOpacity
-                                    style={[styles.verifyBtn, isVerified && styles.verifiedBtn]}
-                                    onPress={handleSendOtp}
-                                    disabled={isVerified}
-                                >
-                                    {isVerified ? (
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <Icon name="check-circle" size={16} color="#fff" />
-                                            <Text style={[styles.verifyText, { marginLeft: 4 }]}>Verified</Text>
-                                        </View>
-                                    ) : (
-                                        <Text style={styles.verifyText}>Send OTP</Text>
-                                    )}
-                                </TouchableOpacity>
+                        {/* Main Content */}
+                        <View style={styles.content}>
+                            <View style={styles.iconCircle}>
+                                <Icon name="account-details" size={32} color="#1c005e" />
                             </View>
+
+                            <Text style={styles.title}>Let's Get Started</Text>
+                            <Text style={styles.subtitle}>Create your employee account to find jobs.</Text>
+
+                            {/* Name Input */}
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Full Name</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Ex. Rahul Verma"
+                                    placeholderTextColor="#999"
+                                    value={name}
+                                    onChangeText={setName}
+                                    autoCapitalize="words"
+                                />
+                            </View>
+
+                            {/* Phone Input with OTP Button */}
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Mobile Number</Text>
+                                <View style={styles.rowInput}>
+                                    <TextInput
+                                        style={[styles.input, styles.inputFlex]}
+                                        placeholder="9876543210"
+                                        placeholderTextColor="#999"
+                                        keyboardType="number-pad"
+                                        maxLength={10}
+                                        value={phone}
+                                        onChangeText={(t) => {
+                                            setIsVerified(false);
+                                            setPhone(t.replace(/[^0-9]/g, ""));
+                                        }}
+                                        editable={!isVerified}
+                                    />
+                                    <TouchableOpacity
+                                        style={[styles.verifyBtn, isVerified && styles.verifiedBtn]}
+                                        onPress={handleSendOtp}
+                                        disabled={isVerified}
+                                    >
+                                        {isVerified ? (
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Icon name="check-circle" size={16} color="#fff" />
+                                                <Text style={[styles.verifyText, { marginLeft: 4 }]}>Verified</Text>
+                                            </View>
+                                        ) : (
+                                            <Text style={styles.verifyText}>Send OTP</Text>
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
                         </View>
 
-                    </View>
-
-                    {/* Bottom Button */}
-                    <View style={styles.footer}>
-                        <TouchableOpacity
-                            style={[styles.nextBtn, !isVerified && styles.disabledBtn]}
-                            onPress={handleNext}
-                            disabled={!isVerified}
-                        >
-                            <Text style={styles.nextText}>Next Step</Text>
-                            <Icon name="arrow-right" size={20} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-
-                </ScrollView>
-            </KeyboardAvoidingView>
-
-            {/* --- OTP MODAL --- */}
-            <Modal visible={showOtpModal} transparent animationType="slide">
-                <View style={styles.modalBg}>
-                    <View style={styles.modalCard}>
-                        <View style={styles.modalIconBg}>
-                            <Icon name="message-text-lock" size={30} color="#1c005e" />
+                        {/* Bottom Button */}
+                        <View style={styles.footer}>
+                            <TouchableOpacity
+                                style={[styles.nextBtn, !isVerified && styles.disabledBtn]}
+                                onPress={handleNext}
+                                disabled={!isVerified}
+                            >
+                                <Text style={styles.nextText}>Next Step</Text>
+                                <Icon name="arrow-right" size={20} color="#fff" />
+                            </TouchableOpacity>
                         </View>
-                        <Text style={styles.modalTitle}>Enter Verification Code</Text>
-                        <Text style={styles.modalSub}>
-                            We sent a 4-digit code to <Text style={{ fontWeight: 'bold', color: '#000' }}>+91 {phone}</Text>
-                        </Text>
 
-                        <TextInput
-                            style={styles.otpInput}
-                            placeholder="1234"
-                            keyboardType="number-pad"
-                            maxLength={4}
-                            value={otpCode}
-                            onChangeText={setOtpCode}
-                            autoFocus
-                        />
+                    </ScrollView>
+                </KeyboardAvoidingView>
 
-                        <TouchableOpacity style={styles.modalVerifyBtn} onPress={verifyOtp}>
-                            {loading ? (
-                                <ActivityIndicator color="#fff" />
-                            ) : (
-                                <Text style={styles.nextText}>Verify Now</Text>
-                            )}
-                        </TouchableOpacity>
+                {/* --- OTP MODAL --- */}
+                <Modal visible={showOtpModal} transparent animationType="slide">
+                    <View style={styles.modalBg}>
+                        <View style={styles.modalCard}>
+                            <View style={styles.modalIconBg}>
+                                <Icon name="message-text-lock" size={30} color="#1c005e" />
+                            </View>
+                            <Text style={styles.modalTitle}>Enter Verification Code</Text>
+                            <Text style={styles.modalSub}>
+                                We sent a 4-digit code to <Text style={{ fontWeight: 'bold', color: '#000' }}>+91 {phone}</Text>
+                            </Text>
 
-                        <TouchableOpacity
-                            style={styles.modalCancelBtn}
-                            onPress={() => setShowOtpModal(false)}
-                        >
-                            <Text style={styles.modalCancel}>Cancel</Text>
-                        </TouchableOpacity>
+                            <TextInput
+                                style={styles.otpInput}
+                                placeholder="1234"
+                                keyboardType="number-pad"
+                                maxLength={4}
+                                value={otpCode}
+                                onChangeText={setOtpCode}
+                                autoFocus
+                            />
+
+                            <TouchableOpacity style={styles.modalVerifyBtn} onPress={verifyOtp}>
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.nextText}>Verify Now</Text>
+                                )}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.modalCancelBtn}
+                                onPress={() => setShowOtpModal(false)}
+                            >
+                                <Text style={styles.modalCancel}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            </Modal>
+                </Modal>
 
-        </SafeAreaView>
+            </SafeAreaView>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
+    background: { flex: 1 },
+
     safeArea: {
         flex: 1,
-        backgroundColor: "#fff",
     },
     scrollContainer: {
         flexGrow: 1,
@@ -236,7 +244,7 @@ const styles = StyleSheet.create({
     },
     stepIndicator: {
         fontWeight: "700",
-        color: "#666",
+        color: "#1d1b25ff",
         fontSize: 14,
     },
     // --- Progress Bar ---
@@ -261,7 +269,6 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: "#f3e5f5",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 15,
@@ -274,7 +281,7 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 16,
-        color: "#666",
+        color: "#ffffffff",
         marginBottom: 30,
         lineHeight: 22,
     },

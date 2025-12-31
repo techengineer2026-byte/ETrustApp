@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  ImageBackground,
+
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -33,6 +35,11 @@ export default function ETCenterStep2() {
   };
 
   return (
+        <ImageBackground
+          source={require("../../assets/bg.jpg")}
+          style={styles.background}
+          resizeMode="cover"
+        >
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
@@ -97,12 +104,16 @@ export default function ETCenterStep2() {
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 // Reusing styles from Step 1 for consistency
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#fff" },
+    background: {
+    flex: 1,
+  },
+  safeArea: { flex: 1 },
   scrollContainer: { flexGrow: 1 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 24, paddingTop: 20 },
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#f3e5f5", justifyContent: "center", alignItems: "center" },

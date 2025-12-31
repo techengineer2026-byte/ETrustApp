@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -37,18 +38,23 @@ export default function ETCenterStep3() {
     console.log("REGISTERING ET CENTER:", finalData);
 
     Alert.alert(
-      "Registration Successful", 
-      "Your Center ID has been created. You can now login.", 
+      "Registration Successful",
+      "Your Center ID has been created. You can now login.",
       [{ text: "Login Now", onPress: () => navigation.replace("ETCenterLogin") }]
     );
   };
 
   return (
+        <ImageBackground
+          source={require("../../assets/bg.jpg")}
+          style={styles.background}
+          resizeMode="cover"
+        >
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-          
+
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
               <Icon name="arrow-left" size={24} color="#1c005e" />
@@ -62,7 +68,7 @@ export default function ETCenterStep3() {
 
           <View style={styles.content}>
             <View style={styles.iconCircle}>
-                <Icon name="shield-account" size={32} color="#1c005e" />
+              <Icon name="shield-account" size={32} color="#1c005e" />
             </View>
 
             <Text style={styles.title}>Security & Info</Text>
@@ -99,11 +105,16 @@ export default function ETCenterStep3() {
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
+        </ImageBackground>
+    
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#fff" },
+  background: {
+    flex: 1,
+  },
+  safeArea: { flex: 1 },
   scrollContainer: { flexGrow: 1 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 24, paddingTop: 20 },
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#f3e5f5", justifyContent: "center", alignItems: "center" },

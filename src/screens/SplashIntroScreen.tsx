@@ -13,13 +13,14 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
+import FastImage from 'react-native-fast-image';
 
 // Responsive Font Helper
 // 0.07 means 7% of the screen width
-const titleSize = width * 0.07; 
-const subtitleSize = width * 0.035; 
+const titleSize = width * 0.07;
+const subtitleSize = width * 0.035;
 
 type SplashScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -64,14 +65,14 @@ export const SplashScreen: React.FC = () => {
     ]).start();
 
     const timer = setTimeout(() => {
-      navigation.replace('Welcome');
+      navigation.replace('Login');
     }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigation, logoScale, logoOpacity, textTranslate, textOpacity]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
       <ImageBackground
@@ -82,7 +83,7 @@ export const SplashScreen: React.FC = () => {
         <View style={styles.overlay} />
 
         <View style={styles.contentContainer}>
-          
+
           <Animated.View
             style={[
               styles.logoContainer,
@@ -94,8 +95,13 @@ export const SplashScreen: React.FC = () => {
           >
             <Image
               source={require('../assets/logo.png')}
-              style={styles.logo}
-              resizeMode="contain"
+              style={styles.heroImage}
+              resizeMode={FastImage.resizeMode.contain}
+            />
+            <FastImage
+              source={require('../assets/Hadndshake-unscreen.gif')}
+              style={styles.herogif}
+              resizeMode={FastImage.resizeMode.contain}
             />
           </Animated.View>
 
@@ -109,9 +115,9 @@ export const SplashScreen: React.FC = () => {
             }}
           >
             {/* Main Tagline */}
-            <Text 
+            <Text
               style={styles.tagline}
-              numberOfLines={1} 
+              numberOfLines={1}
               adjustsFontSizeToFit={true} // MAGIC FIX: Shrinks text to fit
               allowFontScaling={false}    // Prevents system "Large Text" from breaking UI
             >
@@ -119,7 +125,7 @@ export const SplashScreen: React.FC = () => {
             </Text>
 
             {/* Sub Tagline */}
-            <Text 
+            <Text
               style={styles.subTagline}
               numberOfLines={1}
               adjustsFontSizeToFit={true}
@@ -131,14 +137,13 @@ export const SplashScreen: React.FC = () => {
 
         </View>
       </ImageBackground>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FF512F',
   },
   backgroundImage: {
     flex: 1,
@@ -148,7 +153,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.1)', // Changed to slight dark overlay for better text white contrast
   },
   contentContainer: {
@@ -158,20 +162,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   logoContainer: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 10,
-    backgroundColor: 'white',
     padding: 15,
     borderRadius: 15,
     width: width * 0.9, // Container takes 90% of screen width
     alignItems: 'center',
   },
   logo: {
-    width: '100%',
-    height: width * 0.25, // Height is 25% of screen width (keeps aspect ratio)
+    width: 400,
+    height: 105,
   },
   tagline: {
     fontSize: titleSize, // Calculated relative to screen width
@@ -189,5 +187,17 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.95)',
     textAlign: 'center',
     marginTop: 5,
+
+  }, heroImage: {
+    width: 400,
+    height: 105,
+    opacity: 0.9,
   },
+  herogif: {
+    width: 200,
+    height: 200,
+    marginTop: -20,
+    opacity: 0.9,
+  },
+  
 });

@@ -14,6 +14,8 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
+import FastImage from 'react-native-fast-image';
+
 const { width, height } = Dimensions.get("window");
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<
@@ -66,7 +68,7 @@ const WelcomeScreen = () => {
               <TouchableOpacity
                 style={styles.button}
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate("Employeeuser")}
+                onPress={() => navigation.navigate("Firstname")}
               >
                 <Text style={styles.buttonText}>EMPLOYEE</Text>
               </TouchableOpacity>

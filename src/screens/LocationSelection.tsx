@@ -86,11 +86,11 @@ const LocationSelection = ({ navigation }: any) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Select your location</Text>
+            <Text style={styles.title}>Current location</Text>
             {!selectedState ? (
-                <Text style={styles.subtitle}>First, choose your state</Text>
+                <Text style={styles.subtitle}>First, Current state</Text>
             ) : (
-                <Text style={styles.subtitle}>Selected State: {selectedState}</Text>
+                <Text style={styles.subtitle}>Current State: {selectedState}</Text>
             )}
 
             <TextInput
@@ -133,7 +133,7 @@ const LocationSelection = ({ navigation }: any) => {
                             { transform: [{ scale: scaleAnim }] },
                         ]}
                     >
-                        <Text style={styles.confirmText}>Your Location:</Text>
+                        <Text style={styles.confirmText}>Your Current Location:</Text>
                         <Text style={styles.confirmDetail}>
                             State: {selectedState}
                         </Text>
@@ -153,7 +153,7 @@ const LocationSelection = ({ navigation }: any) => {
                                 style={styles.doneBtn}
                                 onPress={() => {
                                     setShowConfirm(false);
-                                    navigation.navigate("EducationForm", {
+                                    navigation.navigate("UploadResume", {
                                         state: selectedState,
                                         district: selectedDistrict,
                                     });
