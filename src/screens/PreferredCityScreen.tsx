@@ -1,3 +1,5 @@
+// src/screens/PreferredCityScreen.tsx
+
 import React, { useState, useEffect } from "react";
 import {
     View,
@@ -256,8 +258,7 @@ export default function PreferredCityScreen({ navigation }: any) {
 
     const handleNext = () => {
         if (!selectedState || !selectedCity) return;
-        console.log("Saving Location:", selectedState, selectedCity);
-        navigation.navigate("SyncLoading");
+        navigation.navigate("MainTabs");
     };
 
     return (
@@ -362,7 +363,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingHorizontal: 20,
         paddingVertical: 15,
-        backgroundColor: "rgba(255, 255, 255, 0.85)",
         borderBottomWidth: 1,
         borderBottomColor: "rgba(0,0,0,0.05)",
     },

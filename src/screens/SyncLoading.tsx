@@ -1,3 +1,5 @@
+// src/screens/SyncLoading.tsx
+
 import React, { useEffect, useRef } from "react";
 import {
     View,

@@ -1,3 +1,5 @@
+// src/screens/SplashIntroScreen.tsx
+
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
@@ -65,7 +67,7 @@ export const SplashScreen: React.FC = () => {
     ]).start();
 
     const timer = setTimeout(() => {
-      navigation.replace('Login');
+      navigation.replace('EmployeeBottomNav');
     }, 3000);
 
     return () => clearTimeout(timer);

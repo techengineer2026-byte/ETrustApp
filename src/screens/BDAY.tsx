@@ -1,3 +1,5 @@
+// src/screens/BDAY.tsx
+
 import React, { useState, useRef } from "react";
 import {
   View,
@@ -241,7 +243,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
   },
   input: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "600",
     color: "#111827",
     paddingVertical: 5,

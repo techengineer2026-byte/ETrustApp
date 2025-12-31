@@ -1,3 +1,5 @@
+// src/navigation/AppNavigator.tsx
+
 import React from 'react';
 import { RootStackParamList } from "../types/navigation";
 
@@ -52,6 +54,7 @@ import UploadResumeScreen from '../screens/UploadResumeScreen';
 import WorkExperienceScreen from '../screens/WorkExperienceScreen';
 import WorkStatusScreen from '../screens/WorkStatusScreen';
 import SyncLoading from '../screens/SyncLoading';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {

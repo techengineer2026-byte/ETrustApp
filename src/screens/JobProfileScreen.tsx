@@ -20,15 +20,72 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ===== COMMON JOB TITLES DATA ===== */
 const JOB_TITLES = [
-    "Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer",
-    "Product Manager", "Project Manager", "Business Analyst",
-    "Sales Executive", "Marketing Manager", "HR Manager", "Recruiter",
-    "Accountant", "Financial Analyst",
-    "Graphic Designer", "UI/UX Designer",
-    "Data Scientist", "Data Analyst",
-    "Customer Support", "Operations Manager",
-    "Content Writer", "Digital Marketer",
-    "Intern", "Fresher"
+    // Engineering & Development
+    "Software Engineer", "Senior Software Engineer", "Principal Software Engineer",
+    "Frontend Developer", "Backend Developer", "Full Stack Developer",
+    "Mobile App Developer", "iOS Developer", "Android Developer",
+    "DevOps Engineer", "Site Reliability Engineer",
+    "Cloud Engineer", "Solutions Architect",
+    "QA Engineer", "Automation Test Engineer", "Manual Tester",
+    "Embedded Systems Engineer", "Game Developer",
+
+    // Data & AI
+    "Data Scientist", "Senior Data Scientist",
+    "Data Analyst", "Business Intelligence Analyst",
+    "Machine Learning Engineer", "AI Engineer",
+    "Data Engineer", "Analytics Engineer",
+
+    // Product & Project
+    "Product Manager", "Senior Product Manager",
+    "Project Manager", "Program Manager",
+    "Scrum Master", "Agile Coach",
+    "Business Analyst", "Technical Product Owner",
+
+    // Design & Creative
+    "Graphic Designer", "UI Designer", "UX Designer", "UI/UX Designer",
+    "Product Designer", "Visual Designer",
+    "Motion Designer", "Illustrator",
+
+    // Marketing & Content
+    "Marketing Manager", "Growth Marketer",
+    "Digital Marketer", "SEO Specialist", "SEM Specialist",
+    "Content Writer", "Technical Writer", "Copywriter",
+    "Social Media Manager", "Brand Manager",
+
+    // Sales & Customer Success
+    "Sales Executive", "Sales Manager",
+    "Account Executive", "Business Development Executive",
+    "Customer Support", "Customer Success Manager",
+    "Client Relationship Manager",
+
+    // HR & Operations
+    "HR Manager", "HR Executive", "People Operations Manager",
+    "Recruiter", "Technical Recruiter", "Talent Acquisition Specialist",
+    "Operations Manager", "Operations Executive",
+    "Office Administrator",
+
+    // Finance & Legal
+    "Accountant", "Senior Accountant",
+    "Financial Analyst", "Finance Manager",
+    "Auditor", "Tax Consultant",
+    "Compliance Officer",
+
+    // IT & Support
+    "IT Support Engineer", "System Administrator",
+    "Network Engineer", "IT Manager",
+    "Information Security Analyst", "Cybersecurity Engineer",
+
+    // Leadership
+    "Team Lead", "Engineering Manager",
+    "Director of Engineering",
+    "VP of Engineering", "CTO", "CIO",
+    "CEO", "COO", "CFO",
+
+    // Entry-Level & Early Career
+    "Intern", "Graduate Intern",
+    "Trainee Engineer", "Management Trainee",
+    "Junior Developer", "Junior Analyst",
+    "Fresher"
 ];
 
 type JobNavProp = NativeStackNavigationProp<RootStackParamList, "JobProfile">;
@@ -112,7 +169,7 @@ export default function JobProfileScreen() {
                                                     ]}
                                                     onPress={() => handleSelectSuggestion(item)}
                                                 >
-                                                    <Icon name="search-outline" size={16} color="#9CA3AF" style={{marginRight: 10}} />
+                                                    <Icon name="search-outline" size={16} color="#9CA3AF" style={{ marginRight: 10 }} />
                                                     <Text style={styles.suggestionText}>{item}</Text>
                                                 </TouchableOpacity>
                                             )}
@@ -130,7 +187,7 @@ export default function JobProfileScreen() {
                                 onPress={handleNext}
                             >
                                 <Text style={styles.nextButtonText}>Next</Text>
-                                <Icon name="arrow-forward" size={20} color="#fff" style={{marginLeft: 8}} />
+                                <Icon name="arrow-forward" size={20} color="#fff" style={{ marginLeft: 8 }} />
                             </TouchableOpacity>
                         </View>
                     </KeyboardAvoidingView>
@@ -145,23 +202,23 @@ const styles = StyleSheet.create({
     background: { flex: 1 },
     container: { flex: 1, paddingHorizontal: 24, paddingTop: 10 },
     backButton: { marginBottom: 20 },
-    
-    title: { 
-        fontSize: 28, 
-        fontWeight: "800", 
-        color: "#111827", 
-        marginBottom: 8 
+
+    title: {
+        fontSize: 28,
+        fontWeight: "800",
+        color: "#111827",
+        marginBottom: 8
     },
-    desc: { 
-        fontSize: 15, 
-        color: "#4B5563", 
-        marginBottom: 30, 
-        lineHeight: 22 
+    desc: {
+        fontSize: 15,
+        color: "#4B5563",
+        marginBottom: 30,
+        lineHeight: 22
     },
 
     /* Input Wrapper needed for relative positioning of dropdown */
     inputWrapper: {
-        zIndex: 1000, 
+        zIndex: 1000,
         position: 'relative'
     },
     input: {
@@ -214,10 +271,10 @@ const styles = StyleSheet.create({
     },
 
     /* Footer */
-    bottomContainer: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20, 
-        alignItems: 'flex-end' 
+    bottomContainer: {
+        paddingHorizontal: 24,
+        paddingBottom: 20,
+        alignItems: 'flex-end'
     },
     nextButton: {
         backgroundColor: "#000",
@@ -232,9 +289,9 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 4,
     },
-    nextButtonText: { 
-        color: "#fff", 
-        fontSize: 16, 
-        fontWeight: "700" 
+    nextButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "700"
     },
 });

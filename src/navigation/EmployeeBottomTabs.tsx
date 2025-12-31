@@ -1,9 +1,10 @@
+// src/navigation/EmployeeBottomTabs.tsx
+
 import React from "react";
 import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-
 const Tab = createBottomTabNavigator();
 
 /* 
@@ -22,7 +23,7 @@ const Placeholder = ({ title }: { title: string }) => (
   </View>
 );
 
-const JobsScreen = () => <Placeholder title="Jobs Screen (Coming Soon)" />;
+
 const AppliedJobsScreen = () => (
   <Placeholder title="Applied Jobs Screen (Coming Soon)" />
 );
@@ -57,7 +58,7 @@ const EmployeeBottomNav = () => {
       {/* JOB LIST */}
       <Tab.Screen
         name="Jobs"
-        component={JobsScreen}
+        component={AppliedJobsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
