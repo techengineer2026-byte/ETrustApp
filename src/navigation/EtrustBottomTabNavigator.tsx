@@ -5,9 +5,13 @@ import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import Dashboard from "../screens/ET-Center/Dashboard";
+import ETEmployees from "../screens/ET-Center/ETemployees";
+import ETEmployers from "../screens/ET-Center/ETemployers";
+import Transactions from "../screens/ET-Center/Transactions";
+import ETProfile from "../screens/ET-Center/ETProfile";
 
 const Tab = createBottomTabNavigator();
-
 /*
   TEMP SCREENS – Replace later with real screens
   ---------------------------------------------
@@ -24,21 +28,8 @@ const Placeholder = ({ title }: { title: string }) => (
   </View>
 );
 
-const DashboardScreen = () => (
-  <Placeholder title="Etrust Dashboard (Coming Soon)" />
-);
-const EmployersScreen = () => (
-  <Placeholder title="Employers Management (Coming Soon)" />
-);
-const EmployeesScreen = () => (
-  <Placeholder title="Employees Management (Coming Soon)" />
-);
-const TransactionsScreen = () => (
-  <Placeholder title="Transactions / Reports (Coming Soon)" />
-);
-const AdminProfileScreen = () => (
-  <Placeholder title="Admin Profile (Coming Soon)" />
-);
+
+
 
 const EtrustBottomNav = () => {
   return (
@@ -51,7 +42,7 @@ const EtrustBottomNav = () => {
           marginBottom: 4,
         },
         tabBarStyle: {
-          height: 70,
+          height: 100,
           backgroundColor: "#ffffff",
           borderTopWidth: 0,
           elevation: 8,
@@ -61,7 +52,7 @@ const EtrustBottomNav = () => {
       {/* DASHBOARD */}
       <Tab.Screen
         name="Dashboard"
-        component={DashboardScreen}
+        component={Dashboard}
         options={{
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
@@ -76,7 +67,7 @@ const EtrustBottomNav = () => {
       {/* EMPLOYERS */}
       <Tab.Screen
         name="Employers"
-        component={EmployersScreen}
+        component={ETEmployers}
         options={{
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
@@ -91,7 +82,7 @@ const EtrustBottomNav = () => {
       {/* EMPLOYEES */}
       <Tab.Screen
         name="Employees"
-        component={EmployeesScreen}
+        component={ETEmployees}
         options={{
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
@@ -106,7 +97,7 @@ const EtrustBottomNav = () => {
       {/* TRANSACTIONS */}
       <Tab.Screen
         name="Transactions"
-        component={TransactionsScreen}
+        component={Transactions}
         options={{
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
@@ -121,7 +112,7 @@ const EtrustBottomNav = () => {
       {/* PROFILE */}
       <Tab.Screen
         name="Profile"
-        component={AdminProfileScreen}
+        component={ETProfile}
         options={{
           tabBarIcon: ({ focused }) => (
             <FontAwesome5

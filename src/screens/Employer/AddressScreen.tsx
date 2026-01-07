@@ -31,49 +31,49 @@ export default function AddressScreen() {
 
     return (
         <ImageBackground
-      source={require("../../assets/bg.jpg")}
-      style={styles.background}
-      resizeMode="cover"
-  >
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}><Icon name="arrow-left" size={24} color="#0f172a" /></TouchableOpacity>
-                <Text style={styles.stepIndicator}>4 of 4</Text>
-            </View>
-            <View style={styles.progressBarBg}><View style={[styles.progressBarFill, { width: "100%" }]} /></View>
-
-            <ScrollView contentContainerStyle={styles.content}>
-                <View style={styles.iconCircle}><Icon name="map-marker-radius" size={32} color="#0f172a" /></View>
-                <Text style={styles.title}>Office Location</Text>
-                <Text style={styles.subtitle}>Where is your company located?</Text>
-
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Address Line</Text>
-                    <TextInput style={styles.input} placeholder="Floor, Building, Street" placeholderTextColor="#94a3b8" value={address} onChangeText={setAddress} />
+            source={require("../../assets/bg.jpg")}
+            style={styles.background}
+            resizeMode="cover"
+        >
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}><Icon name="arrow-left" size={24} color="#0f172a" /></TouchableOpacity>
+                    <Text style={styles.stepIndicator}>4 of 4</Text>
                 </View>
+                <View style={styles.progressBarBg}><View style={[styles.progressBarFill, { width: "100%" }]} /></View>
 
-                <View style={styles.row}>
-                    <View style={[styles.inputGroup, { width: '48%' }]}>
-                        <Text style={styles.label}>City</Text>
-                        <TextInput style={styles.input} placeholder="Mumbai" placeholderTextColor="#94a3b8" value={city} onChangeText={setCity} />
+                <ScrollView contentContainerStyle={styles.content}>
+                    <View style={styles.iconCircle}><Icon name="map-marker-radius" size={32} color="#0f172a" /></View>
+                    <Text style={styles.title}>Office Location</Text>
+                    <Text style={styles.subtitle}>Where is your company located?</Text>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Address Line</Text>
+                        <TextInput style={styles.input} placeholder="Floor, Building, Street" placeholderTextColor="#94a3b8" value={address} onChangeText={setAddress} />
                     </View>
-                    <View style={[styles.inputGroup, { width: '48%' }]}>
-                        <Text style={styles.label}>District</Text>
-                        <TextInput style={styles.input} placeholder="Thane" placeholderTextColor="#94a3b8" value={district} onChangeText={setDistrict} />
+
+                    <View style={styles.row}>
+                        <View style={[styles.inputGroup, { width: '48%' }]}>
+                            <Text style={styles.label}>City</Text>
+                            <TextInput style={styles.input} placeholder="Mumbai" placeholderTextColor="#94a3b8" value={city} onChangeText={setCity} />
+                        </View>
+                        <View style={[styles.inputGroup, { width: '48%' }]}>
+                            <Text style={styles.label}>District</Text>
+                            <TextInput style={styles.input} placeholder="Thane" placeholderTextColor="#94a3b8" value={district} onChangeText={setDistrict} />
+                        </View>
                     </View>
-                </View>
 
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Pincode</Text>
-                    <TextInput style={styles.input} placeholder="400001" placeholderTextColor="#94a3b8" keyboardType="number-pad" maxLength={6} value={pincode} onChangeText={setPincode} />
-                </View>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Pincode</Text>
+                        <TextInput style={styles.input} placeholder="400001" placeholderTextColor="#94a3b8" keyboardType="number-pad" maxLength={6} value={pincode} onChangeText={setPincode} />
+                    </View>
 
-                <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-                    <Text style={styles.nextText}>Finish Registration</Text>
-                    <Icon name="check-circle" size={20} color="#fff" />
-                </TouchableOpacity>
-            </ScrollView>
-        </SafeAreaView>
+                    <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
+                        <Text style={styles.nextText}>Finish Registration</Text>
+                        <Icon name="check-circle" size={20} color="#fff" />
+                    </TouchableOpacity>
+                </ScrollView>
+            </SafeAreaView>
         </ImageBackground>
     );
 }

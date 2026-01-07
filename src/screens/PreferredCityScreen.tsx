@@ -258,7 +258,7 @@ export default function PreferredCityScreen({ navigation }: any) {
 
     const handleNext = () => {
         if (!selectedState || !selectedCity) return;
-        navigation.navigate("MainTabs");
+        navigation.navigate("SyncLoading");
     };
 
     return (

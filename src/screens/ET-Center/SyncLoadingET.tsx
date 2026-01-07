@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types/navigation";
+import { RootStackParamList } from "../../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
@@ -23,11 +23,11 @@ const { width } = Dimensions.get("window");
 const titleSize = width * 0.07;
 const subtitleSize = width * 0.04;
 
-export default function SyncLoading() {
+export default function SyncLoadingET() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    
+
     // Animation Values
-    const fadeAnim = useRef(new Animated.Value(0)).current; 
+    const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideUp = useRef(new Animated.Value(30)).current;
 
     useEffect(() => {
@@ -51,7 +51,7 @@ export default function SyncLoading() {
             navigation.dispatch(
                 CommonActions.reset({
                     index: 0,
-                    routes: [{ name: "EmployeeBottomNav" }], // Change to your destination screen
+                    routes: [{ name: "EtrustBottomNav" }], // Change to your destination screen
                 })
             );
         }, 4000);
@@ -62,9 +62,9 @@ export default function SyncLoading() {
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-            
+
             <ImageBackground
-                source={require("../assets/bg.jpg")}
+                source={require("../../assets/bg.jpg")}
                 style={styles.backgroundImage}
                 resizeMode="cover"
             >
@@ -73,17 +73,17 @@ export default function SyncLoading() {
 
                 <SafeAreaView style={styles.safeArea}>
                     <View style={styles.contentContainer}>
-                        
-                        <Animated.View 
+
+                        <Animated.View
                             style={[
-                                styles.animContainer, 
+                                styles.animContainer,
                                 { opacity: fadeAnim, transform: [{ translateY: slideUp }] }
                             ]}
                         >
                             {/* GIF DISPLAY */}
                             <View style={styles.gifContainer}>
                                 <Image
-                                    source={require("../assets/Hadndshake-unscreen.gif")}
+                                    source={require("../../assets/Hadndshake-unscreen.gif")}
                                     style={styles.gif}
                                     resizeMode="contain"
                                 />
@@ -98,7 +98,7 @@ export default function SyncLoading() {
                             <Text style={styles.subtitle}>
                                 Searching your matching job
                             </Text>
-                            
+
                         </Animated.View>
                     </View>
                 </SafeAreaView>

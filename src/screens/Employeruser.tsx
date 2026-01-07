@@ -1,3 +1,5 @@
+// src/screens/Employeruser.tsx
+
 import React, { useState, useRef } from "react";
 import {
   StyleSheet,
@@ -58,7 +60,7 @@ export default function EmployerUser() {
       return;
     }
     console.log("Employer Login:", email);
-    navigation.navigate("MainTabs");
+    navigation.navigate("UploadLogo");
   };
 
   return (
@@ -150,7 +152,8 @@ export default function EmployerUser() {
                   </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("ForgotPassword")}>
+                <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("EmployerBottomNav")}>
+                {/* <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("ForgotPassword")}> */}
                   <Text style={styles.forgotText}>Forgot Password?</Text>
                 </TouchableOpacity>
 

@@ -44,23 +44,23 @@ export type RootStackParamList = {
 
   // --- EMPLOYER REGISTRATION FLOW ---
   EmployerLogin: undefined; // Explicit Login Screen if needed
-  
+
   // Step 1: Basic Info
   CompanyScreen: undefined;
-  
+
   // Step 2: Receives data from Step 1
   EmailScreen: {
     companyName: string;
     contactPerson: string;
   };
-  
+
   // Step 3: Receives data from Step 1 & 2
   PhoneScreen: {
     companyName: string;
     contactPerson: string;
     email: string;
   };
-  
+
   // Step 4: Receives data from Step 1, 2 & 3
   AddressScreen: {
     companyName: string;
@@ -69,7 +69,7 @@ export type RootStackParamList = {
     phone: string;
   };
   // --- EMPLOYEE REGISTRATION FLOW ---
-  EmployeeLogin: undefined; 
+  EmployeeLogin: undefined;
 
   // Step 1: Name & Phone
   EmployeeStep1: undefined;
@@ -136,4 +136,22 @@ export type RootStackParamList = {
   WorkExperience: undefined;
   WorkStatus: undefined;
   SyncLoading: undefined;
+
+  ContactVerification: undefined;
+  UploadLogo: undefined;
+  ContactPersonScreen: any; // Receives data from previous steps
+  ContactNumberScreen: any;
+  OfficeAddressScreen: any;
+
+  ETcenteruser: undefined;
+  ETContactVerify: undefined;
+  ETpasswordreg: undefined;
+  SyncLoadingET: undefined;
+  CenterName: undefined;
+  ETname: undefined;
+  OfficeAddressET: undefined;
+
+  TransactionDetail: undefined;
+  CompanyProfile: undefined;
+  EmployerJobs: undefined;
 };

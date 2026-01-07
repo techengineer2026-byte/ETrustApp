@@ -16,7 +16,6 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
-import FastImage from 'react-native-fast-image';
 
 const { width, height } = Dimensions.get("window");
 
@@ -87,7 +86,7 @@ const WelcomeScreen = () => {
               <TouchableOpacity
                 style={[styles.button, styles.secondaryButton]}
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate("ETCenterLogin")}
+                onPress={() => navigation.navigate("ETcenteruser")}
               >
                 <Text style={[styles.buttonText, styles.secondaryButtonText]}>
                   ET CENTER

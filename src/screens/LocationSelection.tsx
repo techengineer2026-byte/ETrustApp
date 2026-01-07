@@ -7,6 +7,8 @@ import {
     TouchableOpacity,
     FlatList,
     Animated,
+    ImageBackground, // ✅ ADD THIS
+
     Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -85,87 +87,93 @@ const LocationSelection = ({ navigation }: any) => {
             : Object.keys(INDIA_LOCATIONS);
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Current location</Text>
-            {!selectedState ? (
-                <Text style={styles.subtitle}>First, Current state</Text>
-            ) : (
-                <Text style={styles.subtitle}>Current State: {selectedState}</Text>
-            )}
+        <ImageBackground
+            source={require("../assets/bg.jpg")}
+            style={styles.background}
+            resizeMode="cover"
+        >
+            <SafeAreaView style={styles.container}>
+                <Text style={styles.title}>Current location</Text>
+                {!selectedState ? (
+                    <Text style={styles.subtitle}>First, Current state</Text>
+                ) : (
+                    <Text style={styles.subtitle}>Current State: {selectedState}</Text>
+                )}
 
-            <TextInput
-                style={styles.input}
-                placeholder={
-                    selectedState ? "Search district..." : "Search state..."
-                }
-                value={search}
-                onChangeText={handleSearch}
-            />
+                <TextInput
+                    style={styles.input}
+                    placeholder={
+                        selectedState ? "Search district..." : "Search state..."
+                    }
+                    value={search}
+                    onChangeText={handleSearch}
+                />
 
-            <FlatList
-                data={displayedData}
-                keyExtractor={(item) => item}
-                renderItem={({ item }) => (
+                <FlatList
+                    data={displayedData}
+                    keyExtractor={(item) => item}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={styles.option}
+                            onPress={() => handleSelect(item)}
+                        >
+                            <Text style={styles.optionText}>{item}</Text>
+                        </TouchableOpacity>
+                    )}
+                />
+
+                {selectedState && (
                     <TouchableOpacity
-                        style={styles.option}
-                        onPress={() => handleSelect(item)}
+                        style={styles.backButton}
+                        onPress={() => setSelectedState(null)}
                     >
-                        <Text style={styles.optionText}>{item}</Text>
+                        <Text style={styles.backText}>← Change State</Text>
                     </TouchableOpacity>
                 )}
-            />
 
-            {selectedState && (
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => setSelectedState(null)}
-                >
-                    <Text style={styles.backText}>← Change State</Text>
-                </TouchableOpacity>
-            )}
+                {/* 🔹 Confirmation Popup */}
+                <Modal transparent visible={showConfirm} animationType="fade">
+                    <View style={styles.overlay}>
+                        <Animated.View
+                            style={[
+                                styles.popup,
+                                { transform: [{ scale: scaleAnim }] },
+                            ]}
+                        >
+                            <Text style={styles.confirmText}>Your Current Location:</Text>
+                            <Text style={styles.confirmDetail}>
+                                State: {selectedState}
+                            </Text>
+                            <Text style={styles.confirmDetail}>
+                                District: {selectedDistrict}
+                            </Text>
 
-            {/* 🔹 Confirmation Popup */}
-            <Modal transparent visible={showConfirm} animationType="fade">
-                <View style={styles.overlay}>
-                    <Animated.View
-                        style={[
-                            styles.popup,
-                            { transform: [{ scale: scaleAnim }] },
-                        ]}
-                    >
-                        <Text style={styles.confirmText}>Your Current Location:</Text>
-                        <Text style={styles.confirmDetail}>
-                            State: {selectedState}
-                        </Text>
-                        <Text style={styles.confirmDetail}>
-                            District: {selectedDistrict}
-                        </Text>
+                            <View style={styles.confirmActions}>
+                                <TouchableOpacity
+                                    style={styles.editBtn}
+                                    onPress={() => setShowConfirm(false)}
+                                >
+                                    <Text style={styles.editText}>Edit</Text>
+                                </TouchableOpacity>
 
-                        <View style={styles.confirmActions}>
-                            <TouchableOpacity
-                                style={styles.editBtn}
-                                onPress={() => setShowConfirm(false)}
-                            >
-                                <Text style={styles.editText}>Edit</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={styles.doneBtn}
-                                onPress={() => {
-                                    setShowConfirm(false);
-                                    navigation.navigate("UploadResume", {
-                                        state: selectedState,
-                                        district: selectedDistrict,
-                                    });
-                                }}
-                            >
-                                <Text style={styles.doneText}>Done</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Animated.View>
-                </View>
-            </Modal>
-        </SafeAreaView>
+                                <TouchableOpacity
+                                    style={styles.doneBtn}
+                                    onPress={() => {
+                                        setShowConfirm(false);
+                                        navigation.navigate("UploadResume", {
+                                            state: selectedState,
+                                            district: selectedDistrict,
+                                        });
+                                    }}
+                                >
+                                    <Text style={styles.doneText}>Done</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Animated.View>
+                    </View>
+                </Modal>
+            </SafeAreaView>
+        </ImageBackground>
     );
 };
 
@@ -173,9 +181,12 @@ export default LocationSelection;
 
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+    },
+
     container: {
         flex: 1,
-        backgroundColor: "#fff",
         padding: 24,
     },
     title: { fontSize: 24, fontWeight: "700", color: "#000", marginBottom: 8 },

@@ -17,7 +17,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
-import FastImage from 'react-native-fast-image';
 
 // Responsive Font Helper
 // 0.07 means 7% of the screen width
@@ -67,7 +66,8 @@ export const SplashScreen: React.FC = () => {
     ]).start();
 
     const timer = setTimeout(() => {
-      navigation.replace('EmployeeBottomNav');
+      navigation.replace('Login');
+      console.log("TEST PASSED!");
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -98,12 +98,12 @@ export const SplashScreen: React.FC = () => {
             <Image
               source={require('../assets/logo.png')}
               style={styles.heroImage}
-              resizeMode={FastImage.resizeMode.contain}
+              resizeMode="contain"
             />
-            <FastImage
+            <Image
               source={require('../assets/Hadndshake-unscreen.gif')}
               style={styles.herogif}
-              resizeMode={FastImage.resizeMode.contain}
+              resizeMode="contain"
             />
           </Animated.View>
 
@@ -201,5 +201,5 @@ const styles = StyleSheet.create({
     marginTop: -20,
     opacity: 0.9,
   },
-  
+
 });

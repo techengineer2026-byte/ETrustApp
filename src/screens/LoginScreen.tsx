@@ -27,6 +27,7 @@ const LoginScreen = () => {
 
   const handleFacebookLogin = () => {
     navigation.navigate("Welcome");
+    
   };
 
   const handlePhoneLogin = () => {

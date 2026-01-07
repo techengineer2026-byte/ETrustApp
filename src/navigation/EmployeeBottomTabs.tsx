@@ -5,6 +5,11 @@ import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Dashboard from "../screens/Employee/Dashboard";
+import AppliedJobsScreen from "../screens/Employee/AppliedJobs";
+import NotificationScreen from "../screens/Employee/NotificationScreen";
+import ProfileScreen from "../screens/Employee/ProfileScreen";
 const Tab = createBottomTabNavigator();
 
 /* 
@@ -24,21 +29,18 @@ const Placeholder = ({ title }: { title: string }) => (
 );
 
 
-const AppliedJobsScreen = () => (
-  <Placeholder title="Applied Jobs Screen (Coming Soon)" />
-);
+
 const UploadResumeScreen = () => (
   <Placeholder title="Upload Resume Screen (Coming Soon)" />
 );
-const NotificationScreen = () => (
-  <Placeholder title="Notifications Screen (Coming Soon)" />
-);
+
 const EmployeeProfileScreen = () => (
   <Placeholder title="Profile Screen (Coming Soon)" />
 );
 
 const EmployeeBottomNav = () => {
   return (
+
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
@@ -48,7 +50,7 @@ const EmployeeBottomNav = () => {
           marginBottom: 4,
         },
         tabBarStyle: {
-          height: 70,
+          height: 100,
           backgroundColor: "#ffffff",
           borderTopWidth: 0,
           elevation: 8,
@@ -58,7 +60,7 @@ const EmployeeBottomNav = () => {
       {/* JOB LIST */}
       <Tab.Screen
         name="Jobs"
-        component={AppliedJobsScreen}
+        component={Dashboard}
         options={{
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
@@ -70,14 +72,15 @@ const EmployeeBottomNav = () => {
         }}
       />
 
-      {/* APPLIED JOBS */}
+
       <Tab.Screen
         name="Applied"
         component={AppliedJobsScreen}
         options={{
+          headerShown: false, // We created a custom header inside the component
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
-              name="file-check"
+              name="file-check-outline"
               size={26}
               color={focused ? "#27AE60" : "#9E9E9E"}
             />
@@ -85,20 +88,6 @@ const EmployeeBottomNav = () => {
         }}
       />
 
-      {/* UPLOAD RESUME */}
-      <Tab.Screen
-        name="Resume"
-        component={UploadResumeScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
-              name="upload"
-              size={28}
-              color={focused ? "#F2994A" : "#9E9E9E"}
-            />
-          ),
-        }}
-      />
 
       {/* ALERTS */}
       <Tab.Screen
@@ -117,7 +106,7 @@ const EmployeeBottomNav = () => {
 
       <Tab.Screen
         name="Profile"
-        component={EmployeeProfileScreen}
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <FontAwesome

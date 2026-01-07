@@ -1,10 +1,12 @@
+// src/screens/ET-Center/CenterName.tsx
+
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Alert, StatusBar } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-export default function CompanyScreen() {
+export default function CenterName() {
   const navigation = useNavigation<any>();
   const [companyName, setCompanyName] = useState("");
   const [contactPerson, setContactPerson] = useState("");
@@ -15,7 +17,7 @@ export default function CompanyScreen() {
       return;
     }
     // Navigate to Email Screen
-    navigation.navigate("ContactVerification", { companyName, contactPerson });
+    navigation.navigate("SyncLoadingET", { companyName, contactPerson });
   };
 
   return (
@@ -32,11 +34,11 @@ export default function CompanyScreen() {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Icon name="arrow-left" size={24} color="#0f172a" />
           </TouchableOpacity>
-          <Text style={styles.stepIndicator}>1 of 4</Text>
+          <Text style={styles.stepIndicator}>3 of 3</Text>
         </View>
 
         <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: "25%" }]} />
+          <View style={[styles.progressBarFill, { width: "100%" }]} />
         </View>
 
         <View style={styles.content}>
@@ -44,11 +46,11 @@ export default function CompanyScreen() {
             <Icon name="domain" size={32} color="#0f172a" />
           </View>
 
-          <Text style={styles.title}>Company Details</Text>
+          <Text style={styles.title}>Center Details</Text>
           <Text style={styles.subtitle}>Let's start with your organization info.</Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Registered Company Name</Text>
+            <Text style={styles.label}>Registered Center Name</Text>
             <TextInput
               style={styles.input}
               placeholder="Ex. Tech Solutions Pvt Ltd"

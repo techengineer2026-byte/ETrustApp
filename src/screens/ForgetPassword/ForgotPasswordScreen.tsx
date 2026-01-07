@@ -1,3 +1,5 @@
+// src/screens/ForgetPassword/ForgotPasswordScreen.tsx
+
 import React, { useState, useRef } from "react";
 import {
   StyleSheet,
@@ -52,12 +54,12 @@ const ForgotPassword = () => {
       showToast("Please enter your email address."); // Replaced Alert
       return;
     }
-    
+
     // Basic email validation regex
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
-        showToast("Please enter a valid email address.");
-        return;
+      showToast("Please enter a valid email address.");
+      return;
     }
 
     // API Call to send email goes here...
@@ -75,7 +77,7 @@ const ForgotPassword = () => {
     >
       <View style={styles.overlay}>
         <SafeAreaView style={styles.safeArea}>
-          
+
           {/* --- CUSTOM ERROR TOAST --- */}
           {toastMessage ? (
             <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }]}>
@@ -157,7 +159,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: { flexGrow: 1, alignItems: "center", paddingBottom: 30 },
   logoWrapper: {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
     padding: 10,
     borderRadius: 20,
     width: width * 0.85,
@@ -165,7 +166,10 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     marginTop: 20,
   },
-  logo: { width: 280, height: 60 },
+  logo: {
+    width: 400,
+    height: 105,
+  },
   title: { fontSize: 28, fontWeight: "bold", color: "#fff", marginBottom: 10 },
   subtitle: {
     fontSize: 15,

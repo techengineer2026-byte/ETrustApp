@@ -1,137 +1,173 @@
+// src/navigation/EmployerBottomNav.tsx
+
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Feather from "react-native-vector-icons/Feather";
+
+// --- PLACEHOLDER SCREENS (Replace with your actual imports) ---
+import EmployerDashboard from "../screens/Employer/EmployerDashboard";
+import ApplicationsScreen from "../screens/Employer/ApplicationsScreen"; // Using this for "Jobs"
+import PostJobScreen from "../screens/Employer/PostJobScreen";
+import ChatScreen from "../screens/Employer/ChatScreen";
+import EmployerProfileScreen from "../screens/Employer/EmployerProfileScreen";
+
 
 const Tab = createBottomTabNavigator();
 
-/*
-  TEMP SCREENS – Replace later with real screens
-  ---------------------------------------------
-  DashboardScreen     → Posted jobs + applied count
-  PostJobScreen       → Create new job
-  ApplicantsScreen    → Applied candidates + download resume
-  WalletScreen        → Recharge & payment gateway
-  EmployerProfile     → Company details
-*/
+const PRIMARY_COLOR = "#6C63FF";
+const GRAY_TEXT = "#9E9E9E";
 
-const Placeholder = ({ title }: { title: string }) => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-    <Text style={{ fontSize: 18 }}>{title}</Text>
-  </View>
-);
+const CustomTabBar = ({ state, descriptors, navigation }: any) => {
+  return (
+    <View style={styles.bottomTab}>
+      {state.routes.map((route: any, index: number) => {
+        const { options } = descriptors[route.key];
+        const isFocused = state.index === index;
 
-const DashboardScreen = () => (
-  <Placeholder title="Dashboard (Coming Soon)" />
-);
-const PostJobScreen = () => (
-  <Placeholder title="Post Job (Coming Soon)" />
-);
-const ApplicantsScreen = () => (
-  <Placeholder title="Applicants (Coming Soon)" />
-);
-const WalletScreen = () => (
-  <Placeholder title="Wallet / Payment (Coming Soon)" />
-);
-const EmployerProfileScreen = () => (
-  <Placeholder title="Employer Profile (Coming Soon)" />
-);
+        const onPress = () => {
+          const event = navigation.emit({
+            type: "tabPress",
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        // --- 1. CENTER FAB (Post Job) ---
+        if (route.name === "PostJob") {
+          return (
+            <TouchableOpacity
+              key={index}
+              style={styles.tabItem}
+              onPress={onPress}
+              activeOpacity={0.8}
+            >
+              <View style={styles.fabButton}>
+                <Feather name="plus" size={28} color="white" />
+              </View>
+            </TouchableOpacity>
+          );
+        }
+
+        // --- 2. STANDARD TABS ---
+        let iconName = "";
+        let label = "";
+
+        // Define Icons and Labels based on Route Name
+        switch (route.name) {
+          case "Dashboard":
+            iconName = isFocused ? "grid" : "grid-outline";
+            label = "Home";
+            break;
+          case "Applicant":
+            iconName = isFocused ? "briefcase" : "briefcase-outline";
+            label = "Applicant";
+            break;
+          case "Chat":
+            iconName = isFocused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline";
+            label = "Chat";
+            break;
+          case "Profile":
+            iconName = isFocused ? "person" : "person-outline";
+            label = "Profile";
+            break;
+          default:
+            iconName = "ellipse";
+            label = route.name;
+        }
+
+        const color = isFocused ? PRIMARY_COLOR : GRAY_TEXT;
+
+        return (
+          <TouchableOpacity
+            key={index}
+            style={styles.tabItem}
+            onPress={onPress}
+            activeOpacity={0.7}
+          >
+            <Ionicons name={iconName} size={24} color={color} />
+            <Text style={[styles.tabText, { color }]}>{label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+};
 
 const EmployerBottomNav = () => {
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: true,
-        tabBarLabelStyle: {
-          fontSize: 11,
-          marginBottom: 4,
-        },
-        tabBarStyle: {
-          height: 70,
-          backgroundColor: "#ffffff",
-          borderTopWidth: 0,
-          elevation: 8,
-        },
-      }}
+      screenOptions={{ headerShown: false }}
+      tabBar={(props) => <CustomTabBar {...props} />}
+      // This initialRouteName determines which tab opens first
+      initialRouteName="Dashboard"
     >
-      {/* DASHBOARD */}
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
-              name="view-dashboard"
-              size={26}
-              color={focused ? "#2F80ED" : "#9E9E9E"}
-            />
-          ),
-        }}
-      />
+      {/* 1. Home */}
+      <Tab.Screen name="Dashboard" component={EmployerDashboard} />
 
-      {/* POST JOB */}
-      <Tab.Screen
-        name="Post Job"
-        component={PostJobScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
-              name="briefcase-plus"
-              size={28}
-              color={focused ? "#27AE60" : "#9E9E9E"}
-            />
-          ),
-        }}
-      />
+      {/* 2. Jobs */}
+      <Tab.Screen name="Applicant" component={ApplicationsScreen} />
 
-      {/* APPLICANTS */}
-      <Tab.Screen
-        name="Applicants"
-        component={ApplicantsScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
-              name="account-group"
-              size={26}
-              color={focused ? "#2F80ED" : "#9E9E9E"}
-            />
-          ),
-        }}
-      />
+      {/* 3. CENTER FAB */}
+      <Tab.Screen name="PostJob" component={PostJobScreen} />
 
-      {/* WALLET */}
-      <Tab.Screen
-        name="Wallet"
-        component={WalletScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <FontAwesome5
-              name="wallet"
-              size={24}
-              color={focused ? "#F2994A" : "#9E9E9E"}
-            />
-          ),
-        }}
-      />
+      {/* 4. Chat */}
+      <Tab.Screen name="Chat" component={ChatScreen} />
 
-      {/* PROFILE */}
-      <Tab.Screen
-        name="Profile"
-        component={EmployerProfileScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <FontAwesome5
-              name="user-tie"
-              size={24}
-              color={focused ? "#2F80ED" : "#9E9E9E"}
-            />
-          ),
-        }}
-      />
+      {/* 5. Profile */}
+      <Tab.Screen name="Profile" component={EmployerProfileScreen} />
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  bottomTab: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    justifyContent: "space-between", // Ensures even spacing across 5 items
+    alignItems: "center",
+    // Platform specific height
+    height: Platform.OS === 'ios' ? 100 : 120,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 30,
+    paddingHorizontal: 10,
+    // Shadows & Borders
+    borderTopWidth: 1,
+    borderTopColor: "#F3F4F6",
+    elevation: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabText: {
+    fontSize: 10,
+    marginTop: 4,
+    fontWeight: "500",
+  },
+  fabButton: {
+    width: 50,
+    height: 50,
+    backgroundColor: PRIMARY_COLOR,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 25, // Pushes the FAB up above the tab bar line
+    elevation: 5,
+    shadowColor: PRIMARY_COLOR,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+});
 
 export default EmployerBottomNav;

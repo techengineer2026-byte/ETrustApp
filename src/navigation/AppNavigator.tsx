@@ -1,11 +1,14 @@
 // src/navigation/AppNavigator.tsx
 
-import React from 'react';
-import { RootStackParamList } from "../types/navigation";
+// import React from 'react';
+// import { RootStackParamList } from "../types/navigation";
+// import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SplashScreen } from '../screens/SplashIntroScreen';
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// import { SplashScreen } from '../screens/SplashIntroScreen';
+
+
 import WelcomeScreen from '../screens/WelcomeScreen';
 import PhoneNumberScreen from '../screens/PhoneNumberScreen';
 import HumanVerificationScreen from '../screens/HumanVerificationScreen';
@@ -29,22 +32,15 @@ import Employeeuser from '../screens/Employeeuser';
 import Employeruser from '../screens/Employeruser';
 import CompanyScreen from '../screens/Employer/CompanyScreen';
 import AddressScreen from '../screens/Employer/AddressScreen';
-import EmailScreen from '../screens/Employer/EmailScreen';
-import PhoneScreen from '../screens/Employer/PhoneScreen';
 import EmployeeStep1 from '../screens/Employee/EmployeeStep1';
 import EmployeeStep2 from '../screens/Employee/EmployeeStep2';
 import EmployeeStep3 from '../screens/Employee/EmployeeStep3';
 import EmployeeStep4 from '../screens/Employee/EmployeeStep4';
-import ETCenterLogin from '../screens/ET-Center/ETCenterLogin';
-import ETCenterStep1 from '../screens/ET-Center/ETCenterStep1';
-import ETCenterStep2 from '../screens/ET-Center/ETCenterStep2';
-import ETCenterStep3 from '../screens/ET-Center/ETCenterStep3';
 import ForgotPassword from '../screens/ForgetPassword/ForgotPasswordScreen';
 import ResetPassword from '../screens/ForgetPassword/ResetPassword';
 import OTPScreen from '../screens/ForgetPassword/OTPScreen';
 import EmployeeBottomNav from './EmployeeBottomTabs';
 import EmployerBottomNav from './EmployerBottomNav';
-import EtrustBottomNav from './EtrustBottomTabNavigator';
 
 import CurrentCTCScreen from '../screens/CurrentCTCScreen';
 import JobProfileScreen from '../screens/JobProfileScreen';
@@ -55,66 +51,90 @@ import WorkExperienceScreen from '../screens/WorkExperienceScreen';
 import WorkStatusScreen from '../screens/WorkStatusScreen';
 import SyncLoading from '../screens/SyncLoading';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+import ContactVerificationScreen from '../screens/Employer/ContactVerificationScreen';
+import ContactNumberScreen from '../screens/Employer/ContactNumberScreen';
+import ContactPersonScreen from '../screens/Employer/ContactPersonScreen';
+import OfficeAddressScreen from '../screens/Employer/OfficeAddressScreen';
+import UploadLogo from '../screens/Employer/UploadLogo';
+
+//Etrust auth
+import CenterName from '../screens/ET-Center/CenterName';
+import EtrustBottomNav from './EtrustBottomTabNavigator';
+import ETcenteruser from '../screens/ETcenteruser';
+import ETContactVerify from '../screens/ET-Center/ETContactVerify';
+import ETpasswordReg from '../screens/ET-Center/ETpasswordReg';
+import SyncLoadingET from '../screens/ET-Center/SyncLoadingET';
+import ETname from '../screens/ET-Center/ETname';
+import OfficeAddressET from '../screens/ET-Center/OfficeAddressET';
+import TransactionDetail from '../screens/ET-Center/TransactionDetail';
+import CompanyProfile from '../screens/ET-Center/CompanyProfile';
+import EmployerJobs from '../screens/ET-Center/EmployerJobs';
+
+import 'react-native-gesture-handler';
+import React from 'react';
+import { Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SplashScreen } from '../screens/SplashIntroScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Firstname" component={FirstnameScreen} />
+          <Stack.Screen name="BDAY" component={BDAYScreen} />
+          <Stack.Screen name="Gender" component={GenderScreen} />
+          <Stack.Screen name="EducationForm" component={EducationForm} />
+          <Stack.Screen name="JobType" component={JobType} />
+          <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
+          <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
+          <Stack.Screen name="JobProfile" component={JobProfileScreen} />
+          <Stack.Screen name="CurrentCTC" component={CurrentCTCScreen} />
+          <Stack.Screen name="SalaryRange" component={SalaryRange} />
+          <Stack.Screen name="DistancePreference" component={DistancePreference} />
+          <Stack.Screen name="LocationSelection" component={LocationSelection} />
+          <Stack.Screen name="UploadResume" component={UploadResumeScreen} />
+          <Stack.Screen name="Reference" component={ReferenceScreen} />
+          <Stack.Screen name="PreferredCity" component={PreferredCityScreen} />
+          <Stack.Screen name="SyncLoading" component={SyncLoading} />
+          <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
+          <Stack.Screen name="AddressScreen" component={AddressScreen} />
+          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
 
-        {/* For Testing → Bottom Tabs First */}
+          <Stack.Screen name="Employeruser" component={Employeruser} />
+          <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
+          <Stack.Screen name="UploadLogo" component={UploadLogo} />
+          <Stack.Screen name="ContactPersonScreen" component={ContactPersonScreen} />
+          <Stack.Screen name="ContactNumberScreen" component={ContactNumberScreen} />
+          <Stack.Screen name="OfficeAddressScreen" component={OfficeAddressScreen} />
+          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
 
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
-        <Stack.Screen name="HumanVerification" component={HumanVerificationScreen} />
-        <Stack.Screen name="VerificationCode" component={VerificationCode} />
-        <Stack.Screen name="Firstname" component={FirstnameScreen} />
-        <Stack.Screen name="BDAY" component={BDAYScreen} />
-        <Stack.Screen name="Gender" component={GenderScreen} />
-        <Stack.Screen name="JobType" component={JobType} />
-        <Stack.Screen name="SalaryRange" component={SalaryRange} />
-        <Stack.Screen name="DistancePreference" component={DistancePreference} />
-        <Stack.Screen name="LocationSelection" component={LocationSelection} />
-        <Stack.Screen name="EducationForm" component={EducationForm} />
-        <Stack.Screen name="skillsScreen" component={SkillsScreen} />
-        <Stack.Screen name="PhotoUploadScreen" component={PhotoUploadScreen} />
-        <Stack.Screen name="invitefriend" component={Invitefriend} />
-        <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
-        <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-        <Stack.Screen name="ChatDetails" component={ChatDetailsScreen} />
-        <Stack.Screen name="Employeeuser" component={Employeeuser} />
-        <Stack.Screen name="Employeruser" component={Employeruser} />
+          <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
+          <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
+          <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
+          <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
+          <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
+          <Stack.Screen name="CenterName" component={CenterName} />
+          <Stack.Screen name="OfficeAddressET" component={OfficeAddressET} />
+          <Stack.Screen name='ETname' component={ETname} />
 
-        <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
-        <Stack.Screen name="EmailScreen" component={EmailScreen} />
-        <Stack.Screen name="PhoneScreen" component={PhoneScreen} />
-        <Stack.Screen name="AddressScreen" component={AddressScreen} />
-        <Stack.Screen name="EmployeeStep1" component={EmployeeStep1} />
-        <Stack.Screen name="EmployeeStep2" component={EmployeeStep2} />
-        <Stack.Screen name="EmployeeStep3" component={EmployeeStep3} />
-        <Stack.Screen name="EmployeeStep4" component={EmployeeStep4} />
-        <Stack.Screen name="ETCenterLogin" component={ETCenterLogin} />
-        <Stack.Screen name="ETCenterStep1" component={ETCenterStep1} />
-        <Stack.Screen name="ETCenterStep2" component={ETCenterStep2} />
-        <Stack.Screen name="ETCenterStep3" component={ETCenterStep3} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-        <Stack.Screen name="ResetPassword" component={ResetPassword} />
-        <Stack.Screen name="OTPScreen" component={OTPScreen} />
-        <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
-        <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
-        <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
 
-        <Stack.Screen name="CurrentCTC" component={CurrentCTCScreen} />
-        <Stack.Screen name="JobProfile" component={JobProfileScreen} />
-        <Stack.Screen name="PreferredCity" component={PreferredCityScreen} />
-        <Stack.Screen name="Reference" component={ReferenceScreen} />
-        <Stack.Screen name="UploadResume" component={UploadResumeScreen} />
-        <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
-        <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
-        <Stack.Screen name="SyncLoading" component={SyncLoading} />
-      </Stack.Navigator>
-    </NavigationContainer>
+          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+          <Stack.Screen name="ResetPassword" component={ResetPassword} />
+          <Stack.Screen name="OTPScreen" component={OTPScreen} />
+
+          <Stack.Screen name='TransactionDetail' component={TransactionDetail} />
+          <Stack.Screen name='EmployerJobs' component={EmployerJobs} />
+          <Stack.Screen name='CompanyProfile' component={CompanyProfile} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

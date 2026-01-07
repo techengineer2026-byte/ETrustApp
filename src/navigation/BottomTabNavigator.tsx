@@ -25,7 +25,7 @@ const BottomTabNavigator = () => {
           backgroundColor: "#fff",
           borderTopWidth: 0,
           elevation: 5,
-          height: 90,
+          height: 910,
         },
       }}
     >
