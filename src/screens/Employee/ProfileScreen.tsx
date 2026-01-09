@@ -1,3 +1,5 @@
+// src/screens/Employee/ProfileScreen.tsx
+
 import React, { useState } from "react";
 import {
     View,
@@ -123,10 +125,10 @@ const ProfileScreen = () => {
                                 <View style={styles.profileInfo}>
                                     <Text style={styles.userName}>Anurag Kohli</Text>
                                     <Text style={styles.userRole}>Job Seeker • ID: #9021</Text>
-                                    <View style={styles.progressBar}>
+                                    {/* <View style={styles.progressBar}>
                                         <View style={[styles.progressFill, { width: '15%' }]} />
                                     </View>
-                                    <Text style={styles.progressLabel}>Profile 15% Complete</Text>
+                                    <Text style={styles.progressLabel}>Profile 15% Complete</Text> */}
                                 </View>
                             </View>
                             <TouchableOpacity style={styles.editBtn}>

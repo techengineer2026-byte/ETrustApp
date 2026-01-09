@@ -1,26 +1,22 @@
 // src/navigation/EmployeeBottomTabs.tsx
 
-import React from "react";
+
+import React, { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import Dashboard from "../screens/Employee/Dashboard";
-import AppliedJobsScreen from "../screens/Employee/AppliedJobs";
+import AppliedJobsScreen from "../screens/Employee/AppliedJobsScreen.tsx";
 import NotificationScreen from "../screens/Employee/NotificationScreen";
 import ProfileScreen from "../screens/Employee/ProfileScreen";
+
+import { AppliedJob } from '../types';
+
 const Tab = createBottomTabNavigator();
 
-/* 
-  TEMP SCREENS – Replace later with real screens
-  ------------------------------------------------
-  JobsScreen            → Nearby Jobs + Apply Now
-  AppliedJobsScreen     → Applied Jobs + Status
-  UploadResumeScreen    → Resume Upload
-  NotificationScreen    → Job Alerts
-  EmployeeProfileScreen → Candidate Details
-*/
 
 const Placeholder = ({ title }: { title: string }) => (
   <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -28,19 +24,21 @@ const Placeholder = ({ title }: { title: string }) => (
   </View>
 );
 
-
-
-const UploadResumeScreen = () => (
-  <Placeholder title="Upload Resume Screen (Coming Soon)" />
-);
-
-const EmployeeProfileScreen = () => (
-  <Placeholder title="Profile Screen (Coming Soon)" />
-);
-
 const EmployeeBottomNav = () => {
-  return (
+  const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([]);
 
+  const handleJobApplied = useCallback((job: AppliedJob) => {
+    setAppliedJobs(prevJobs => {
+      if (prevJobs.some(j => j.id === job.id)) {
+        console.log(`Job ID ${job.id} already applied, skipping.`);
+        return prevJobs;
+      }
+      console.log(`Job ID ${job.id} applied:`, job.title);
+      return [...prevJobs, job];
+    });
+  }, []);
+
+  return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
@@ -57,10 +55,8 @@ const EmployeeBottomNav = () => {
         },
       }}
     >
-      {/* JOB LIST */}
       <Tab.Screen
         name="Jobs"
-        component={Dashboard}
         options={{
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
@@ -70,14 +66,15 @@ const EmployeeBottomNav = () => {
             />
           ),
         }}
-      />
+      >
+        {props => <Dashboard {...props} onJobApplied={handleJobApplied} />}
+      </Tab.Screen>
 
 
       <Tab.Screen
         name="Applied"
-        component={AppliedJobsScreen}
         options={{
-          headerShown: false, // We created a custom header inside the component
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
               name="file-check-outline"
@@ -86,10 +83,11 @@ const EmployeeBottomNav = () => {
             />
           ),
         }}
-      />
+      >
+        {props => <AppliedJobsScreen {...props} appliedJobs={appliedJobs} />}
+      </Tab.Screen>
 
 
-      {/* ALERTS */}
       <Tab.Screen
         name="Alerts"
         component={NotificationScreen}

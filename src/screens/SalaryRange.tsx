@@ -1,3 +1,5 @@
+// src/screens/SalaryRange.tsx
+
 import React, { useState } from "react";
 import {
   View,
