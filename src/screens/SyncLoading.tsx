@@ -16,6 +16,7 @@ import { useNavigation, CommonActions } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
+import FastImage from "react-native-fast-image";
 
 const { width } = Dimensions.get("window");
 
@@ -82,8 +83,8 @@ export default function SyncLoading() {
                         >
                             {/* GIF DISPLAY */}
                             <View style={styles.gifContainer}>
-                                <Image
-                                    source={require("../assets/Hadndshake-unscreen.gif")}
+                                <FastImage
+                                    source={require("../assets/handScreen.gif")}
                                     style={styles.gif}
                                     resizeMode="contain"
                                 />

@@ -7,12 +7,14 @@ import {
     TouchableOpacity,
     FlatList,
     Animated,
-    ImageBackground, // ✅ ADD THIS
-
+    ImageBackground,
     Modal,
+    KeyboardAvoidingView,
+    Platform
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// Location Data
 const INDIA_LOCATIONS: Record<string, string[]> = {
     Punjab: ["Mohali", "Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Kharar"],
     Haryana: ["Panchkula", "Gurgaon", "Faridabad", "Panipat", "Ambala"],
@@ -37,10 +39,19 @@ const INDIA_LOCATIONS: Record<string, string[]> = {
 };
 
 const LocationSelection = ({ navigation }: any) => {
-    const [search, setSearch] = useState("");
+    // State Variables
+    const [stateSearch, setStateSearch] = useState("");
+    const [districtSearch, setDistrictSearch] = useState("");
+    
     const [selectedState, setSelectedState] = useState<string | null>(null);
-    const [filtered, setFiltered] = useState<string[]>([]);
     const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+
+    // Filtered Data States
+    const [filteredStates, setFilteredStates] = useState<string[]>(Object.keys(INDIA_LOCATIONS));
+    const [filteredDistricts, setFilteredDistricts] = useState<string[]>([]);
+
+    // Modals Control
+    const [showDistrictModal, setShowDistrictModal] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
     // 🔹 Animation value
@@ -58,33 +69,42 @@ const LocationSelection = ({ navigation }: any) => {
         }
     }, [showConfirm]);
 
-    const handleSelect = (name: string) => {
-        if (!selectedState) {
-            setSelectedState(name);
-            setSearch("");
-            setFiltered([]);
-        } else {
-            setSelectedDistrict(name);
-            setShowConfirm(true); // show animated popup
+    // 1. Handle State Search
+    const handleStateSearch = (text: string) => {
+        setStateSearch(text);
+        const allStates = Object.keys(INDIA_LOCATIONS);
+        const results = allStates.filter((item) =>
+            item.toLowerCase().includes(text.toLowerCase())
+        );
+        setFilteredStates(results);
+    };
+
+    // 2. Handle District Search (Inside Popup)
+    const handleDistrictSearch = (text: string) => {
+        setDistrictSearch(text);
+        if (selectedState) {
+            const allDistricts = INDIA_LOCATIONS[selectedState];
+            const results = allDistricts.filter((item) =>
+                item.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredDistricts(results);
         }
     };
 
-    const handleSearch = (text: string) => {
-        setSearch(text);
-        const data = selectedState
-            ? INDIA_LOCATIONS[selectedState]
-            : Object.keys(INDIA_LOCATIONS);
-        const results = data.filter((item) =>
-            item.toLowerCase().includes(text.toLowerCase())
-        );
-        setFiltered(results);
+    // 3. User Clicks a State -> Open District Popup
+    const onSelectState = (stateName: string) => {
+        setSelectedState(stateName);
+        setFilteredDistricts(INDIA_LOCATIONS[stateName]); // Reset list for that state
+        setDistrictSearch(""); // Clear previous search
+        setShowDistrictModal(true); // Open Popup
     };
 
-    const displayedData = filtered.length
-        ? filtered
-        : selectedState
-            ? INDIA_LOCATIONS[selectedState]
-            : Object.keys(INDIA_LOCATIONS);
+    // 4. User Clicks a District -> Close District Popup -> Show Confirmation
+    const onSelectDistrict = (districtName: string) => {
+        setSelectedDistrict(districtName);
+        setShowDistrictModal(false); // Close District List
+        setTimeout(() => setShowConfirm(true), 300); // Open Confirmation
+    };
 
     return (
         <ImageBackground
@@ -93,45 +113,78 @@ const LocationSelection = ({ navigation }: any) => {
             resizeMode="cover"
         >
             <SafeAreaView style={styles.container}>
-                <Text style={styles.title}>Current location</Text>
-                {!selectedState ? (
-                    <Text style={styles.subtitle}>First, Current state</Text>
-                ) : (
-                    <Text style={styles.subtitle}>Current State: {selectedState}</Text>
-                )}
+                <Text style={styles.title}>Select Location</Text>
+                <Text style={styles.subtitle}>Choose your State</Text>
 
+                {/* State Search Input */}
                 <TextInput
                     style={styles.input}
-                    placeholder={
-                        selectedState ? "Search district..." : "Search state..."
-                    }
-                    value={search}
-                    onChangeText={handleSearch}
+                    placeholder="Search state..."
+                    value={stateSearch}
+                    onChangeText={handleStateSearch}
                 />
 
+                {/* Main List: STATES Only */}
                 <FlatList
-                    data={displayedData}
+                    data={filteredStates}
                     keyExtractor={(item) => item}
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             style={styles.option}
-                            onPress={() => handleSelect(item)}
+                            onPress={() => onSelectState(item)}
                         >
-                            <Text style={styles.optionText}>{item}</Text>
+                            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                                <Text style={styles.optionText}>{item}</Text>
+                                <Text style={styles.arrowText}>›</Text>
+                            </View>
                         </TouchableOpacity>
                     )}
                 />
 
-                {selectedState && (
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => setSelectedState(null)}
+                {/* ============================================== */}
+                {/* 🔹 MODAL 1: District Selection Dropdown/Popup  */}
+                {/* ============================================== */}
+                <Modal visible={showDistrictModal} transparent animationType="slide">
+                    <KeyboardAvoidingView 
+                        behavior={Platform.OS === "ios" ? "padding" : "height"}
+                        style={styles.overlay}
                     >
-                        <Text style={styles.backText}>← Change State</Text>
-                    </TouchableOpacity>
-                )}
+                        <View style={styles.districtPopup}>
+                            <View style={styles.popupHeader}>
+                                <Text style={styles.popupTitle}>Select District in {selectedState}</Text>
+                                <TouchableOpacity onPress={() => setShowDistrictModal(false)}>
+                                    <Text style={styles.closeText}>✕</Text>
+                                </TouchableOpacity>
+                            </View>
 
-                {/* 🔹 Confirmation Popup */}
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Search district..."
+                                value={districtSearch}
+                                onChangeText={handleDistrictSearch}
+                                autoFocus={true}
+                            />
+
+                            <FlatList
+                                data={filteredDistricts}
+                                keyExtractor={(item) => item}
+                                style={{ maxHeight: 300 }}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={styles.option}
+                                        onPress={() => onSelectDistrict(item)}
+                                    >
+                                        <Text style={styles.optionText}>{item}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        </View>
+                    </KeyboardAvoidingView>
+                </Modal>
+
+                {/* ============================================== */}
+                {/* 🔹 MODAL 2: Final Confirmation Popup           */}
+                {/* ============================================== */}
                 <Modal transparent visible={showConfirm} animationType="fade">
                     <View style={styles.overlay}>
                         <Animated.View
@@ -140,20 +193,27 @@ const LocationSelection = ({ navigation }: any) => {
                                 { transform: [{ scale: scaleAnim }] },
                             ]}
                         >
-                            <Text style={styles.confirmText}>Your Current Location:</Text>
-                            <Text style={styles.confirmDetail}>
-                                State: {selectedState}
-                            </Text>
-                            <Text style={styles.confirmDetail}>
-                                District: {selectedDistrict}
-                            </Text>
+                            <Text style={styles.confirmText}>Confirm Location</Text>
+                            
+                            <View style={styles.infoBox}>
+                                <Text style={styles.confirmLabel}>State:</Text>
+                                <Text style={styles.confirmValue}>{selectedState}</Text>
+                            </View>
+                            
+                            <View style={styles.infoBox}>
+                                <Text style={styles.confirmLabel}>District:</Text>
+                                <Text style={styles.confirmValue}>{selectedDistrict}</Text>
+                            </View>
 
                             <View style={styles.confirmActions}>
                                 <TouchableOpacity
                                     style={styles.editBtn}
-                                    onPress={() => setShowConfirm(false)}
+                                    onPress={() => {
+                                        setShowConfirm(false);
+                                        setShowDistrictModal(true); // Go back to district select
+                                    }}
                                 >
-                                    <Text style={styles.editText}>Edit</Text>
+                                    <Text style={styles.editText}>Change</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
@@ -166,12 +226,13 @@ const LocationSelection = ({ navigation }: any) => {
                                         });
                                     }}
                                 >
-                                    <Text style={styles.doneText}>Done</Text>
+                                    <Text style={styles.doneText}>Confirm</Text>
                                 </TouchableOpacity>
                             </View>
                         </Animated.View>
                     </View>
                 </Modal>
+
             </SafeAreaView>
         </ImageBackground>
     );
@@ -179,12 +240,10 @@ const LocationSelection = ({ navigation }: any) => {
 
 export default LocationSelection;
 
-
 const styles = StyleSheet.create({
     background: {
         flex: 1,
     },
-
     container: {
         flex: 1,
         padding: 24,
@@ -198,20 +257,19 @@ const styles = StyleSheet.create({
         padding: 12,
         fontSize: 16,
         marginBottom: 12,
+        backgroundColor: "rgba(255,255,255,0.8)"
     },
     option: {
         borderBottomWidth: 1,
         borderBottomColor: "#eee",
         paddingVertical: 14,
+        backgroundColor: "rgba(255,255,255,0.5)", // slight background for readability
+        paddingHorizontal: 8
     },
     optionText: { fontSize: 16, color: "#000" },
-    backButton: {
-        backgroundColor: "#eee",
-        borderRadius: 20,
-        paddingVertical: 10,
-        alignItems: "center",
-        marginTop: 30,
-    },
+    arrowText: { fontSize: 20, color: "#999", fontWeight:'bold' },
+    
+    // Modal Styles
     overlay: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.5)",
@@ -223,39 +281,69 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 24,
         alignItems: "center",
-        width: "80%",
+        width: "85%",
         shadowColor: "#000",
         shadowOpacity: 0.25,
         shadowRadius: 10,
         elevation: 5,
     },
-    confirmText: { fontSize: 18, fontWeight: "700", color: "#000", marginBottom: 8 },
-    confirmDetail: { fontSize: 16, color: "#333", marginBottom: 4 },
+    districtPopup: {
+        backgroundColor: "#fff",
+        borderRadius: 20,
+        padding: 20,
+        width: "90%",
+        maxHeight: "80%",
+        shadowColor: "#000",
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    popupHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 15
+    },
+    popupTitle: { fontSize: 18, fontWeight: "700", color: "#333" },
+    closeText: { fontSize: 22, color: "#999", padding: 5 },
+
+    // Confirmation Styles
+    confirmText: { fontSize: 20, fontWeight: "700", color: "#000", marginBottom: 20 },
+    infoBox: {
+        flexDirection:'row',
+        width: '100%',
+        marginBottom: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+        paddingBottom: 8
+    },
+    confirmLabel: { fontSize: 16, color: "#666", width: 80 },
+    confirmValue: { fontSize: 16, color: "#000", fontWeight: '600' },
+
     confirmActions: {
         flexDirection: "row",
         justifyContent: "space-between",
         width: "100%",
-        marginTop: 16,
+        marginTop: 20,
     },
-    backText: {
-        color: "#000",
-        fontSize: 14,
-        fontWeight: "600"
-    },
-
     editBtn: {
         backgroundColor: "#eee",
-        paddingVertical: 10,
+        paddingVertical: 12,
         paddingHorizontal: 20,
         borderRadius: 10,
+        flex: 1,
+        marginRight: 10,
+        alignItems: 'center'
     },
     doneBtn: {
         backgroundColor: "#007BFF",
-        paddingVertical: 10,
+        paddingVertical: 12,
         paddingHorizontal: 20,
         borderRadius: 10,
+        flex: 1,
+        marginLeft: 10,
+        alignItems: 'center'
     },
-    editText: { color: "#000", fontWeight: "600" },
-    doneText: { color: "#fff", fontWeight: "600" },
-
+    editText: { color: "#333", fontWeight: "600", fontSize: 16 },
+    doneText: { color: "#fff", fontWeight: "600", fontSize: 16 },
 });

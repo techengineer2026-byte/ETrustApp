@@ -154,4 +154,5 @@ export type RootStackParamList = {
   TransactionDetail: undefined;
   CompanyProfile: undefined;
   EmployerJobs: undefined;
+  SettingsScreen:undefined;
 };

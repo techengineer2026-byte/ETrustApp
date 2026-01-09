@@ -8,7 +8,7 @@ import {
   ScrollView,
   FlatList,
   ImageBackground,
-  
+
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -130,64 +130,49 @@ const EducationForm = ({ navigation }: any) => {
       style={styles.background}
       resizeMode="cover"
     >
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Education Details</Text>
+      <SafeAreaView style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Text style={styles.title}>Education Details</Text>
 
 
-        <AutoComplete
-          label="Degree"
-          placeholder="e.g. BTech"
-          value={degree}
-          setValue={setDegree}
-          data={DEGREES}
-        />
+          <AutoComplete
+            label="Degree"
+            placeholder="e.g. BTech"
+            value={degree}
+            setValue={setDegree}
+            data={DEGREES}
+          />
 
-        <AutoComplete
-          label="Field of Study"
-          placeholder="e.g. Computer Science"
-          value={field}
-          setValue={setField}
-          data={FIELDS}
-        />
+          <AutoComplete
+            label="Field of Study"
+            placeholder="e.g. Computer Science"
+            value={field}
+            setValue={setField}
+            data={FIELDS}
+          />
 
-        <AutoComplete
-          label="College / University"
-          placeholder="e.g. Panjab University"
-          value={institution}
-          setValue={setInstitution}
-          data={COLLEGES}
-        />
+          <AutoComplete
+            label="College / University"
+            placeholder="e.g. Panjab University"
+            value={institution}
+            setValue={setInstitution}
+            data={COLLEGES}
+          />
 
-        <Text style={styles.label}>Location</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Chandigarh"
-          value={location}
-          onChangeText={setLocation}
-        />
+          <Text style={styles.label}>Location</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Chandigarh"
+            value={location}
+            onChangeText={setLocation}
+          />
 
-        <Text style={styles.label}>Start Date</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. August 2019"
-          value={startDate}
-          onChangeText={setStartDate}
-        />
 
-        <Text style={styles.label}>End Date</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. May 2023"
-          value={endDate}
-          onChangeText={setEndDate}
-        />
-
-        <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("JobType"); }  }>
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+          <TouchableOpacity style={styles.button} onPress={() => { navigation.navigate("JobType"); }}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
     </ImageBackground>
   );
 };

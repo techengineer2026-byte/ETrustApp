@@ -40,8 +40,10 @@ import ForgotPassword from '../screens/ForgetPassword/ForgotPasswordScreen';
 import ResetPassword from '../screens/ForgetPassword/ResetPassword';
 import OTPScreen from '../screens/ForgetPassword/OTPScreen';
 import EmployeeBottomNav from './EmployeeBottomTabs';
-import EmployerBottomNav from './EmployerBottomNav';
+import SettingsScreen from '../screens/Employee/Setting/SettingsScreen';
 
+
+import EmployerBottomNav from './EmployerBottomNav';
 import CurrentCTCScreen from '../screens/CurrentCTCScreen';
 import JobProfileScreen from '../screens/JobProfileScreen';
 import PreferredCityScreen from '../screens/PreferredCityScreen';
@@ -85,6 +87,8 @@ export default function AppNavigator() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
+
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -106,7 +110,7 @@ export default function AppNavigator() {
           <Stack.Screen name="SyncLoading" component={SyncLoading} />
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
-          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
+          {/* <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} /> */}
 
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
@@ -133,6 +137,8 @@ export default function AppNavigator() {
           <Stack.Screen name='TransactionDetail' component={TransactionDetail} />
           <Stack.Screen name='EmployerJobs' component={EmployerJobs} />
           <Stack.Screen name='CompanyProfile' component={CompanyProfile} />
+          <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
+          
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

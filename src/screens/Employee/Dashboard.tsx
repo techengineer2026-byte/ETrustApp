@@ -1,9 +1,6 @@
-// src/screens/Employee/Dashboard.tsx
-
-import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, Dimensions, StatusBar, Alert } from 'react-native'; // Removed TouchableOpacity from here
-// 1. IMPORT TOUCHABLE FROM GESTURE HANDLER
-import { GestureDetector, Gesture, GestureHandlerRootView, TouchableOpacity } from 'react-native-gesture-handler';
+import React, { useState, useCallback, useEffect } from 'react';
+import { StyleSheet, Text, View, Dimensions, StatusBar, Alert, Modal, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -13,58 +10,68 @@ import Animated, {
     withTiming,
     Extrapolation,
     useDerivedValue,
+    SharedValue
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import LinearGradient from 'react-native-linear-gradient';
 
-// --- CONSTANTS ---
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const HEADER_HEIGHT = 80;
-const FOOTER_HEIGHT = 100; // Slightly reduced for better fit
-
-// 2. DYNAMIC CARD HEIGHT CALCULATION
-// This ensures cards fill the space but NEVER go behind the buttons
-const AVAILABLE_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT - 60; // 60 is buffer/padding
+const HEADER_HEIGHT = 60;
+const FOOTER_HEIGHT = 100;
+const AVAILABLE_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT - 40;
 const CARD_HEIGHT = Math.min(AVAILABLE_HEIGHT, SCREEN_HEIGHT * 0.65);
 const CARD_WIDTH = SCREEN_WIDTH * 0.9;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
 const VISIBLE_ITEMS = 3;
 
-// --- DATA TYPES ---
-interface Job {
-    id: number;
-    title: string;
-    company: string;
-    location: string;
-    salary: string;
-    tags: string[];
-    logoColor: string;
-    logoInitial: string;
-}
+// --- DATA ---
+const PLANS = [
+    {
+        id: 'priority',
+        title: 'Priority',
+        subtitle: 'Get noticed faster',
+        price: 399,
+        gradient: ['#F0FDF4', '#DCFCE7'],
+        accent: '#166534',
+        buttonColor: '#22c55e',
+        defaultBadge: null,
+        features: ['Priority Interview Scheduling', 'Personalized Job Counselling', 'Guaranteed Job Guidance', 'Free Legal Support', 'Whatsapp Support'],
+        disclaimer: "Valid for One Job Placement Opportunity Only."
+    },
+    {
+        id: 'career',
+        title: 'Career Pro',
+        subtitle: 'Expert guidance',
+        price: 799,
+        gradient: ['#FEFCE8', '#FEF9C3'],
+        accent: '#854D0E',
+        buttonColor: '#EAB308',
+        defaultBadge: 'MOST POPULAR',
+        features: ['1-on-1 Career Counselling', 'Specialized Field Guidance', 'Dedicated Counsellor Support', 'Hand-holding till Placement', 'Profile Optimization'],
+        disclaimer: "We don't guarantee employment, but we are committed."
+    },
+    {
+        id: 'aip',
+        title: 'AIP Premium',
+        subtitle: 'The complete package',
+        price: 1499,
+        gradient: ['#EFF6FF', '#DBEAFE'],
+        accent: '#1E40AF',
+        buttonColor: '#3B82F6',
+        defaultBadge: 'BEST VALUE',
+        features: ['All Priority & Career Features', 'Premium Legal Support', 'Top Priority over others', 'Exclusive Govt Job Alerts', 'Instant Interview Info'],
+        disclaimer: "Comprehensive support package."
+    },
+];
 
-const JOBS_DATA: Job[] = [
+const JOBS_DATA = [
     { id: 1, title: 'Frontend Developer', company: 'Infosys', location: 'Mohali, India', salary: '₹6L - ₹12L', tags: ['Full-Time', 'On-site'], logoColor: '#0072C6', logoInitial: 'I' },
     { id: 2, title: 'Backend Developer', company: 'Tech Mahindra', location: 'Chandigarh, India', salary: '₹7L - ₹14L', tags: ['Hybrid', 'Mid-Level'], logoColor: '#E60028', logoInitial: 'T' },
     { id: 3, title: 'Full Stack Engineer', company: 'TCS', location: 'Panchkula, India', salary: '₹8L - ₹15L', tags: ['Full-Time', 'Remote'], logoColor: '#00A1E0', logoInitial: 'T' },
     { id: 4, title: 'UI/UX Designer', company: 'Wipro', location: 'Mohali, India', salary: '₹5L - ₹10L', tags: ['On-site', 'Mid-Level'], logoColor: '#2CA02C', logoInitial: 'W' },
     { id: 5, title: 'Mobile App Developer', company: 'Cognizant', location: 'Chandigarh, India', salary: '₹6L - ₹11L', tags: ['Full-Time', 'Hybrid'], logoColor: '#1C75BC', logoInitial: 'C' },
     { id: 6, title: 'Data Scientist', company: 'Infosys', location: 'Mohali, India', salary: '₹10L - ₹18L', tags: ['Remote', 'Senior'], logoColor: '#0072C6', logoInitial: 'I' },
-    { id: 7, title: 'Cloud Engineer', company: 'Capgemini', location: 'Panchkula, India', salary: '₹9L - ₹16L', tags: ['Full-Time', 'Hybrid'], logoColor: '#003399', logoInitial: 'C' },
-    { id: 8, title: 'DevOps Engineer', company: 'HCL Technologies', location: 'Chandigarh, India', salary: '₹8L - ₹15L', tags: ['On-site', 'Mid-Level'], logoColor: '#FF6600', logoInitial: 'H' },
-    { id: 9, title: 'AI/ML Engineer', company: 'Infosys', location: 'Mohali, India', salary: '₹12L - ₹20L', tags: ['Remote', 'Senior'], logoColor: '#0072C6', logoInitial: 'I' },
-    { id: 10, title: 'QA Engineer', company: 'Tech Mahindra', location: 'Chandigarh, India', salary: '₹5L - ₹9L', tags: ['Full-Time', 'On-site'], logoColor: '#E60028', logoInitial: 'T' },
-    { id: 11, title: 'Project Manager', company: 'TCS', location: 'Panchkula, India', salary: '₹15L - ₹25L', tags: ['Full-Time', 'Senior'], logoColor: '#00A1E0', logoInitial: 'T' },
-    { id: 12, title: 'Product Manager', company: 'Wipro', location: 'Mohali, India', salary: '₹14L - ₹22L', tags: ['Hybrid', 'Senior'], logoColor: '#2CA02C', logoInitial: 'W' },
-    { id: 13, title: 'UI Developer', company: 'Cognizant', location: 'Chandigarh, India', salary: '₹6L - ₹11L', tags: ['Full-Time', 'On-site'], logoColor: '#1C75BC', logoInitial: 'C' },
-    { id: 14, title: 'Business Analyst', company: 'Infosys', location: 'Mohali, India', salary: '₹7L - ₹13L', tags: ['Full-Time', 'Mid-Level'], logoColor: '#0072C6', logoInitial: 'I' },
-    { id: 15, title: 'Software Architect', company: 'HCL Technologies', location: 'Chandigarh, India', salary: '₹18L - ₹30L', tags: ['Full-Time', 'Senior'], logoColor: '#FF6600', logoInitial: 'H' },
-    { id: 16, title: 'Frontend React Developer', company: 'Tech Mahindra', location: 'Panchkula, India', salary: '₹8L - ₹14L', tags: ['Hybrid', 'Mid-Level'], logoColor: '#E60028', logoInitial: 'T' },
-    { id: 17, title: 'Backend Node.js Developer', company: 'TCS', location: 'Mohali, India', salary: '₹9L - ₹16L', tags: ['Remote', 'Mid-Level'], logoColor: '#00A1E0', logoInitial: 'T' },
-    { id: 18, title: 'UI/UX Lead', company: 'Wipro', location: 'Chandigarh, India', salary: '₹12L - ₹20L', tags: ['On-site', 'Senior'], logoColor: '#2CA02C', logoInitial: 'W' },
-    { id: 19, title: 'Mobile iOS Developer', company: 'Cognizant', location: 'Panchkula, India', salary: '₹7L - ₹12L', tags: ['Full-Time', 'On-site'], logoColor: '#1C75BC', logoInitial: 'C' },
-    { id: 20, title: 'Machine Learning Engineer', company: 'Infosys', location: 'Mohali, India', salary: '₹12L - ₹22L', tags: ['Remote', 'Mid-Level'], logoColor: '#0072C6', logoInitial: 'I' },
-    { id: 21, title: 'DevOps Lead', company: 'HCL Technologies', location: 'Chandigarh, India', salary: '₹14L - ₹24L', tags: ['Full-Time', 'Senior'], logoColor: '#FF6600', logoInitial: 'H' },
-    { id: 22, title: 'Cloud Solutions Architect', company: 'Capgemini', location: 'Panchkula, India', salary: '₹18L - ₹28L', tags: ['Remote', 'Senior'], logoColor: '#003399', logoInitial: 'C' },
 ];
 
 // --- COMPONENTS ---
@@ -75,15 +82,110 @@ const Tag = ({ text }: { text: string }) => (
     </View>
 );
 
+// --- PREMIUM MODAL COMPONENT ---
+interface PremiumModalProps {
+    visible: boolean;
+    onClose: () => void;
+    recommendedPlan: typeof PLANS[0] | null;
+}
+
+const PremiumModal = ({ visible, onClose, recommendedPlan }: PremiumModalProps) => {
+    // Initialize with recommended plan if available, otherwise default to middle plan
+    const [selectedPlan, setSelectedPlan] = useState<any>(PLANS[1]);
+
+    // When modal opens or recommended plan changes, update the selected plan
+    useEffect(() => {
+        if (visible && recommendedPlan) {
+            setSelectedPlan(recommendedPlan);
+        } else if (visible && !recommendedPlan) {
+            setSelectedPlan(PLANS[1]);
+        }
+    }, [visible, recommendedPlan]);
+
+    return (
+        <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+            <View style={styles.modalBackdrop}>
+                <TouchableOpacity style={styles.modalCloser} onPress={onClose} />
+                <View style={styles.modalContent}>
+                    <View style={styles.modalHandle} />
+
+                    <Text style={styles.modalHeading}>Upgrade to Apply More</Text>
+                    <Text style={styles.modalSubHeading}>You've swiped 5 jobs! Boost your chances now.</Text>
+
+                    {/* Horizontal Plan Selector */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 10, paddingVertical: 20 }}>
+                        {PLANS.map((plan) => {
+                            const isSelected = selectedPlan.id === plan.id;
+                            const isRecommended = recommendedPlan?.id === plan.id;
+
+                            return (
+                                <TouchableOpacity
+                                    key={plan.id}
+                                    activeOpacity={0.9}
+                                    onPress={() => setSelectedPlan(plan)}
+                                    style={[
+                                        styles.miniPlanCard,
+                                        isSelected && styles.miniPlanCardSelected,
+                                        { borderColor: isSelected ? plan.accent : 'transparent' }
+                                    ]}
+                                >
+                                    <LinearGradient colors={plan.gradient} style={styles.miniGradient}>
+                                        {/* Dynamic Badge Logic */}
+                                        {isRecommended ? (
+                                            <View style={[styles.miniBadge, { backgroundColor: '#FF3B30' }]}>
+                                                <Text style={styles.miniBadgeText}>✨ RECOMMENDED</Text>
+                                            </View>
+                                        ) : plan.defaultBadge ? (
+                                            <View style={styles.miniBadge}>
+                                                <Text style={styles.miniBadgeText}>{plan.defaultBadge}</Text>
+                                            </View>
+                                        ) : <View style={{ height: 16 }} />}
+
+                                        <Text style={[styles.miniPlanTitle, { color: plan.accent }]}>{plan.title}</Text>
+                                        <Text style={styles.miniPlanPrice}>₹{plan.price}</Text>
+                                    </LinearGradient>
+                                </TouchableOpacity>
+                            )
+                        })}
+                    </ScrollView>
+
+                    {/* Selected Plan Details */}
+                    <View style={styles.detailsContainer}>
+                        <Text style={styles.sectionLabel}>WHAT'S INCLUDED IN {selectedPlan.title.toUpperCase()}</Text>
+                        {selectedPlan.features.slice(0, 4).map((item: string, index: number) => (
+                            <View key={index} style={styles.featureRow}>
+                                <Icon name="check-circle" size={18} color={selectedPlan.accent} />
+                                <Text style={styles.featureText}>{item}</Text>
+                            </View>
+                        ))}
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.modalCta, { backgroundColor: selectedPlan.buttonColor }]}
+                        onPress={() => { Alert.alert("Payment", `Processing payment for ${selectedPlan.title}`); onClose(); }}
+                    >
+                        <Text style={styles.modalCtaText}>Pay ₹{selectedPlan.price} & Continue</Text>
+                        <Icon name="arrow-right" size={18} color="#fff" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={onClose} style={{ marginTop: 15 }}>
+                        <Text style={{ color: '#999', fontSize: 13, textAlign: 'center' }}>No thanks, I'll continue swiping freely</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </Modal>
+    );
+};
+
+// --- CARD COMPONENT ---
 interface CardProps {
-    item: Job;
+    item: typeof JOBS_DATA[0];
     index: number;
-    translationX: Animated.SharedValue<number>;
-    activeIndex: Animated.SharedValue<number>;
+    translationX: SharedValue<number>;
+    activeIndex: SharedValue<number>;
 }
 
 const Card: React.FC<CardProps> = ({ item, index, translationX, activeIndex }) => {
-
     const currentIndex = useDerivedValue(() => index - activeIndex.value);
 
     const rStyle = useAnimatedStyle(() => {
@@ -106,7 +208,6 @@ const Card: React.FC<CardProps> = ({ item, index, translationX, activeIndex }) =
                     { scale: 1 },
                 ],
                 zIndex: 100,
-                opacity: 1,
             };
         }
 
@@ -117,7 +218,6 @@ const Card: React.FC<CardProps> = ({ item, index, translationX, activeIndex }) =
         return {
             transform: [{ scale: currentScale }, { translateY: currentTranslateY }],
             zIndex: -index,
-            opacity: 1,
         };
     });
 
@@ -155,33 +255,60 @@ const Card: React.FC<CardProps> = ({ item, index, translationX, activeIndex }) =
                     <Text style={styles.salary}>{item.salary}</Text>
                     <View style={styles.divider} />
                     <Text style={styles.description}>
-                        We are looking for a passionate {item.title} to join our team.
+                        We are looking for a passionate {item.title} to join our team. This is a generic description for the demo.
                     </Text>
                 </View>
                 <View style={styles.cardFooter}>
                     <View style={styles.tagContainer}>
                         {item.tags.map((tag, i) => <Tag key={i} text={tag} />)}
                     </View>
-                    <Text style={styles.timestamp}>Posted 2d ago</Text>
+                    <Text style={styles.timestamp}>Posted just now</Text>
                 </View>
             </View>
         </Animated.View>
     );
 };
 
-// --- MAIN SCREEN ---
 
+// --- MAIN SCREEN ---
 export default function JobSeekerDashboard() {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [rightSwipeCount, setRightSwipeCount] = useState(0);
+    const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+    // State for the randomly selected plan
+    const [recommendedPlan, setRecommendedPlan] = useState<any>(null);
+
     const translationX = useSharedValue(0);
     const activeIndex = useSharedValue(0);
 
     const onSwipeComplete = useCallback((direction: 'left' | 'right') => {
-        console.log(`Action: ${direction}`);
+
+        if (direction === 'right') {
+            const newCount = rightSwipeCount + 1;
+            setRightSwipeCount(newCount);
+            console.log(`Right Swipe Count: ${newCount}`);
+
+            // Logic: Every 5th application (5, 10, 15...)
+            if (newCount > 0 && newCount % 5 === 0) {
+
+                // 1. Pick a random plan from the 3 available plans
+                const randomIndex = Math.floor(Math.random() * PLANS.length);
+                const randomPlan = PLANS[randomIndex];
+                setRecommendedPlan(randomPlan);
+
+                // 2. Show Modal after a short delay
+                setTimeout(() => {
+                    setShowPremiumModal(true);
+                }, 300);
+            }
+        }
+
         setCurrentIndex(prev => prev + 1);
         activeIndex.value = withTiming(activeIndex.value + 1, { duration: 0 });
         translationX.value = 0;
-    }, [activeIndex, translationX]);
+
+    }, [activeIndex, translationX, rightSwipeCount]);
 
     const gesture = Gesture.Pan()
         .onUpdate((event) => { translationX.value = event.translationX; })
@@ -207,12 +334,27 @@ export default function JobSeekerDashboard() {
         if (currentIndex > 0) {
             setCurrentIndex(prev => prev - 1);
             activeIndex.value = withTiming(activeIndex.value - 1);
-        } else {
-            Alert.alert("No more history");
         }
     };
 
-    const isFinished = currentIndex >= JOBS_DATA.length;
+    const renderStack = () => {
+        const itemsToRender = [0, 1, 2].reverse().map(offset => {
+            const actualIndex = currentIndex + offset;
+            const dataIndex = actualIndex % JOBS_DATA.length;
+            const item = JOBS_DATA[dataIndex];
+
+            return (
+                <Card
+                    key={actualIndex}
+                    item={item}
+                    index={actualIndex}
+                    translationX={translationX}
+                    activeIndex={activeIndex}
+                />
+            );
+        });
+        return itemsToRender;
+    };
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -221,122 +363,79 @@ export default function JobSeekerDashboard() {
 
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.subHeading}>Welcome back,</Text>
-                        <Text style={styles.heading}>Discover Jobs</Text>
+                        <Text style={styles.subHeading}>Job Opportunities</Text>
+                        <Text style={styles.heading}>Swipe Jobs</Text>
                     </View>
-                    <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>JD</Text>
+                    <View style={styles.countBadge}>
+                        <Text style={styles.countText}>{rightSwipeCount} Applied</Text>
                     </View>
                 </View>
 
-                {/* 3. POINTER EVENTS: Allow touches to pass through empty space */}
                 <View style={styles.stackContainer} pointerEvents="box-none">
-                    {!isFinished ? (
-                        <GestureDetector gesture={gesture}>
-                            <Animated.View style={styles.stackWrapper}>
-                                {JOBS_DATA.map((item, index) => (
-                                    <Card
-                                        key={item.id}
-                                        item={item}
-                                        index={index}
-                                        translationX={translationX}
-                                        activeIndex={activeIndex}
-                                    />
-                                ))}
-                            </Animated.View>
-                        </GestureDetector>
-                    ) : (
-                        <View style={styles.emptyState}>
-                            <Icon name="check-circle-outline" size={80} color="#2CB978" />
-                            <Text style={styles.emptyText}>All Caught Up!</Text>
-                            <TouchableOpacity onPress={() => { setCurrentIndex(0); activeIndex.value = 0; }} style={styles.reloadBtn}>
-                                <Text style={styles.reloadText}>Start Over</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
+                    <GestureDetector gesture={gesture}>
+                        <Animated.View style={styles.stackWrapper}>
+                            {renderStack()}
+                        </Animated.View>
+                    </GestureDetector>
                 </View>
 
-                {!isFinished && (
-                    <View style={styles.footerContainer}>
-                        <View style={styles.actionRow}>
-                            <TouchableOpacity style={[styles.circleBtn, styles.btnSmall]} onPress={handleRewind}>
-                                <Icon name="refresh" size={24} color="#f5b915" />
-                            </TouchableOpacity>
+                <View style={styles.footerContainer}>
+                    <View style={styles.actionRow}>
+                        <TouchableOpacity style={[styles.circleBtn, styles.btnSmall]} onPress={handleRewind}>
+                            <Icon name="refresh" size={24} color="#f5b915" />
+                        </TouchableOpacity>
 
-                            <TouchableOpacity style={[styles.circleBtn, styles.btnLarge]} onPress={handlePass}>
-                                <Icon name="close" size={32} color="#ec5e67" />
-                            </TouchableOpacity>
+                         <TouchableOpacity style={[styles.circleBtn, styles.btnLarge]} onPress={handlePass}>
+                            <Icon name="close" size={32} color="#ec5e67" />
+                        </TouchableOpacity>
 
-                            <TouchableOpacity style={[styles.circleBtn, styles.btnLarge]} onPress={handleApply}>
-                                <Icon name="check" size={32} color="#4ccc93" />
-                            </TouchableOpacity>
+                        <TouchableOpacity style={[styles.circleBtn, styles.btnLarge]} onPress={handleApply}>
+                            <Icon name="check" size={32} color="#4ccc93" />
+                        </TouchableOpacity>
 
-                            <TouchableOpacity style={[styles.circleBtn, styles.btnSmall]} onPress={() => Alert.alert("Super Like!")}>
-                                <Icon name="star" size={24} color="#3ca4ff" />
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity style={[styles.circleBtn, styles.btnSmall]} onPress={() => Alert.alert("Super Like!")}>
+                            <Icon name="star" size={24} color="#3ca4ff" />
+                        </TouchableOpacity>
                     </View>
-                )}
+                </View>
+
+                {/* --- PREMIUM POPUP --- */}
+                <PremiumModal
+                    visible={showPremiumModal}
+                    onClose={() => setShowPremiumModal(false)}
+                    recommendedPlan={recommendedPlan}
+                />
+
             </SafeAreaView>
         </GestureHandlerRootView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F7F8FA',
-    },
+    container: { flex: 1, backgroundColor: '#F7F8FA' },
     header: {
-        position: 'absolute',
-        top: 0, left: 0, right: 0,
-        backgroundColor: '#F7F8FA',
-        paddingTop: StatusBar.currentHeight || 0,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingVertical: 10,
-        zIndex: 20, // Increased zIndex
+        position: 'absolute', top: 0, left: 0, right: 0,
+        paddingTop: Platform.OS === 'android' ?40 : 10,
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        paddingHorizontal: 24, paddingVertical: 10, zIndex: 20,
     },
     subHeading: { fontSize: 14, color: '#8E8E93', fontWeight: '600' },
     heading: { fontSize: 26, fontWeight: '800', color: '#1C1C1E' },
-    avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#E1E4E8', justifyContent: 'center', alignItems: 'center' },
-    avatarText: { fontWeight: 'bold', color: '#555' },
+    countBadge: { backgroundColor: '#E0F2FE', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+    countText: { color: '#0284C7', fontWeight: 'bold', fontSize: 12 },
 
     stackContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: HEADER_HEIGHT,
-        paddingBottom: FOOTER_HEIGHT,
-        zIndex: 1,
+        alignItems: 'center', justifyContent: 'center',
+        paddingTop: HEADER_HEIGHT, paddingBottom: FOOTER_HEIGHT, zIndex: 1, height: SCREEN_HEIGHT
     },
-    stackWrapper: {
-        width: SCREEN_WIDTH,
-        height: CARD_HEIGHT, // Constrain wrapper height to card height
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    cardContainer: {
-        position: 'absolute',
-        width: CARD_WIDTH,
-        height: CARD_HEIGHT,
-    },
+    stackWrapper: { width: SCREEN_WIDTH, height: CARD_HEIGHT, alignItems: 'center', justifyContent: 'center' },
+
+    cardContainer: { position: 'absolute', width: CARD_WIDTH, height: CARD_HEIGHT },
     cardInner: {
-        flex: 1,
-        backgroundColor: 'white',
-        borderRadius: 24,
-        padding: 24,
-        justifyContent: 'space-between',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.1,
-        shadowRadius: 20,
-        elevation: 5,
-        borderWidth: 1,
-        borderColor: '#F2F2F7',
+        flex: 1, backgroundColor: 'white', borderRadius: 24, padding: 24,
+        justifyContent: 'space-between', shadowColor: '#000', shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1, shadowRadius: 20, elevation: 5, borderWidth: 1, borderColor: '#F2F2F7',
     },
-    // ... Card internals (Header, Body, Footer) same as before ...
     cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
     logoPlaceholder: { width: 48, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
     logoText: { color: 'white', fontSize: 22, fontWeight: 'bold' },
@@ -353,7 +452,6 @@ const styles = StyleSheet.create({
     tagText: { fontSize: 12, fontWeight: '600', color: '#3A3A3C' },
     timestamp: { fontSize: 12, color: '#C7C7CC', textAlign: 'right' },
 
-    // Overlays
     overlay: { position: 'absolute', top: 40, zIndex: 999, paddingHorizontal: 20, paddingVertical: 5, borderWidth: 4, borderRadius: 12 },
     overlayLike: { left: 40, borderColor: '#4CD964', transform: [{ rotate: '-20deg' }] },
     overlayNope: { right: 40, borderColor: '#FF3B30', transform: [{ rotate: '20deg' }] },
@@ -361,14 +459,8 @@ const styles = StyleSheet.create({
     overlayTextNope: { color: '#FF3B30', fontSize: 32, fontWeight: '900' },
 
     footerContainer: {
-        position: 'absolute',
-        bottom: 0, left: 0, right: 0,
-        height: FOOTER_HEIGHT + 20, // Give it explicit height
-        backgroundColor: '#F7F8FA',
-        justifyContent: 'center',
-        paddingHorizontal: 30,
-        paddingBottom: 20,
-        zIndex: 20, // Ensure high zIndex
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: FOOTER_HEIGHT + 20,
+        backgroundColor: '#F7F8FA', justifyContent: 'center', paddingHorizontal: 30, paddingBottom: 20, zIndex: 20,
     },
     actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     circleBtn: {
@@ -378,8 +470,27 @@ const styles = StyleSheet.create({
     btnSmall: { width: 50, height: 50 },
     btnLarge: { width: 70, height: 70 },
 
-    emptyState: { alignItems: 'center', justifyContent: 'center', padding: 20 },
-    emptyText: { fontSize: 22, fontWeight: '800', color: '#333', marginTop: 20 },
-    reloadBtn: { backgroundColor: '#000', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 30, marginTop: 20 },
-    reloadText: { color: 'white', fontWeight: '700', fontSize: 16 }
+    // --- MODAL STYLES ---
+    modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    modalCloser: { flex: 1 },
+    modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingBottom: 40, maxHeight: '80%' },
+    modalHandle: { width: 40, height: 4, backgroundColor: '#E5E7EB', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 15 },
+    modalHeading: { fontSize: 22, fontWeight: '800', textAlign: 'center', color: '#111' },
+    modalSubHeading: { fontSize: 14, textAlign: 'center', color: '#666', marginBottom: 10 },
+
+    miniPlanCard: { width: 140, height: 160, borderRadius: 16, marginHorizontal: 6, borderWidth: 2, overflow: 'hidden' },
+    miniPlanCardSelected: { transform: [{ scale: 1.05 }] },
+    miniGradient: { flex: 1, padding: 12, justifyContent: 'space-between' },
+    miniBadge: { backgroundColor: '#000', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, alignSelf: 'flex-start' },
+    miniBadgeText: { color: '#fff', fontSize: 8, fontWeight: 'bold' },
+    miniPlanTitle: { fontSize: 14, fontWeight: 'bold' },
+    miniPlanPrice: { fontSize: 18, fontWeight: '900', color: '#333' },
+
+    detailsContainer: { paddingHorizontal: 25, marginVertical: 10 },
+    sectionLabel: { fontSize: 11, fontWeight: 'bold', color: '#999', marginBottom: 10 },
+    featureRow: { flexDirection: 'row', marginBottom: 8, alignItems: 'center' },
+    featureText: { fontSize: 14, color: '#333', marginLeft: 10 },
+
+    modalCta: { flexDirection: 'row', marginHorizontal: 25, height: 50, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginTop: 10, shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
+    modalCtaText: { color: '#fff', fontWeight: 'bold', fontSize: 16, marginRight: 10 }
 });

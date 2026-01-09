@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FastImage from 'react-native-fast-image';
 const { width, height } = Dimensions.get('window');
 
 // Responsive Font Helper
@@ -100,8 +101,8 @@ export const SplashScreen: React.FC = () => {
               style={styles.heroImage}
               resizeMode="contain"
             />
-            <Image
-              source={require('../assets/Hadndshake-unscreen.gif')}
+            <FastImage
+              source={require('../assets/handScreen.gif')}
               style={styles.herogif}
               resizeMode="contain"
             />
