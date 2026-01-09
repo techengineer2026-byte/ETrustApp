@@ -1,6 +1,5 @@
 // src/screens/Employee/Dashboard.tsx
 
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { StyleSheet, Text, View, Dimensions, StatusBar, Alert, Modal, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -18,18 +17,15 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
-
 import { AppliedJob, JobStatus, JobDataItem } from '../../types';
-
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HEADER_HEIGHT = 60;
 const FOOTER_HEIGHT = 100;
 const AVAILABLE_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT - 70;
-const CARD_HEIGHT = Math.min(AVAILABLE_HEIGHT, SCREEN_HEIGHT * 0.50);
+const CARD_HEIGHT = Math.min(AVAILABLE_HEIGHT, SCREEN_HEIGHT * 0.55);
 const CARD_WIDTH = SCREEN_WIDTH * 0.9;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.1;
 const VISIBLE_ITEMS = 3;
-
 const PLANS = [
     {
         id: 'priority',
@@ -76,7 +72,6 @@ const JOBS_DATA: JobDataItem[] = [
     { id: 5, title: 'Mobile App Developer', company: 'Cognizant', location: 'Chandigarh, India', salary: '₹6L - ₹11L', tags: ['Full-Time', 'Hybrid'], logoColor: '#1C75BC', logoInitial: 'C' },
     { id: 6, title: 'Data Scientist', company: 'Infosys', location: 'Mohali, India', salary: '₹10L - ₹18L', tags: ['Remote', 'Senior'], logoColor: '#0072C6', logoInitial: 'I' },
 ];
-
 const Tag = ({ text }: { text: string }) => (
     <View style={styles.tag}>
         <Text style={styles.tagText}>{text}</Text>
@@ -163,9 +158,8 @@ const PremiumModal = ({ visible, onClose, recommendedPlan }: PremiumModalProps) 
         </Modal>
     );
 };
-// --- CARD COMPONENT ---
 interface CardProps {
-    item: JobDataItem; // Use JobDataItem type
+    item: JobDataItem; 
     index: number;
     translationX: SharedValue<number>;
     activeIndex: SharedValue<number>;
@@ -244,30 +238,22 @@ const Card: React.FC<CardProps> = ({ item, index, translationX, activeIndex }) =
         </Animated.View>
     );
 };
-
-// --- MAIN SCREEN ---
-// Add onJobApplied prop here
 interface JobSeekerDashboardProps {
     navigation: any;
-    onJobApplied: (job: AppliedJob) => void; // Define the new prop
+    onJobApplied: (job: AppliedJob) => void; 
 }
-
 export default function JobSeekerDashboard({ navigation, onJobApplied }: JobSeekerDashboardProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [rightSwipeCount, setRightSwipeCount] = useState(0);
     const [showPremiumModal, setShowPremiumModal] = useState(false);
     const [recommendedPlan, setRecommendedPlan] = useState<any>(null);
-
     const translationX = useSharedValue(0);
     const activeIndex = useSharedValue(0);
-
     const onSwipeComplete = useCallback((direction: 'left' | 'right') => {
         if (direction === 'right') {
             const newCount = rightSwipeCount + 1;
             setRightSwipeCount(newCount);
             console.log(`Right Swipe Count: ${newCount}`);
-
-            // Logic to add the job to the applied list
             const currentJob = JOBS_DATA[currentIndex % JOBS_DATA.length];
             const newAppliedJob: AppliedJob = {
                 id: currentJob.id,
@@ -277,12 +263,10 @@ export default function JobSeekerDashboard({ navigation, onJobApplied }: JobSeek
                 salary: currentJob.salary,
                 logoColor: currentJob.logoColor,
                 logoInitial: currentJob.logoInitial,
-                status: 'Pending', // Default status when applied
-                appliedDate: 'Just now', // You can implement a dynamic date here
+                status: 'Pending', 
+                appliedDate: 'Just now', 
             };
-            onJobApplied(newAppliedJob); // Call the callback from parent
-
-            // Logic for premium modal
+            onJobApplied(newAppliedJob); 
             if (newCount > 0 && newCount % 5 === 0) {
                 const randomIndex = Math.floor(Math.random() * PLANS.length);
                 const randomPlan = PLANS[randomIndex];
@@ -295,8 +279,7 @@ export default function JobSeekerDashboard({ navigation, onJobApplied }: JobSeek
         setCurrentIndex(prev => prev + 1);
         activeIndex.value = withTiming(activeIndex.value + 1, { duration: 0 });
         translationX.value = 0;
-    }, [activeIndex, translationX, rightSwipeCount, currentIndex, onJobApplied]); // Add onJobApplied to dependencies
-
+    }, [activeIndex, translationX, rightSwipeCount, currentIndex, onJobApplied]); 
     const gesture = Gesture.Pan()
         .onUpdate((event) => { translationX.value = event.translationX; })
         .onEnd((event) => {
@@ -308,33 +291,27 @@ export default function JobSeekerDashboard({ navigation, onJobApplied }: JobSeek
                 translationX.value = withSpring(0, { damping: 15, stiffness: 150 });
             }
         });
-
     const handlePass = () => {
         translationX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 }, () => runOnJS(onSwipeComplete)('left'));
     };
-
     const handleApply = () => {
         translationX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 }, () => runOnJS(onSwipeComplete)('right'));
     };
-
     const handleRewind = () => {
         if (currentIndex > 0) {
             setCurrentIndex(prev => prev - 1);
             activeIndex.value = withTiming(activeIndex.value - 1);
         }
     };
-
     const renderStack = () => {
-        // Ensure that JOBS_DATA is not empty before attempting modulo
         if (JOBS_DATA.length === 0) return null;
-
         const itemsToRender = [0, 1, 2].reverse().map(offset => {
             const actualIndex = currentIndex + offset;
             const dataIndex = actualIndex % JOBS_DATA.length;
             const item = JOBS_DATA[dataIndex];
             return (
                 <Card
-                    key={actualIndex} // Use actualIndex for key to avoid issues when rewinding/looping
+                    key={actualIndex} 
                     item={item}
                     index={actualIndex}
                     translationX={translationX}
@@ -344,7 +321,6 @@ export default function JobSeekerDashboard({ navigation, onJobApplied }: JobSeek
         });
         return itemsToRender;
     };
-
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={styles.container}>
@@ -391,7 +367,6 @@ export default function JobSeekerDashboard({ navigation, onJobApplied }: JobSeek
         </GestureHandlerRootView>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -449,7 +424,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 5,
-        padding: 20,
+        padding: 20, 
     },
     cardInner: {
         flex: 1,
@@ -494,7 +469,7 @@ const styles = StyleSheet.create({
     salary: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#4CAF50', // Green for salary
+        color: '#4CAF50', 
         marginBottom: 15,
     },
     divider: {
@@ -595,7 +570,6 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
     },
-    // Premium Modal Styles
     modalBackdrop: {
         flex: 1,
         justifyContent: 'flex-end',
@@ -609,7 +583,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         paddingVertical: 20,
-        paddingHorizontal: 10, // Adjusted for horizontal scroll view
+        paddingHorizontal: 10, 
         maxHeight: SCREEN_HEIGHT * 0.85,
     },
     modalHandle: {
@@ -649,7 +623,7 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     miniPlanCardSelected: {
-        borderColor: '#3B82F6', // Default selected border color, overridden by plan.accent
+        borderColor: '#3B82F6', 
     },
     miniGradient: {
         flex: 1,
@@ -658,7 +632,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     miniBadge: {
-        backgroundColor: '#6B7280', // Default badge color
+        backgroundColor: '#6B7280', 
         borderRadius: 5,
         paddingHorizontal: 6,
         paddingVertical: 3,

@@ -1,2 +1,4 @@
+// src/types/global.d.ts
+
 declare module 'react-native-vector-icons/MaterialCommunityIcons';
 declare module 'react-native-vector-icons/FontAwesome';

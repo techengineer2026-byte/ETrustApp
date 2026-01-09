@@ -32,10 +32,6 @@ import Employeeuser from '../screens/Employeeuser';
 import Employeruser from '../screens/Employeruser';
 import CompanyScreen from '../screens/Employer/CompanyScreen';
 import AddressScreen from '../screens/Employer/AddressScreen';
-import EmployeeStep1 from '../screens/Employee/EmployeeStep1';
-import EmployeeStep2 from '../screens/Employee/EmployeeStep2';
-import EmployeeStep3 from '../screens/Employee/EmployeeStep3';
-import EmployeeStep4 from '../screens/Employee/EmployeeStep4';
 import ForgotPassword from '../screens/ForgetPassword/ForgotPasswordScreen';
 import ResetPassword from '../screens/ForgetPassword/ResetPassword';
 import OTPScreen from '../screens/ForgetPassword/OTPScreen';
@@ -52,6 +48,11 @@ import UploadResumeScreen from '../screens/UploadResumeScreen';
 import WorkExperienceScreen from '../screens/WorkExperienceScreen';
 import WorkStatusScreen from '../screens/WorkStatusScreen';
 import SyncLoading from '../screens/SyncLoading';
+import ChangeMobileNumberScreen from '../screens/Employee/Setting/Account/ChangeMobileNumberScreen';
+import EmailVerificationScreen from '../screens/Employee/Setting/Account/EmailVerificationScreen';
+import KycDocumentsScreen from '../screens/Employee/Setting/Account/KycDocumentsScreen';
+import LinkedAccountsScreen from '../screens/Employee/Setting/Account/LinkedAccountsScreen';
+import AccountStatusScreen from '../screens/Employee/Setting/Account/AccountStatusScreen';
 
 import ContactVerificationScreen from '../screens/Employer/ContactVerificationScreen';
 import ContactNumberScreen from '../screens/Employer/ContactNumberScreen';
@@ -124,7 +125,7 @@ export default function AppNavigator() {
           <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
           <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
           <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
-          <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
+          <Stack.Screen name="Syn cLoadingET" component={SyncLoadingET} />
           <Stack.Screen name="CenterName" component={CenterName} />
           <Stack.Screen name="OfficeAddressET" component={OfficeAddressET} />
           <Stack.Screen name='ETname' component={ETname} />
@@ -138,7 +139,31 @@ export default function AppNavigator() {
           <Stack.Screen name='EmployerJobs' component={EmployerJobs} />
           <Stack.Screen name='CompanyProfile' component={CompanyProfile} />
           <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
-          
+          <Stack.Screen
+            name="ChangeMobileNumber"
+            component={ChangeMobileNumberScreen}
+            options={{ title: 'Change Mobile Number' }}
+          />
+          <Stack.Screen
+            name="EmailVerification"
+            component={EmailVerificationScreen}
+            options={{ title: 'Email Verification' }}
+          />
+          <Stack.Screen
+            name="KycDocuments"
+            component={KycDocumentsScreen}
+            options={{ title: 'KYC / Documents' }}
+          />
+          <Stack.Screen
+            name="LinkedAccounts"
+            component={LinkedAccountsScreen}
+            options={{ title: 'Linked Accounts' }}
+          />
+          <Stack.Screen
+            name="AccountStatus"
+            component={AccountStatusScreen}
+            options={{ title: 'Account Status' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

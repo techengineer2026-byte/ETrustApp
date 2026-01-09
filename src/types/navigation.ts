@@ -154,5 +154,13 @@ export type RootStackParamList = {
   TransactionDetail: undefined;
   CompanyProfile: undefined;
   EmployerJobs: undefined;
-  SettingsScreen:undefined;
+  SettingsScreen: undefined;
+  AccountSettingsMenu: undefined;
+  ChangeMobileNumber: undefined;
+  EmailVerification: undefined;
+  KycDocuments: undefined;
+  LinkedAccounts: undefined;
+  AccountStatus: undefined;
+  SettingsScreen: undefined;
+  AccountStatusScreen: undefined;
 };

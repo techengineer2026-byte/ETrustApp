@@ -1,6 +1,6 @@
 // src/screens/Employee/NotificationScreen.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react'; // Added useCallback
 import {
     View,
     Text,
@@ -12,59 +12,9 @@ import {
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ListRenderItem } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-type NotificationType = "interview" | "job_alert" | "application" | "system";
-type NotificationItem = {
-    id: string;
-    type: NotificationType;
-    title: string;
-    message: string;
-    time: string;
-    read: boolean;
-};
 
-// --- MOCK DATA ---
-const NOTIFICATIONS_DATA: NotificationItem[] = [
-    {
-        id: '1',
-        type: 'interview', // interview, job_alert, system, application
-        title: 'Interview Scheduled',
-        message: 'Infosys has scheduled an interview for Frontend Developer role.',
-        time: '10 min ago',
-        read: false,
-    },
-    {
-        id: '2',
-        type: 'job_alert',
-        title: 'New Job Alert',
-        message: '3 new jobs match your preferences for "React Native".',
-        time: '2 hours ago',
-        read: false,
-    },
-    {
-        id: '3',
-        type: 'application',
-        title: 'Application Viewed',
-        message: 'Tech Mahindra viewed your application for Backend Developer.',
-        time: '5 hours ago',
-        read: true,
-    },
-    {
-        id: '4',
-        type: 'system',
-        title: 'Profile Incomplete',
-        message: 'Add your resume to increase your chances by 50%.',
-        time: '1 day ago',
-        read: true,
-    },
-    {
-        id: '5',
-        type: 'application',
-        title: 'Application Update',
-        message: 'Sadly, Wipro has decided not to move forward.',
-        time: '2 days ago',
-        read: true,
-    },
-];
+// Import types from the central types file
+import { NotificationItem, NotificationType } from '../../types'; // Adjust path if necessary, e.g., '../../types'
 
 // --- HELPER: Get Icon & Color based on type ---
 const getNotificationStyle = (type: NotificationType) => {
@@ -72,7 +22,7 @@ const getNotificationStyle = (type: NotificationType) => {
         case 'interview':
             return { icon: 'calendar-check', color: '#27AE60', bg: '#E8F8F5' };
         case 'job_alert':
-            return { icon: 'bell-ring', color: '#EB5757', bg: '#FDEDEC' }; // Using your Tab Color
+            return { icon: 'bell-ring', color: '#EB5757', bg: '#FDEDEC' };
         case 'application':
             return { icon: 'briefcase-eye', color: '#2F80ED', bg: '#EAF2F8' };
         case 'system':
@@ -81,17 +31,29 @@ const getNotificationStyle = (type: NotificationType) => {
     }
 };
 
-export default function NotificationScreen(
-    { navigation }: { navigation: any }
-) {
-    const [notifications, setNotifications] =
-        useState<NotificationItem[]>(NOTIFICATIONS_DATA);
+// Update props interface
+interface NotificationScreenProps {
+    navigation: any;
+    notifications: NotificationItem[]; // Now received as a prop
+    setNotifications: React.Dispatch<React.SetStateAction<NotificationItem[]>>; // To update read status
+}
 
-    // Function to mark all as read (Mock logic)
-    const markAllRead = () => {
+export default function NotificationScreen(
+    { navigation, notifications, setNotifications }: NotificationScreenProps
+) {
+    // No need for local useState for notifications here anymore, use props
+
+    // Function to mark all as read
+    const markAllRead = useCallback(() => {
         const updated = notifications.map(n => ({ ...n, read: true }));
         setNotifications(updated);
-    };
+    }, [notifications, setNotifications]); // Add dependencies
+
+    // Function to mark a single notification as read (optional, but good for UX)
+    const markAsRead = useCallback((id: string) => {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    }, [setNotifications]);
+
 
     const renderItem: ListRenderItem<NotificationItem> = ({ item }) => {
         const { icon, color, bg } = getNotificationStyle(item.type);
@@ -100,6 +62,7 @@ export default function NotificationScreen(
             <TouchableOpacity
                 style={[styles.card, !item.read && styles.unreadCard]}
                 activeOpacity={0.7}
+                onPress={() => markAsRead(item.id)} // Mark as read on press
             >
                 {/* Icon Box */}
                 <View style={[styles.iconContainer, { backgroundColor: bg }]}>
@@ -126,6 +89,8 @@ export default function NotificationScreen(
         );
     };
 
+    const unreadCount = notifications.filter(n => !n.read).length;
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
@@ -135,14 +100,16 @@ export default function NotificationScreen(
                 <View>
                     <Text style={styles.headerTitle}>Alerts</Text>
                     <Text style={styles.headerSubtitle}>
-                        You have {notifications.filter(n => !n.read).length} new notifications
+                        You have {unreadCount} new notifications
                     </Text>
                 </View>
 
-                {/* Mark Read Button */}
-                <TouchableOpacity onPress={markAllRead}>
-                    <Text style={styles.markReadText}>Mark all read</Text>
-                </TouchableOpacity>
+                {/* Mark Read Button (only show if there are unread notifications) */}
+                {unreadCount > 0 && (
+                    <TouchableOpacity onPress={markAllRead}>
+                        <Text style={styles.markReadText}>Mark all read</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
             {/* List */}

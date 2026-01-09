@@ -8,14 +8,17 @@ import {
     StyleSheet,
     TouchableOpacity,
     StatusBar,
+    Alert, // Import Alert for status change demonstration
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ListRenderItem } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Import types from the central types file
-import { AppliedJob, JobStatus } from '../../types'; // Adjust path if necessary
+// Corrected import: only one needed, and from the correct relative path to types.ts
+import { AppliedJob, JobStatus } from '../../types';
 
+// Moved StatusBadgeProps outside the component for clarity if it's meant to be global,
+// or defined here if it's only for this file. It was already outside the default export.
 type StatusBadgeProps = {
     status: JobStatus;
 };
@@ -46,15 +49,45 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     );
 };
 
-// Update the props to accept appliedJobs
+// --- CORRECTED AppliedJobsScreenProps INTERFACE ---
+// This interface defines all the props that AppliedJobsScreen expects to receive.
 interface AppliedJobsScreenProps {
-    navigation: any;
-    appliedJobs: AppliedJob[]; // Now receives appliedJobs as a prop
+    navigation: any; // navigation prop from react-navigation
+    appliedJobs: AppliedJob[]; // The list of applied jobs
+    onUpdateJobStatus: (jobId: number, newStatus: JobStatus, message: string) => void; // The new callback for updating status
 }
 
-export default function AppliedJobsScreen({ navigation, appliedJobs }: AppliedJobsScreenProps) {
+export default function AppliedJobsScreen({ navigation, appliedJobs, onUpdateJobStatus }: AppliedJobsScreenProps) {
     const renderItem: ListRenderItem<AppliedJob> = ({ item }) => (
-        <TouchableOpacity style={styles.card} activeOpacity={0.7}>
+        <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.7}
+            onLongPress={() => { // Add onLongPress to simulate status change
+                Alert.alert(
+                    "Change Job Status (Demo)",
+                    `Update status for "${item.title}" at "${item.company}"? Current: ${item.status}`,
+                    [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                            text: "Pending",
+                            onPress: () => onUpdateJobStatus(item.id, "Pending", "Your application is still under review.")
+                        },
+                        {
+                            text: "Interview",
+                            onPress: () => onUpdateJobStatus(item.id, "Interview", "An interview has been scheduled!")
+                        },
+                        {
+                            text: "Offer",
+                            onPress: () => onUpdateJobStatus(item.id, "Offer", "Congratulations! You received a job offer!")
+                        },
+                        {
+                            text: "Rejected",
+                            onPress: () => onUpdateJobStatus(item.id, "Rejected", "The company decided not to proceed with your application.")
+                        },
+                    ]
+                );
+            }}
+        >
             <View style={styles.cardTop}>
                 {/* Logo Box (Matching your Swipe Screen Style) */}
                 <View style={[styles.logoPlaceholder, { backgroundColor: item.logoColor }]}>

@@ -1,3 +1,5 @@
+// src/screens/Employee/EmployeeStep2.tsx
+
 import React, { useState } from "react";
 import {
   View,
