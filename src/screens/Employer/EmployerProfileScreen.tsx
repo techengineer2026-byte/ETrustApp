@@ -223,22 +223,7 @@ export default function EmployerProfileScreen({ navigation }: Props) {
 
                 {/* ⚙️ Section 3: Settings & Logout */}
                 <View style={styles.sectionContainer}>
-                    <TouchableOpacity style={styles.menuItem}>
-                        <View style={styles.menuRow}>
-                            <Feather name="settings" size={20} color={TEXT_COLOR} />
-                            <Text style={styles.menuText}>Account Settings</Text>
-                        </View>
-                        <Feather name="chevron-right" size={20} color={GRAY_TEXT} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.menuItem}>
-                        <View style={styles.menuRow}>
-                            <Feather name="help-circle" size={20} color={TEXT_COLOR} />
-                            <Text style={styles.menuText}>Help & Support</Text>
-                        </View>
-                        <Feather name="chevron-right" size={20} color={GRAY_TEXT} />
-                    </TouchableOpacity>
-
+                  
                     {/* LOGOUT BUTTON */}
                     <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
                         <Feather name="log-out" size={20} color={DANGER_COLOR} />

@@ -1,6 +1,5 @@
 // src/screens/Employee/Setting/SettingsScreen.tsx
 
-
 import React, { useState } from 'react';
 import {
     StyleSheet,
@@ -15,8 +14,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// ✅ IMPORT THIS (Adjust path if your types folder is further back)
+import { RootStackParamList } from '../../../types/navigation';
+
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+// ... rest of your code stays exactly the same ...
 type FormState = {
     jobAlerts: boolean;
     whatsapp: boolean;
@@ -28,6 +32,8 @@ interface BaseSettingsItemProps {
     leftIcon?: string;
     iconColor?: string;
     isDestructive?: boolean;
+    isLast?: boolean; // ✅ ADD THIS
+
 }
 type SettingsItemProps =
     | (BaseSettingsItemProps & {
@@ -64,10 +70,9 @@ export default function SettingsScreen() {
                 style={styles.row}
                 activeOpacity={props.type === 'toggle' ? 1 : 0.7}
                 onPress={
-                    props.type === 'link' || props.type === 'value'
-                        ? props.onPress
-                        : undefined
+                    props.type !== 'toggle' ? props.onPress : undefined
                 }
+
             >
                 {props.leftIcon && (
                     <View style={styles.iconContainer}>
@@ -121,7 +126,7 @@ export default function SettingsScreen() {
                         <SettingsItem
                             label="Change Mobile Number"
                             leftIcon="cellphone"
-                            onPress={() => { navigation.navigate("ChangeMobileNumber") }}
+                            onPress={() => { navigation.navigate("ChangeMobileNumber"), console.log("Testing Mobile") }}
                         />
                         <SettingsItem
                             label="Email Verification"
@@ -191,17 +196,17 @@ export default function SettingsScreen() {
                         <SettingsItem
                             label="Upgrade Plan"
                             leftIcon="rocket-launch"
-                            onPress={() => { }}
+                            onPress={() => navigation.navigate('UpgradePlan')}
                         />
                         <SettingsItem
                             label="Billing History"
                             leftIcon="receipt"
-                            onPress={() => { }}
+                            onPress={() => navigation.navigate('BillingHistory')}
                         />
                         <SettingsItem
                             label="Refund Policy"
                             leftIcon="cash-refund"
-                            onPress={() => { }}
+                            onPress={() => navigation.navigate('RefundPolicy')}
                         />
                     </View>
                 </View>
@@ -211,38 +216,57 @@ export default function SettingsScreen() {
                         <SettingsItem
                             label="Change Password"
                             leftIcon="lock-reset"
-                            onPress={() => { }}
+                            onPress={() => navigation.navigate('ChangePassword')}
                         />
                         <SettingsItem
                             label="Logout from All Devices"
                             leftIcon="logout-variant"
-                            onPress={() => { }}
-                        />
-                        <SettingsItem
-                            label="Delete Account"
-                            leftIcon="delete"
-                            isDestructive
-                            onPress={() => Alert.alert('Warning', 'Are you sure?')}
+                            onPress={() => navigation.navigate('LogoutFromAllDevices')}
                         />
                     </View>
                 </View>
                 <View style={styles.section}>
                     <SectionHeader title="LEGAL & SUPPORT" icon="📄" />
                     <View style={styles.sectionBody}>
-                        <SettingsItem label="Terms & Conditions" leftIcon="file-document" onPress={() => { }} />
-                        <SettingsItem label="Privacy Policy" leftIcon="shield-account" onPress={() => { }} />
-                        <SettingsItem label="Contact Support" leftIcon="face-agent" onPress={() => { }} />
-                        <SettingsItem label="FAQs" leftIcon="help-circle" onPress={() => { }} />
+                        <SettingsItem
+                            label="Terms & Conditions"
+                            leftIcon="file-document"
+                            onPress={() => navigation.navigate('Terms')}
+                        />
+                        <SettingsItem
+                            label="Privacy Policy"
+                            leftIcon="shield-account"
+                            onPress={() => navigation.navigate('PrivacyPolicy')}
+                        />
+                        <SettingsItem
+                            label="Contact Support"
+                            leftIcon="face-agent"
+                            onPress={() => navigation.navigate('ContactSupport')}
+                        />
+                        <SettingsItem
+                            label="FAQs"
+                            leftIcon="help-circle"
+                            onPress={() => navigation.navigate('Faq')}
+                        />
                     </View>
                 </View>
                 <View style={styles.logoutSection}>
                     <TouchableOpacity
                         style={styles.logoutButton}
-                        onPress={() => Alert.alert('Logged Out')}
+                        onPress={() => navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Welcome' }],
+                        })}
                     >
-                        <MaterialCommunityIcons name="exit-to-app" size={20} color="#d11a2a" style={{ marginRight: 8 }} />
+                        <MaterialCommunityIcons
+                            name="exit-to-app"
+                            size={20}
+                            color="#d11a2a"
+                            style={{ marginRight: 8 }}
+                        />
                         <Text style={styles.logoutText}>Logout</Text>
                     </TouchableOpacity>
+
                     <Text style={styles.versionText}>App Version 1.0.0</Text>
                 </View>
             </ScrollView>

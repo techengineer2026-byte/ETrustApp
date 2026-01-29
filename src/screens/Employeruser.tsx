@@ -152,8 +152,8 @@ export default function EmployerUser() {
                   </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("EmployerBottomNav")}>
-                {/* <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("ForgotPassword")}> */}
+                {/* <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("EmployerBottomNav")}> */}
+                <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate("ForgotPassword")}>
                   <Text style={styles.forgotText}>Forgot Password?</Text>
                 </TouchableOpacity>
 
@@ -178,7 +178,7 @@ export default function EmployerUser() {
 
 const styles = StyleSheet.create({
   background: { flex: 1 },
-  overlay: { flex: 1},
+  overlay: { flex: 1 },
   safeArea: { flex: 1 },
 
   // Back Button Styles

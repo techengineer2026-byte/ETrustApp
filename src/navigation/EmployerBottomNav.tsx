@@ -13,7 +13,6 @@ import PostJobScreen from "../screens/Employer/PostJobScreen";
 import ChatScreen from "../screens/Employer/ChatScreen";
 import EmployerProfileScreen from "../screens/Employer/EmployerProfileScreen";
 
-
 const Tab = createBottomTabNavigator();
 
 const PRIMARY_COLOR = "#6C63FF";

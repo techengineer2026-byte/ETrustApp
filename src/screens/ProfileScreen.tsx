@@ -128,10 +128,7 @@ const ProfileScreen = () => {
                                     <Text style={styles.progressLabel}>Profile 15% Complete</Text>
                                 </View>
                             </View>
-                            <TouchableOpacity style={styles.editBtn}>
-                                <Text style={styles.editBtnText}>Edit Profile</Text>
-                                <Icon name="chevron-right" size={16} color="#666" />
-                            </TouchableOpacity>
+
                         </View>
                     </View>
 

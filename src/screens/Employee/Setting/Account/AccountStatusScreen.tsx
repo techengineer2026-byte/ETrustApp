@@ -11,18 +11,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from '../../../navigation/types'; // adjust path
+import { RootStackParamList } from '../../../../types/navigation';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Import common settings components
 import { SettingsItem, SectionHeader } from '../../../../components/SettingsCommon';
+type AccountStatusScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 // --- TYPES ---
 type ToastType = 'info' | 'success' | 'error';
 type OverallAccountStatus = 'Active' | 'Pending Verification' | 'Suspended';
 
 export default function AccountStatusScreen() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<AccountStatusScreenNavigationProp>();
 
     // --- SCREEN STATE (SIMULATED) ---
     const [overallStatus, setOverallStatus] = useState<OverallAccountStatus>('Active'); // Can change to 'Pending Verification' or 'Suspended'

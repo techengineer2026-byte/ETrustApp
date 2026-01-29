@@ -13,16 +13,25 @@ import {
   Platform,
   ScrollView,
   Dimensions,
-  Animated, // Import Animated
+  Animated,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native"; // ✅ Added imports
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RootStackParamList } from "../../types/navigation"; // ✅ Import types
 
 const { width } = Dimensions.get("window");
 
+// ✅ Define Route Type
+type ForgotPassRoute = RouteProp<RootStackParamList, 'ForgotPassword'>;
+
 const ForgotPassword = () => {
   const navigation = useNavigation<any>();
+  
+  // ✅ Get Route Params
+  const route = useRoute<ForgotPassRoute>();
+  const source = route.params?.source; 
+
   const [email, setEmail] = useState("");
 
   // --- TOAST STATE & ANIMATION ---
@@ -31,14 +40,12 @@ const ForgotPassword = () => {
 
   const showToast = (message: string) => {
     setToastMessage(message);
-    // Fade In
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 300,
       useNativeDriver: true,
     }).start();
 
-    // Wait 3 seconds, then Fade Out
     setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -51,22 +58,23 @@ const ForgotPassword = () => {
 
   const handleSendCode = () => {
     if (!email) {
-      showToast("Please enter your email address."); // Replaced Alert
+      showToast("Please enter your email address.");
       return;
     }
 
-    // Basic email validation regex
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
       showToast("Please enter a valid email address.");
       return;
     }
 
-    // API Call to send email goes here...
     console.log("Sending OTP to:", email);
 
-    // Navigate to Step 2 (OTP Screen)
-    navigation.navigate("OTPScreen", { email: email });
+    // ✅ Pass 'source' to the next screen (OTPScreen)
+    navigation.navigate("OTPScreen", { 
+        email: email,
+        source: source // Pass it along
+    });
   };
 
   return (
@@ -144,6 +152,7 @@ const ForgotPassword = () => {
   );
 };
 
+// ... Styles remain exactly the same as your code ...
 const styles = StyleSheet.create({
   background: { flex: 1 },
   overlay: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.1)" },
@@ -199,8 +208,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   btnText: { color: "#1c005e", fontWeight: "800", fontSize: 16 },
-
-  // --- TOAST STYLES ---
   toastContainer: {
     position: "absolute",
     top: 60,

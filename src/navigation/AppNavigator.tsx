@@ -1,14 +1,5 @@
 // src/navigation/AppNavigator.tsx
 
-// import React from 'react';
-// import { RootStackParamList } from "../types/navigation";
-// import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-// import { NavigationContainer } from '@react-navigation/native';
-// import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// import { SplashScreen } from '../screens/SplashIntroScreen';
-
-
 import WelcomeScreen from '../screens/WelcomeScreen';
 import PhoneNumberScreen from '../screens/PhoneNumberScreen';
 import HumanVerificationScreen from '../screens/HumanVerificationScreen';
@@ -53,6 +44,19 @@ import EmailVerificationScreen from '../screens/Employee/Setting/Account/EmailVe
 import KycDocumentsScreen from '../screens/Employee/Setting/Account/KycDocumentsScreen';
 import LinkedAccountsScreen from '../screens/Employee/Setting/Account/LinkedAccountsScreen';
 import AccountStatusScreen from '../screens/Employee/Setting/Account/AccountStatusScreen';
+import ChangePasswordScreen from '../screens/Employee/Setting/Account/ChangePasswordScreen';
+import LogoutFromAllDevicesScreen from '../screens/Employee/Setting/Account/LogoutFromAllDevicesScreen';
+
+import TermsScreen from '../screens/Employee/Setting/Legal/TermsScreen';
+import PrivacyPolicyScreen from '../screens/Employee/Setting/Legal/PrivacyPolicyScreen';
+import ContactSupportScreen from '../screens/Employee/Setting/Support/ContactSupportScreen';
+import FaqScreen from '../screens/Employee/Setting/Support/FaqScreen';
+
+import UpgradePlanScreen from '../screens/Employee/Setting/UpgradePlan';
+import BillingHistoryScreen from '../screens/Employee/Setting/BillingHistoryScreen';
+import RefundPolicyScreen from '../screens/Employee/Setting/RefundPolicyScreen';
+import AllApplicantsScreen from '../screens/Employer/AllApplicantsScreen';
+import AllJobsScreen from '../screens/Employer/AllJobsScreen';
 
 import ContactVerificationScreen from '../screens/Employer/ContactVerificationScreen';
 import ContactNumberScreen from '../screens/Employer/ContactNumberScreen';
@@ -80,7 +84,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SplashScreen } from '../screens/SplashIntroScreen';
-
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -88,7 +91,8 @@ export default function AppNavigator() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
+
+          {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
 
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -98,6 +102,7 @@ export default function AppNavigator() {
           <Stack.Screen name="Gender" component={GenderScreen} />
           <Stack.Screen name="EducationForm" component={EducationForm} />
           <Stack.Screen name="JobType" component={JobType} />
+          <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
           <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
           <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
           <Stack.Screen name="JobProfile" component={JobProfileScreen} />
@@ -111,7 +116,7 @@ export default function AppNavigator() {
           <Stack.Screen name="SyncLoading" component={SyncLoading} />
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
-          {/* <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} /> */}
+          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
 
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
@@ -119,13 +124,15 @@ export default function AppNavigator() {
           <Stack.Screen name="ContactPersonScreen" component={ContactPersonScreen} />
           <Stack.Screen name="ContactNumberScreen" component={ContactNumberScreen} />
           <Stack.Screen name="OfficeAddressScreen" component={OfficeAddressScreen} />
+          <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
+          <Stack.Screen name="AllJobs" component={AllJobsScreen} />
           <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
 
           <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
           <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
           <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
           <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
-          <Stack.Screen name="Syn cLoadingET" component={SyncLoadingET} />
+          <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
           <Stack.Screen name="CenterName" component={CenterName} />
           <Stack.Screen name="OfficeAddressET" component={OfficeAddressET} />
           <Stack.Screen name='ETname' component={ETname} />
@@ -138,7 +145,8 @@ export default function AppNavigator() {
           <Stack.Screen name='TransactionDetail' component={TransactionDetail} />
           <Stack.Screen name='EmployerJobs' component={EmployerJobs} />
           <Stack.Screen name='CompanyProfile' component={CompanyProfile} />
-          <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
+          {/* <Stack.Screen name='SettingsScreen' component={SettingsScreen} /> */}
+
           <Stack.Screen
             name="ChangeMobileNumber"
             component={ChangeMobileNumberScreen}
@@ -164,6 +172,19 @@ export default function AppNavigator() {
             component={AccountStatusScreen}
             options={{ title: 'Account Status' }}
           />
+          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+          <Stack.Screen name="LogoutFromAllDevices" component={LogoutFromAllDevicesScreen} />
+
+          {/* Subscription & Billing */}
+          <Stack.Screen name="UpgradePlan" component={UpgradePlanScreen} />
+          <Stack.Screen name="BillingHistory" component={BillingHistoryScreen} />
+          <Stack.Screen name="RefundPolicy" component={RefundPolicyScreen} />
+
+          {/* Legal & Support */}
+          <Stack.Screen name="Terms" component={TermsScreen} />
+          <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+          <Stack.Screen name="ContactSupport" component={ContactSupportScreen} />
+          <Stack.Screen name="Faq" component={FaqScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

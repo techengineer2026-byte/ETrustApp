@@ -7,21 +7,14 @@ import {
     TextInput,
     TouchableOpacity,
     Platform,
-    KeyboardAvoidingView,
     Modal,
     FlatList,
-    StatusBar,
     ActivityIndicator,
+    Alert
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Feather from 'react-native-vector-icons/Feather';
-type PostJobRouteParams = {
-    jobId?: string;
-};
-type PostJobScreenRouteProp = RouteProp<{ PostJob: PostJobRouteParams }, 'PostJob'>;
 const mockFilePicker = async () => {
     return new Promise<string | null>((resolve) => {
         setTimeout(() => {
@@ -39,6 +32,7 @@ interface DropdownSelectorProps {
     value: string;
     type: string;
     onPress: () => void;
+    disabled?: boolean;
 }
 const PRIMARY_COLOR = '#2563EB';
 const ACCENT_COLOR = '#3B82F6';
@@ -65,27 +59,38 @@ const EXPERIENCE_RANGES = ['Fresher', '1 – 2 Years', '2 – 5 Years', '5 – 1
 const CONTRIBUTION_OPTIONS = [1000, 2000, 5000, 10000];
 const mockFetchJobDetails = async (id: string) => {
     console.log(`Mock: Fetching job details for jobId: ${id}`);
-    return new Promise<any>(resolve => {
+    return new Promise<any>((resolve, reject) => {
         setTimeout(() => {
-            resolve({
-                jobType: 'Full Time',
-                workMode: 'Hybrid',
-                salaryRange: '₹ 10L – ₹ 20L',
-                position: 'Senior React Native Developer',
-                experience: '5 – 10 Years',
-                skills: 'React Native, JavaScript, TypeScript, Redux, Firebase, REST APIs, GraphQL',
-                candidates: 5,
-                contribution: 5000,
-                location: 'Bengaluru, Karnataka, 560001',
-                fileName: 'Senior_RN_Dev_JD_v2.pdf'
-            });
+            if (id === 'job-123') {
+                resolve({
+                    jobType: 'Full Time',
+                    workMode: 'Hybrid',
+                    salaryRange: '₹ 10L – ₹ 20L',
+                    position: 'Senior React Native Developer',
+                    experience: '5 – 10 Years',
+                    skills: 'React Native, JavaScript, TypeScript, Redux, Firebase, REST APIs, GraphQL',
+                    candidates: 5,
+                    contribution: 5000,
+                    location: 'Bengaluru, Karnataka, 560001',
+                    fileName: 'Senior_RN_Dev_JD_v2.pdf'
+                });
+            } else if (id === 'job-error') {
+                reject(new Error("Job details could not be found."));
+            } else {
+                resolve(null);
+            }
         }, 1500);
     });
 };
-export default function PostJobScreen() {
-    const navigation = useNavigation();
-    const route = useRoute<PostJobScreenRouteProp>();
-    const { jobId } = route.params || {};
+interface DashboardJobPostProps {
+    jobId?: string;
+    initialJobData?: any;
+    onJobPosted?: (jobData: any, isUpdate: boolean) => void;
+    onDraftSaved?: (jobData: any) => void;
+    onCancel?: () => void;
+}
+export default function DashboardJobPost(props: DashboardJobPostProps) {
+    const { jobId, initialJobData, onJobPosted, onDraftSaved, onCancel } = props;
     const [jobType, setJobType] = useState(JOB_TYPES[0]);
     const [workMode, setWorkMode] = useState('Work From Home');
     const [salaryRange, setSalaryRange] = useState(SALARY_RANGES[0]);
@@ -117,41 +122,50 @@ export default function PostJobScreen() {
         setFileName(null);
     }, []);
     useEffect(() => {
-        if (jobId) {
+        const loadFormData = async () => {
             setIsLoading(true);
-            const loadJob = async () => {
-                try {
-                    const jobData = await mockFetchJobDetails(jobId);
-                    setJobType(jobData.jobType);
-                    setWorkMode(jobData.workMode);
-                    setSalaryRange(jobData.salaryRange);
-                    setPosition(jobData.position);
-                    setExperience(jobData.experience);
-                    setSkills(jobData.skills);
-                    setCandidates(jobData.candidates);
-                    setContribution(jobData.contribution);
-                    setLocation(jobData.location);
-                    setFileName(jobData.fileName);
-                    setAlertModalTitle('Job Loaded');
-                    setAlertModalMessage(`Job "${jobData.position}" loaded successfully for editing.`);
-                    setAlertModalIsError(false);
-                    setShowAlertModal(true);
-                } catch (error) {
-                    console.error("Failed to load job:", error);
-                    setAlertModalTitle('Error');
-                    setAlertModalMessage('Failed to load job details. Please try again.');
-                    setAlertModalIsError(true);
-                    setShowAlertModal(true);
-                    resetForm();
-                } finally {
-                    setIsLoading(false);
+            try {
+                let dataToLoad = null;
+                if (initialJobData) {
+                    dataToLoad = initialJobData;
+                } else if (jobId) {
+                    dataToLoad = await mockFetchJobDetails(jobId);
+                    if (!dataToLoad) {
+                        setAlertModalTitle('Error');
+                        setAlertModalMessage('Job not found or could not be loaded.');
+                        setAlertModalIsError(true);
+                        setShowAlertModal(true);
+                        resetForm();
+                        return;
+                    }
                 }
-            };
-            loadJob();
-        } else {
-            resetForm();
-        }
-    }, [jobId, resetForm]);
+                if (dataToLoad) {
+                    setJobType(dataToLoad.jobType || JOB_TYPES[0]);
+                    setWorkMode(dataToLoad.workMode || 'Work From Home');
+                    setSalaryRange(dataToLoad.salaryRange || SALARY_RANGES[0]);
+                    setPosition(dataToLoad.position || '');
+                    setExperience(dataToLoad.experience || EXPERIENCE_RANGES[2]);
+                    setSkills(dataToLoad.skills || '');
+                    setCandidates(dataToLoad.candidates || 10);
+                    setContribution(dataToLoad.contribution || 1000);
+                    setLocation(dataToLoad.location || '');
+                    setFileName(dataToLoad.fileName || null);
+                } else {
+                    resetForm();
+                }
+            } catch (error: any) {
+                console.error("Failed to load job:", error);
+                setAlertModalTitle('Error');
+                setAlertModalMessage(`Failed to load job details: ${error.message || 'Unknown error'}`);
+                setAlertModalIsError(true);
+                setShowAlertModal(true);
+                resetForm();
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadFormData();
+    }, [jobId, initialJobData, resetForm]);
     const handleStepper = (action: string) => {
         if (action === 'increase') {
             if (candidates < 100) setCandidates(candidates + 1);
@@ -188,15 +202,22 @@ export default function PostJobScreen() {
             setIsLoading(false);
         }, 800);
     };
+    const getCurrentFormData = () => ({
+        jobType, workMode, salaryRange, position, experience, skills, candidates, contribution, location, fileName, totalCost
+    });
     const handleSaveDraft = () => {
         setIsLoading(true);
         setTimeout(() => {
-            console.log('Draft saved:', { jobType, workMode, salaryRange, position, experience, skills, candidates, contribution, location, fileName });
+            const formData = getCurrentFormData();
+            console.log('Draft saved:', formData);
             setAlertModalTitle('Draft Saved');
             setAlertModalMessage('Your job post draft has been saved successfully.');
             setAlertModalIsError(false);
             setShowAlertModal(true);
             setIsLoading(false);
+            if (onDraftSaved) {
+                onDraftSaved(formData);
+            }
         }, 1000);
     };
     const handleSubmit = () => {
@@ -226,10 +247,13 @@ export default function PostJobScreen() {
             return;
         }
         setTimeout(() => {
+            const formData = getCurrentFormData();
             if (jobId) {
+                console.log('Job updated:', jobId, formData);
                 setAlertModalTitle('Job Updated!');
                 setAlertModalMessage(`Job "${position}" (ID: ${jobId}) has been updated successfully.`);
             } else {
+                console.log('New job posted:', formData);
                 setAlertModalTitle('Job Posted Successfully!');
                 setAlertModalMessage(
                     `Job Position: ${position}\nCandidates: ${candidates}\nTotal Cost: ₹ ${totalCost.toLocaleString('en-IN')}`
@@ -239,190 +263,186 @@ export default function PostJobScreen() {
             setAlertModalIsError(false);
             setShowAlertModal(true);
             setIsLoading(false);
+            if (onJobPosted) {
+                onJobPosted(formData, !!jobId);
+            }
         }, 1500);
     };
-    const DropdownSelector = ({ label, value, type, onPress }: DropdownSelectorProps) => (
+    const DropdownSelector = ({ label, value, type, onPress, disabled }: DropdownSelectorProps) => (
         <View style={styles.inputContainer}>
             <Text style={styles.label}>{label}</Text>
             <TouchableOpacity
-                style={[styles.dropdownBox, SHADOW_STYLE]}
+                style={[styles.dropdownBox, SHADOW_STYLE, disabled && { backgroundColor: BORDER_COLOR }]}
                 onPress={onPress}
-                disabled={isLoading}
+                disabled={disabled || isLoading}
             >
-                <Text style={styles.inputText}>{value}</Text>
+                <Text style={[styles.inputText, disabled && { color: GRAY_TEXT }]}>{value}</Text>
                 <Feather name="chevron-down" size={20} color={GRAY_TEXT} />
             </TouchableOpacity>
         </View>
     );
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="white" />
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.goBack()} disabled={isLoading}>
-                    <Ionicons name="arrow-back" size={24} color={TEXT_COLOR} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>{jobId ? 'Edit Job' : 'Post a New Job'}</Text>
-                <TouchableOpacity style={styles.iconBtn} onPress={() => console.log("Header Action")} disabled={isLoading}>
-                    <MaterialCommunityIcons name="cog-outline" size={24} color={TEXT_COLOR} />
-                </TouchableOpacity>
-            </View>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                style={{ flex: 1 }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        <View style={styles.container}>
+            {isLoading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+                    <Text style={styles.loadingText}>{jobId ? 'Loading Job...' : 'Processing...'}</Text>
+                </View>
+            )}
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
             >
-                {isLoading && (
-                    <View style={styles.loadingOverlay}>
-                        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
-                        <Text style={styles.loadingText}>{jobId ? 'Loading Job...' : 'Processing...'}</Text>
-                    </View>
-                )}
-                <ScrollView
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    <DropdownSelector
-                        label="Job Type"
-                        value={jobType}
-                        type="JOB_TYPE"
-                        onPress={() => {
-                            setCurrentModalType('JOB_TYPE');
-                            setModalVisible(true);
-                        }}
-                    />
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Work Mode</Text>
-                        <View style={styles.pillsContainer}>
-                            {['Work From Home', 'On-Site', 'Hybrid'].map((mode) => (
-                                <TouchableOpacity
-                                    key={mode}
-                                    style={[
-                                        styles.pill,
-                                        workMode === mode && styles.pillActive,
-                                    ]}
-                                    onPress={() => setWorkMode(mode)}
-                                    disabled={isLoading}
-                                >
-                                    <View style={[styles.radioCircle, workMode === mode && styles.radioActive]}>
-                                        {workMode === mode && <View style={styles.radioDot} />}
-                                    </View>
-                                    <Text style={[styles.pillText, workMode === mode && styles.pillTextActive]}>
-                                        {mode}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </View>
-                    <DropdownSelector
-                        label="Salary Range"
-                        value={salaryRange}
-                        type="SALARY"
-                        onPress={() => {
-                            setCurrentModalType('SALARY');
-                            setModalVisible(true);
-                        }}
-                    />
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Job Position / Role</Text>
-                        <TextInput
-                            style={[styles.textInput, SHADOW_STYLE]}
-                            placeholder="e.g. Software Engineer"
-                            placeholderTextColor={LIGHT_GRAY_TEXT}
-                            value={position}
-                            onChangeText={setPosition}
-                            editable={!isLoading}
-                        />
-                    </View>
-                    <DropdownSelector
-                        label="Desired Experience"
-                        value={experience}
-                        type="EXPERIENCE"
-                        onPress={() => {
-                            setCurrentModalType('EXPERIENCE');
-                            setModalVisible(true);
-                        }}
-                    />
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Skills / Requirements</Text>
-                        <TextInput
-                            style={[styles.textInput, styles.textArea, SHADOW_STYLE]}
-                            placeholder="Java, Spring Boot, MySQL, REST APIs..."
-                            placeholderTextColor={LIGHT_GRAY_TEXT}
-                            multiline
-                            numberOfLines={4}
-                            value={skills}
-                            onChangeText={setSkills}
-                            editable={!isLoading}
-                        />
-                    </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Number of Candidates Required</Text>
-                        <View style={[styles.stepperContainer, SHADOW_STYLE]}>
-                            <TouchableOpacity style={styles.stepperBtn} onPress={() => handleStepper('decrease')} disabled={isLoading}>
-                                <Feather name="minus" size={20} color="white" />
-                            </TouchableOpacity>
-                            <Text style={styles.stepperValue}>{candidates}</Text>
-                            <TouchableOpacity style={styles.stepperBtn} onPress={() => handleStepper('increase')} disabled={isLoading}>
-                                <Feather name="plus" size={20} color="white" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Upload Job Description</Text>
-                        <TouchableOpacity style={[styles.uploadBox, SHADOW_STYLE, fileName && {borderColor: PRIMARY_COLOR, backgroundColor: ACTIVE_BG_COLOR}]} onPress={handleFileUpload} disabled={isLoading}>
-                            {fileName ? (
-                                <View style={styles.filePreview}>
-                                    <MaterialCommunityIcons name="file-pdf-box" size={30} color="#DC2626" />
-                                    <Text style={styles.fileName}>{fileName}</Text>
-                                    <Feather name="check-circle" size={20} color="green" />
+                <DropdownSelector
+                    label="Job Type"
+                    value={jobType}
+                    type="JOB_TYPE"
+                    onPress={() => {
+                        setCurrentModalType('JOB_TYPE');
+                        setModalVisible(true);
+                    }}
+                    disabled={isLoading}
+                />
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Work Mode</Text>
+                    <View style={styles.pillsContainer}>
+                        {['Work From Home', 'On-Site', 'Hybrid'].map((mode) => (
+                            <TouchableOpacity
+                                key={mode}
+                                style={[
+                                    styles.pill,
+                                    workMode === mode && styles.pillActive,
+                                    isLoading && { backgroundColor: BORDER_COLOR, borderColor: GRAY_TEXT }
+                                ]}
+                                onPress={() => setWorkMode(mode)}
+                                disabled={isLoading}
+                            >
+                                <View style={[styles.radioCircle, workMode === mode && styles.radioActive, isLoading && { borderColor: GRAY_TEXT }]}>
+                                    {workMode === mode && <View style={styles.radioDot} />}
                                 </View>
-                            ) : (
-                                <>
-                                    <Feather name="upload-cloud" size={24} color={PRIMARY_COLOR} />
-                                    <Text style={styles.uploadText}>Upload JD (PDF / Word)</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Job Location</Text>
-                        <View style={[styles.locationContainer, SHADOW_STYLE]}>
-                            <Ionicons name="location-sharp" size={20} color={ACCENT_COLOR} style={{ marginLeft: 12 }} />
-                            <TextInput
-                                style={styles.locationInput}
-                                placeholder="City, District, Pin Code"
-                                placeholderTextColor={LIGHT_GRAY_TEXT}
-                                value={location}
-                                onChangeText={setLocation}
-                                editable={!isLoading}
-                            />
-                            <TouchableOpacity style={styles.detectBtn} onPress={handleDetectLocation} disabled={isLoading}>
-                                <Text style={styles.detectText}>Detect</Text>
+                                <Text style={[styles.pillText, workMode === mode && styles.pillTextActive, isLoading && { color: GRAY_TEXT }]}>
+                                    {mode}
+                                </Text>
                             </TouchableOpacity>
-                        </View>
+                        ))}
                     </View>
-                    <DropdownSelector
-                        label="Per Candidate Contribution"
-                        value={`₹ ${contribution.toLocaleString('en-IN')}`}
-                        type="CONTRIBUTION"
-                        onPress={() => {
-                            setCurrentModalType('CONTRIBUTION');
-                            setModalVisible(true);
-                        }}
+                </View>
+                <DropdownSelector
+                    label="Salary Range"
+                    value={salaryRange}
+                    type="SALARY"
+                    onPress={() => {
+                        setCurrentModalType('SALARY');
+                        setModalVisible(true);
+                    }}
+                    disabled={isLoading}
+                />
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Job Position / Role</Text>
+                    <TextInput
+                        style={[styles.textInput, SHADOW_STYLE, isLoading && { backgroundColor: BORDER_COLOR }]}
+                        placeholder="e.g. Software Engineer"
+                        placeholderTextColor={LIGHT_GRAY_TEXT}
+                        value={position}
+                        onChangeText={setPosition}
+                        editable={!isLoading}
                     />
-                    {!jobId && (
-                        <TouchableOpacity
-                            style={styles.clearFormBtn}
-                            onPress={resetForm}
-                            disabled={isLoading}
-                        >
-                            <Text style={styles.clearFormBtnText}>Clear Form</Text>
+                </View>
+                <DropdownSelector
+                    label="Desired Experience"
+                    value={experience}
+                    type="EXPERIENCE"
+                    onPress={() => {
+                        setCurrentModalType('EXPERIENCE');
+                        setModalVisible(true);
+                    }}
+                    disabled={isLoading}
+                />
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Skills / Requirements</Text>
+                    <TextInput
+                        style={[styles.textInput, styles.textArea, SHADOW_STYLE, isLoading && { backgroundColor: BORDER_COLOR }]}
+                        placeholder="Java, Spring Boot, MySQL, REST APIs..."
+                        placeholderTextColor={LIGHT_GRAY_TEXT}
+                        multiline
+                        numberOfLines={4}
+                        value={skills}
+                        onChangeText={setSkills}
+                        editable={!isLoading}
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Number of Candidates Required</Text>
+                    <View style={[styles.stepperContainer, SHADOW_STYLE, isLoading && { backgroundColor: BORDER_COLOR }]}>
+                        <TouchableOpacity style={[styles.stepperBtn, isLoading && { opacity: 0.5 }]} onPress={() => handleStepper('decrease')} disabled={isLoading}>
+                            <Feather name="minus" size={20} color="white" />
                         </TouchableOpacity>
-                    )}
-                    <View style={{ height: 120 }} />
-                </ScrollView>
-            </KeyboardAvoidingView>
+                        <Text style={styles.stepperValue}>{candidates}</Text>
+                        <TouchableOpacity style={[styles.stepperBtn, isLoading && { opacity: 0.5 }]} onPress={() => handleStepper('increase')} disabled={isLoading}>
+                            <Feather name="plus" size={20} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Upload Job Description</Text>
+                    <TouchableOpacity
+                        style={[styles.uploadBox, SHADOW_STYLE, fileName && { borderColor: PRIMARY_COLOR, backgroundColor: ACTIVE_BG_COLOR }, isLoading && { backgroundColor: BORDER_COLOR }]}
+                        onPress={handleFileUpload}
+                        disabled={isLoading}
+                    >
+                        {fileName ? (
+                            <View style={styles.filePreview}>
+                                <MaterialCommunityIcons name="file-pdf-box" size={30} color="#DC2626" />
+                                <Text style={styles.fileName}>{fileName}</Text>
+                                <Feather name="check-circle" size={20} color="green" />
+                            </View>
+                        ) : (
+                            <>
+                                <Feather name="upload-cloud" size={24} color={PRIMARY_COLOR} />
+                                <Text style={styles.uploadText}>Upload JD (PDF / Word)</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Job Location</Text>
+                    <View style={[styles.locationContainer, SHADOW_STYLE, isLoading && { backgroundColor: BORDER_COLOR }]}>
+                        <Ionicons name="location-sharp" size={20} color={ACCENT_COLOR} style={{ marginLeft: 12 }} />
+                        <TextInput
+                            style={styles.locationInput}
+                            placeholder="City, District, Pin Code"
+                            placeholderTextColor={LIGHT_GRAY_TEXT}
+                            value={location}
+                            onChangeText={setLocation}
+                            editable={!isLoading}
+                        />
+                        <TouchableOpacity style={[styles.detectBtn, isLoading && { opacity: 0.5 }]} onPress={handleDetectLocation} disabled={isLoading}>
+                            <Text style={styles.detectText}>Detect</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <DropdownSelector
+                    label="Per Candidate Contribution"
+                    value={`₹ ${contribution.toLocaleString('en-IN')}`}
+                    type="CONTRIBUTION"
+                    onPress={() => {
+                        setCurrentModalType('CONTRIBUTION');
+                        setModalVisible(true);
+                    }}
+                    disabled={isLoading}
+                />
+                {!jobId && (
+                    <TouchableOpacity
+                        style={styles.clearFormBtn}
+                        onPress={resetForm}
+                        disabled={isLoading}
+                    >
+                        <Text style={styles.clearFormBtnText}>Clear Form</Text>
+                    </TouchableOpacity>
+                )}
+                <View style={{ height: 120 }} />
+            </ScrollView>
             <View style={styles.footer}>
                 <View style={styles.costRow}>
                     <Text style={styles.costLabel}>Total Cost Estimation:</Text>
@@ -433,7 +453,7 @@ export default function PostJobScreen() {
                 <View style={styles.footerButtons}>
                     <TouchableOpacity style={styles.draftBtn} onPress={handleSaveDraft} disabled={isLoading}>
                         {isLoading ? (
-                             <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                            <ActivityIndicator size="small" color={PRIMARY_COLOR} />
                         ) : (
                             <Text style={styles.draftBtnText}>Save Draft</Text>
                         )}
@@ -486,9 +506,9 @@ export default function PostJobScreen() {
                                             : item}
                                     </Text>
                                     {(currentModalType === 'JOB_TYPE' && jobType === item) ||
-                                     (currentModalType === 'SALARY' && salaryRange === item) ||
-                                     (currentModalType === 'EXPERIENCE' && experience === item) ||
-                                     (currentModalType === 'CONTRIBUTION' && contribution === item) ? (
+                                        (currentModalType === 'SALARY' && salaryRange === item) ||
+                                        (currentModalType === 'EXPERIENCE' && experience === item) ||
+                                        (currentModalType === 'CONTRIBUTION' && contribution === item) ? (
                                         <Feather name="check" size={20} color={PRIMARY_COLOR} />
                                     ) : null}
                                 </TouchableOpacity>
@@ -511,31 +531,13 @@ export default function PostJobScreen() {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: BG_COLOR,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        backgroundColor: 'white',
-        borderBottomWidth: 1,
-        borderBottomColor: BORDER_COLOR,
-    },
-    headerTitle: {
-        fontSize: 19,
-        fontWeight: '700',
-        color: TEXT_COLOR,
-    },
-    iconBtn: {
-        padding: 6,
     },
     loadingOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -822,6 +824,9 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         color: TEXT_COLOR,
+    },
+    iconBtn: {
+        padding: 6,
     },
     modalItem: {
         flexDirection: 'row',

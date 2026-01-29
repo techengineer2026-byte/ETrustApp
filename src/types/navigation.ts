@@ -1,7 +1,7 @@
 // src/types/navigation.ts
 
 export type RootStackParamList = {
-  // --- Common / Onboarding ---
+  // --- Auth & Onboarding ---
   Splash: undefined;
   Welcome: undefined;
   Firstname: undefined;
@@ -11,9 +11,25 @@ export type RootStackParamList = {
     country: string;
   };
   VerificationCode: undefined;
-  Login: undefined; // General Login (Job Seeker)
+  Login: undefined;
 
-  // --- Job Seeker Profile Building ---
+  // --- Forgot Password ---
+  ForgotPassword: { source: string }; // <-- make sure this exists
+  OTPScreen: {
+    email: string;
+    source?: 'settings'; // Pass it along
+  };
+  AllApplicants: undefined; // Add this
+  AllJobs: undefined;       // Add this
+
+  ResetPassword: {
+    email: string;
+    otp?: string;
+    source?: 'settings'; // Pass it along
+  };
+  Employertest: undefined;
+
+  // --- Employee Profile Building ---
   BDAY: undefined;
   Gender: undefined;
   JobType: undefined;
@@ -24,70 +40,71 @@ export type RootStackParamList = {
   SalaryRange: undefined;
   ProfileScreen: undefined;
   skillsScreen: undefined;
+  CurrentCTC: undefined;
+  JobProfile: undefined;
+  PreferredCity: undefined;
+  Reference: undefined;
+  UploadResume: undefined;
+  WorkExperience: undefined;
+  WorkStatus: undefined;
+  SyncLoading: undefined;
 
-  // --- Main App ---
+  // --- Main Tabs ---
   MainTabs: undefined;
   BottomTabNavigator: undefined;
   EmployerBottomNav: undefined;
   EmployeeBottomNav: undefined;
   EtrustBottomNav: undefined;
+
+  // --- Extras ---
   invitefriend: undefined;
   ChatDetails: {
     name: string;
     avatar: string;
   };
 
-  // --- Entry Selection Screens ---
-  Employeeuser: undefined; // Acts as Employee Login
-  Employeruser: undefined; // Acts as Employer Login
-  ETcenter: undefined;     // Acts as Hub/Locator
+  // --- User Type Selection ---
+  Employeeuser: undefined;
+  Employeruser: undefined;
+  ETcenter: undefined;
+  ETcenteruser: undefined;
 
-  // --- EMPLOYER REGISTRATION FLOW ---
-  EmployerLogin: undefined; // Explicit Login Screen if needed
-
-  // Step 1: Basic Info
+  // --- Employer specific ---
+  EmployerLogin: undefined;
   CompanyScreen: undefined;
-
-  // Step 2: Receives data from Step 1
   EmailScreen: {
     companyName: string;
     contactPerson: string;
   };
-
-  // Step 3: Receives data from Step 1 & 2
   PhoneScreen: {
     companyName: string;
     contactPerson: string;
     email: string;
   };
-
-  // Step 4: Receives data from Step 1, 2 & 3
   AddressScreen: {
     companyName: string;
     contactPerson: string;
     email: string;
     phone: string;
   };
-  // --- EMPLOYEE REGISTRATION FLOW ---
+  ContactVerification: undefined;
+  UploadLogo: undefined;
+  ContactPersonScreen: any;
+  ContactNumberScreen: any;
+  OfficeAddressScreen: any;
+
+  // --- Employee Specific ---
   EmployeeLogin: undefined;
-
-  // Step 1: Name & Phone
   EmployeeStep1: undefined;
-
-  // Step 2: Receives data from Step 1
   EmployeeStep2: {
     name: string;
     phone: string;
   };
-
-  // Step 3: Receives data from Step 1 & 2
   EmployeeStep3: {
     name: string;
     phone: string;
     email: string;
   };
-
-  // Step 4: Receives data from Step 1, 2 & 3
   EmployeeStep4: {
     name: string;
     phone: string;
@@ -98,19 +115,13 @@ export type RootStackParamList = {
     pincode: string;
   };
 
-  // --- ET CENTER FLOW ---
+  // --- ET Center Specific ---
   ETCenterLogin: undefined;
-
-  // Step 1: Owner & Phone
   ETCenterStep1: undefined;
-
-  // Step 2: Receives data from Step 1
   ETCenterStep2: {
     name: string;
     phone: string;
   };
-
-  // Step 3: Receives data from Step 1 & 2
   ETCenterStep3: {
     name: string;
     phone: string;
@@ -119,48 +130,39 @@ export type RootStackParamList = {
     district: string;
     pincode: string;
   };
-  // --- FORGOT PASSWORD FLOW ---
-  ForgotPassword: undefined;
-  OTPScreen: {
-    email: string;
-  };
-  ResetPassword: {
-    email: string;
-  };
-  // --- ADDITIONAL JOB SEEKER SCREENS ---
-  CurrentCTC: undefined;
-  JobProfile: undefined;
-  PreferredCity: undefined;
-  Reference: undefined;
-  UploadResume: undefined;
-  WorkExperience: undefined;
-  WorkStatus: undefined;
-  SyncLoading: undefined;
-
-  ContactVerification: undefined;
-  UploadLogo: undefined;
-  ContactPersonScreen: any; // Receives data from previous steps
-  ContactNumberScreen: any;
-  OfficeAddressScreen: any;
-
-  ETcenteruser: undefined;
   ETContactVerify: undefined;
   ETpasswordreg: undefined;
   SyncLoadingET: undefined;
   CenterName: undefined;
   ETname: undefined;
   OfficeAddressET: undefined;
-
   TransactionDetail: undefined;
   CompanyProfile: undefined;
   EmployerJobs: undefined;
+
+  // --- SETTINGS & ACCOUNT (NEWLY ADDED) ---
   SettingsScreen: undefined;
   AccountSettingsMenu: undefined;
+
+  // Account Information
   ChangeMobileNumber: undefined;
   EmailVerification: undefined;
   KycDocuments: undefined;
   LinkedAccounts: undefined;
   AccountStatus: undefined;
-  SettingsScreen: undefined;
-  AccountStatusScreen: undefined;
+
+  // Security
+  ChangePassword: undefined;
+  LogoutFromAllDevices: undefined;
+
+  // Subscription
+  UpgradePlan: undefined;
+  BillingHistory: undefined;
+  RefundPolicy: undefined;
+
+  // Legal & Support
+  Terms: undefined;
+  PrivacyPolicy: undefined;
+  ContactSupport: undefined;
+  Faq: undefined;
 };

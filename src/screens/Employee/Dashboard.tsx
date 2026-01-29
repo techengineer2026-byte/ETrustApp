@@ -543,7 +543,6 @@ const styles = StyleSheet.create({
         height: FOOTER_HEIGHT,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#F7F8FA',
     },
     actionRow: {
         flexDirection: 'row',

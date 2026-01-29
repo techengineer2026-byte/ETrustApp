@@ -1,6 +1,5 @@
 // src/types.ts
 
-
 export type JobStatus = "Interview" | "Rejected" | "Offer" | "Pending";
 
 export type AppliedJob = {

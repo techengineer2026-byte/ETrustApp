@@ -1,7 +1,5 @@
 // src/components/SettingsCommon.tsx
 
-// src/components/SettingsCommon.tsx
-
 import React from 'react';
 import {
     StyleSheet,
@@ -12,152 +10,108 @@ import {
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-/* ---------------- TYPES ---------------- */
-
-// Base props shared by all types of settings items
-interface BaseSettingsItemProps {
+export interface SettingsItemProps {
     label: string;
-    leftIcon?: string; // Name of MaterialCommunityIcon
+    leftIcon?: string;
     iconColor?: string;
     isDestructive?: boolean;
+    isLast?: boolean;
+    type?: 'link' | 'toggle' | 'value';
+    // value can be string (for text) or boolean (for switch)
+    value?: string | boolean; 
+    onPress?: () => void;
+    onToggle?: (val: boolean) => void;
 }
 
-// Union type for all possible settings item configurations
-export type SettingsItemProps =
-    | (BaseSettingsItemProps & {
-        type?: 'link'; // Default type, shows a chevron and expects an onPress handler
-        onPress: () => void;
-    })
-    | (BaseSettingsItemProps & {
-        type: 'toggle'; // Shows a switch and expects a boolean value and change handler
-        toggleValue: boolean; // The current value of the switch
-        onToggleChange: (newValue: boolean) => void; // Callback for when the switch changes
-    })
-    | (BaseSettingsItemProps & {
-        type: 'value'; // Shows a text value and a chevron, expects an onPress handler
-        value: string; // The value to display on the right side
-        onPress: () => void;
-    });
-
-// Props for the section header component
-export type SectionHeaderProps = {
-    title: string;
-    icon: string; // An emoji or a vector icon name if you choose to swap it
-};
-
-/* -------- Settings Item Component -------- */
-
-/**
- * Reusable component for displaying a single setting item.
- * Can be a link (with chevron), a toggle switch, or a display value.
- */
-export const SettingsItem: React.FC<SettingsItemProps> = (props) => {
-    // Determine icon color: destructive (red), custom, or default gray
-    const iconColor = props.isDestructive 
-        ? '#ff3b30' 
-        : props.iconColor || '#555';
-
-    // Determines if a chevron should be shown (for links and value displays)
-    const showChevron = props.type === undefined || props.type === 'link' || props.type === 'value';
+export const SettingsItem: React.FC<SettingsItemProps> = ({
+    label,
+    leftIcon,
+    iconColor = '#555',
+    isDestructive,
+    type,
+    value,
+    onPress,
+    onToggle,
+    isLast
+}) => {
+    const finalIconColor = isDestructive ? '#ff3b30' : iconColor;
 
     return (
         <TouchableOpacity
-            style={settingsStyles.row}
-            // Toggles should not have activeOpacity feedback like buttons
-            activeOpacity={props.type === 'toggle' ? 1 : 0.7}
-            onPress={
-                // Only fire onPress for link/value types, not for toggles
-                props.type === 'link' || props.type === 'value'
-                    ? props.onPress
-                    : undefined
-            }
+            style={[styles.row, isLast && styles.lastRow]}
+            activeOpacity={type === 'toggle' ? 1 : 0.7}
+            onPress={(type === 'link' || type === 'value') ? onPress : undefined}
         >
-            {/* Left Icon (if provided) */}
-            {props.leftIcon && (
-                <View style={settingsStyles.iconContainer}>
-                    <MaterialCommunityIcons 
-                        name={props.leftIcon} 
-                        size={20} 
-                        color={iconColor} 
+            {leftIcon && (
+                <View style={styles.iconContainer}>
+                    <MaterialCommunityIcons
+                        name={leftIcon}
+                        size={20}
+                        color={finalIconColor}
                     />
                 </View>
             )}
-
-            {/* Main Label */}
-            <Text
-                style={[
-                    settingsStyles.rowLabel,
-                    props.isDestructive && settingsStyles.destructiveLabel,
-                ]}
-            >
-                {props.label}
+            <Text style={[styles.rowLabel, isDestructive && styles.destructiveLabel]}>
+                {label}
             </Text>
+            
+            <View style={styles.rowSpacer} />
 
-            {/* Spacer to push right-aligned content to the end */}
-            <View style={settingsStyles.rowSpacer} />
-
-            {/* Conditional Rendering for Toggle Switch */}
-            {props.type === 'toggle' && (
+            {type === 'toggle' && (
                 <Switch
-                    value={props.toggleValue}
-                    onValueChange={props.onToggleChange}
+                    // Ensure value is boolean, default to false if undefined
+                    value={typeof value === 'boolean' ? value : false} 
+                    onValueChange={onToggle}
                 />
             )}
 
-            {/* Conditional Rendering for Display Value */}
-            {props.type === 'value' && (
-                <Text style={settingsStyles.rowValue}>{props.value}</Text>
+            {type === 'value' && (
+                <Text style={styles.rowValue}>{String(value)}</Text>
             )}
 
-            {/* Conditional Rendering for Chevron Icon */}
-            {showChevron && (
+            {(type === undefined || type === 'link' || (type === 'value' && onPress)) && (
                 <MaterialCommunityIcons name="chevron-right" size={20} color="#c4c4c4" />
             )}
         </TouchableOpacity>
     );
 };
 
-/* -------- Section Header Component -------- */
+interface SectionHeaderProps {
+    title: string;
+    iconName?: string; // Changed from 'icon' to 'iconName' to match MaterialIcons usage generally
+}
 
-/**
- * Reusable component for displaying a section header.
- */
-export const SectionHeader: React.FC<SectionHeaderProps> = ({ title, icon }) => (
-    <View style={settingsStyles.sectionHeader}>
-        <Text style={settingsStyles.sectionHeaderText}>
-            {icon} {title}
+export const SectionHeader: React.FC<SectionHeaderProps> = ({ title, iconName }) => (
+    <View style={styles.sectionHeader}>
+        <Text style={styles.sectionHeaderText}>
+            {iconName && <Text>{iconName} </Text>} 
+            {/* Note: If passing emoji directly, just use {iconName}. 
+                If passing icon name, render MaterialIcon here if preferred. 
+                For your current code, you passed emojis or names. 
+                Let's assume you might pass an emoji string or just title. */}
+            {title}
         </Text>
     </View>
 );
 
-/* ---------------- STYLES ---------------- */
-
-// These styles are specific to the SettingsItem and SectionHeader components
-const settingsStyles = StyleSheet.create({
-    sectionHeader: {
-        paddingHorizontal: 24,
-        marginBottom: 8,
-    },
-    sectionHeaderText: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#a7a7a7',
-        textTransform: 'uppercase',
-        letterSpacing: 1.2,
-    },
+const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
         height: 50,
-        paddingHorizontal: 24,
+        paddingHorizontal: 20,
+        backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderColor: '#e3e3e3',
     },
+    lastRow: {
+        borderBottomWidth: 0,
+    },
     iconContainer: {
-        width: 30, // Fixed width helps align labels if icons have different widths
+        width: 30,
         marginRight: 10,
-        alignItems: 'center', // Center icon within its width
+        alignItems: 'center',
     },
     rowLabel: {
         fontSize: 16,
@@ -167,11 +121,23 @@ const settingsStyles = StyleSheet.create({
         color: '#ff3b30',
     },
     rowSpacer: {
-        flex: 1, // Takes up remaining space
+        flex: 1,
     },
     rowValue: {
         fontSize: 16,
         color: '#8a8a8a',
-        marginRight: 4, // Space before chevron
+        marginRight: 4,
+    },
+    sectionHeader: {
+        paddingHorizontal: 20,
+        marginBottom: 8,
+        marginTop: 20,
+    },
+    sectionHeaderText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#a7a7a7',
+        textTransform: 'uppercase',
+        letterSpacing: 1.2,
     },
 });
