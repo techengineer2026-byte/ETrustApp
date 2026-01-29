@@ -88,6 +88,7 @@ const ProfileScreen = () => {
     const [selectedPlan, setSelectedPlan] = useState<any>(null);
     const [showModal, setShowModal] = useState(false);
     const navigation = useNavigation<any>();
+    const [isPro, setIsPro] = useState(false);
 
     const handleBuy = (plan: any) => {
         setSelectedPlan(plan);
@@ -131,7 +132,9 @@ const ProfileScreen = () => {
                                     <Text style={styles.progressLabel}>Profile 15% Complete</Text> */}
                                 </View>
                             </View>
-                            <TouchableOpacity style={styles.editBtn}>
+                            <TouchableOpacity style={styles.editBtn}
+                                onPress={() => navigation.navigate("EditProfileScreen")} // <--- ADD THIS
+                            >
                                 <Text style={styles.editBtnText}>Edit Profile</Text>
                                 <Icon name="chevron-right" size={16} color="#666" />
                             </TouchableOpacity>
@@ -147,13 +150,16 @@ const ProfileScreen = () => {
                             <Text style={styles.statValue}>12</Text>
                             <Text style={styles.statLabel}>Views</Text>
                         </View>
-                        <View style={styles.statCard}>
+                        <TouchableOpacity
+                            style={styles.statCard}
+                            onPress={() => navigation.navigate('BoostProfileScreen')}
+                        >
                             <View style={[styles.iconBox, { backgroundColor: '#F3E8FF' }]}>
                                 <Icon name="flash-outline" size={24} color="#9333EA" />
                             </View>
-                            <Text style={styles.statValue}>0</Text>
+                            <Text style={styles.statValue}>{isPro ? '5' : '0'}</Text>
                             <Text style={styles.statLabel}>Boosts</Text>
-                        </View>
+                        </TouchableOpacity>
                         <View style={styles.statCard}>
                             <View style={[styles.iconBox, { backgroundColor: '#FEE2E2' }]}>
                                 <Icon name="crown-outline" size={24} color="#DC2626" />
@@ -164,19 +170,24 @@ const ProfileScreen = () => {
                     </View>
 
                     {/* --- PROMO BANNER --- */}
-                    <LinearGradient
-                        colors={['#1F2937', '#111827']}
-                        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                        style={styles.promoBanner}
-                    >
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.promoTitle}>Boost your visibility</Text>
-                            <Text style={styles.promoText}>Get 3x more interview calls with our premium plans.</Text>
-                        </View>
-                        <View style={styles.rocketIcon}>
-                            <Icon name="rocket-launch" size={32} color="#FBBF24" />
-                        </View>
-                    </LinearGradient>
+                    {!isPro && (
+                        <TouchableOpacity onPress={() => navigation.navigate('BoostProfileScreen')}>
+
+                            <LinearGradient
+                                colors={['#1F2937', '#111827']}
+                                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                                style={styles.promoBanner}
+                            >
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.promoTitle}>Boost your visibility</Text>
+                                    <Text style={styles.promoText}>Get 3x more interview calls with our premium plans.</Text>
+                                </View>
+                                <View style={styles.rocketIcon}>
+                                    <Icon name="rocket-launch" size={32} color="#FBBF24" />
+                                </View>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    )}
 
                     {/* --- PLANS SECTION TITLE --- */}
                     <View style={styles.sectionHeader}>

@@ -48,7 +48,7 @@ export type RootStackParamList = {
   WorkExperience: undefined;
   WorkStatus: undefined;
   SyncLoading: undefined;
-
+  ApplicationDetail: undefined;
   // --- Main Tabs ---
   MainTabs: undefined;
   BottomTabNavigator: undefined;
@@ -139,11 +139,11 @@ export type RootStackParamList = {
   TransactionDetail: undefined;
   CompanyProfile: undefined;
   EmployerJobs: undefined;
-
+  EditProfileScreen: undefined;
   // --- SETTINGS & ACCOUNT (NEWLY ADDED) ---
   SettingsScreen: undefined;
   AccountSettingsMenu: undefined;
-
+  BoostProfileScreen: undefined;
   // Account Information
   ChangeMobileNumber: undefined;
   EmailVerification: undefined;

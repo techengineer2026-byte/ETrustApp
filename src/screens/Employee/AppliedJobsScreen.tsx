@@ -8,22 +8,28 @@ import {
     StyleSheet,
     TouchableOpacity,
     StatusBar,
-    Alert, // Import Alert for status change demonstration
+    Alert,
+    ListRenderItem
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ListRenderItem } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Corrected import: only one needed, and from the correct relative path to types.ts
+// Import shared types
 import { AppliedJob, JobStatus } from '../../types';
 
-// Moved StatusBadgeProps outside the component for clarity if it's meant to be global,
-// or defined here if it's only for this file. It was already outside the default export.
+// --- PROPS INTERFACE ---
+interface AppliedJobsScreenProps {
+    navigation: any;
+    appliedJobs: AppliedJob[];
+    // Callback to trigger status change & notification in App.tsx
+    onUpdateJobStatus: (jobId: number, newStatus: JobStatus, message: string) => void;
+}
+
+// --- HELPER COMPONENT: STATUS BADGE ---
 type StatusBadgeProps = {
     status: JobStatus;
 };
 
-// --- HELPER COMPONENT: STATUS BADGE ---
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     let bg, color, icon;
 
@@ -43,53 +49,47 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
     return (
         <View style={[styles.badge, { backgroundColor: bg }]}>
-            <MaterialCommunityIcons name={icon} size={14} color={color} />
+            <MaterialCommunityIcons name={icon} size={14} color={color} style={{ marginRight: 4 }} />
             <Text style={[styles.badgeText, { color }]}>{status}</Text>
         </View>
     );
 };
 
-// --- CORRECTED AppliedJobsScreenProps INTERFACE ---
-// This interface defines all the props that AppliedJobsScreen expects to receive.
-interface AppliedJobsScreenProps {
-    navigation: any; // navigation prop from react-navigation
-    appliedJobs: AppliedJob[]; // The list of applied jobs
-    onUpdateJobStatus: (jobId: number, newStatus: JobStatus, message: string) => void; // The new callback for updating status
-}
-
+// --- MAIN COMPONENT ---
 export default function AppliedJobsScreen({ navigation, appliedJobs, onUpdateJobStatus }: AppliedJobsScreenProps) {
     const renderItem: ListRenderItem<AppliedJob> = ({ item }) => (
+
         <TouchableOpacity
             style={styles.card}
             activeOpacity={0.7}
-            onLongPress={() => { // Add onLongPress to simulate status change
+            onPress={() => navigation.navigate('ApplicationDetail', { job: item })}
+
+            // DEMO FEATURE: Long press to simulate a status change from the "Employer"
+            onLongPress={() => {
                 Alert.alert(
-                    "Change Job Status (Demo)",
-                    `Update status for "${item.title}" at "${item.company}"? Current: ${item.status}`,
+                    "Simulate Employer Action",
+                    `Change status for "${item.title}"?`,
                     [
                         { text: "Cancel", style: "cancel" },
                         {
-                            text: "Pending",
-                            onPress: () => onUpdateJobStatus(item.id, "Pending", "Your application is still under review.")
+                            text: "Set Interview",
+                            onPress: () => onUpdateJobStatus(item.id, "Interview", `Great news! ${item.company} wants to interview you.`)
                         },
                         {
-                            text: "Interview",
-                            onPress: () => onUpdateJobStatus(item.id, "Interview", "An interview has been scheduled!")
+                            text: "Send Offer",
+                            onPress: () => onUpdateJobStatus(item.id, "Offer", `Congratulations! You received an offer from ${item.company}.`)
                         },
                         {
-                            text: "Offer",
-                            onPress: () => onUpdateJobStatus(item.id, "Offer", "Congratulations! You received a job offer!")
-                        },
-                        {
-                            text: "Rejected",
-                            onPress: () => onUpdateJobStatus(item.id, "Rejected", "The company decided not to proceed with your application.")
+                            text: "Reject",
+                            style: 'destructive',
+                            onPress: () => onUpdateJobStatus(item.id, "Rejected", `Update regarding your application at ${item.company}.`)
                         },
                     ]
                 );
             }}
         >
             <View style={styles.cardTop}>
-                {/* Logo Box (Matching your Swipe Screen Style) */}
+                {/* Logo Box */}
                 <View style={[styles.logoPlaceholder, { backgroundColor: item.logoColor }]}>
                     <Text style={styles.logoText}>{item.logoInitial}</Text>
                 </View>
@@ -120,7 +120,7 @@ export default function AppliedJobsScreen({ navigation, appliedJobs, onUpdateJob
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <StatusBar barStyle="dark-content" />
 
             {/* Header */}
@@ -202,7 +202,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    // Matches the Swipe Screen Logo Style
     logoPlaceholder: {
         width: 48,
         height: 48,
