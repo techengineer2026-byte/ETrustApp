@@ -35,7 +35,16 @@ export default function ChatScreen({ navigation }: any) {
     const [searchText, setSearchText] = useState('');
 
     const renderChatItem = ({ item }: any) => (
-        <TouchableOpacity style={styles.chatRow} activeOpacity={0.7}>
+        <TouchableOpacity
+            style={styles.chatRow}
+            activeOpacity={0.7}
+            // 👇 ADD THIS NAVIGATION LOGIC
+            onPress={() => navigation.navigate('ChatDetailScreen', {
+                name: item.name,
+                img: item.img,
+                isOnline: item.online
+            })}
+        >
             {/* Avatar Section */}
             <View style={styles.avatarContainer}>
                 <Image source={{ uri: item.img }} style={styles.avatar} />

@@ -150,7 +150,7 @@ export type RootStackParamList = {
   KycDocuments: undefined;
   LinkedAccounts: undefined;
   AccountStatus: undefined;
-
+  ChatDetailsScreen: undefined
   // Security
   ChangePassword: undefined;
   LogoutFromAllDevices: undefined;

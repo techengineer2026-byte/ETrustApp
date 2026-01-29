@@ -79,6 +79,7 @@ import OfficeAddressET from '../screens/ET-Center/OfficeAddressET';
 import TransactionDetail from '../screens/ET-Center/TransactionDetail';
 import CompanyProfile from '../screens/ET-Center/CompanyProfile';
 import EmployerJobs from '../screens/ET-Center/EmployerJobs';
+import ChatDetailScreen from '../screens/Employer/ChatDetailScreen';
 
 import 'react-native-gesture-handler';
 import React from 'react';
@@ -96,9 +97,8 @@ export default function AppNavigator() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
 
 
-          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
+          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
           {/* <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} /> */}
-          {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
 
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -113,6 +113,7 @@ export default function AppNavigator() {
           <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
           <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
           <Stack.Screen name="JobProfile" component={JobProfileScreen} />
+          <Stack.Screen name="ChatDetailScreen" component={ChatDetailScreen} />
           <Stack.Screen name="CurrentCTC" component={CurrentCTCScreen} />
           <Stack.Screen name="SalaryRange" component={SalaryRange} />
           <Stack.Screen name="DistancePreference" component={DistancePreference} />
@@ -123,7 +124,7 @@ export default function AppNavigator() {
           <Stack.Screen name="SyncLoading" component={SyncLoading} />
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
-          {/* <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} /> */}
+          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
           <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />

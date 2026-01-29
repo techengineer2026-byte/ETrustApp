@@ -79,7 +79,10 @@ export default function EmployerProfileScreen({ navigation }: Props) {
                     onPress: () => {
                         // In a real app: navigation.reset() or navigation.replace('Welcome')
                         console.log("Navigating to Welcome Screen...");
-                        navigation.navigate('Welcome'); 
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Welcome' }],
+                        });
                     }
                 }
             ]
@@ -100,7 +103,7 @@ export default function EmployerProfileScreen({ navigation }: Props) {
         value,
         icon,
         onChange,
-        isVerified, 
+        isVerified,
         keyboardType = 'default',
     }) => (
         <View style={styles.inputWrapper}>
@@ -223,7 +226,7 @@ export default function EmployerProfileScreen({ navigation }: Props) {
 
                 {/* ⚙️ Section 3: Settings & Logout */}
                 <View style={styles.sectionContainer}>
-                  
+
                     {/* LOGOUT BUTTON */}
                     <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
                         <Feather name="log-out" size={20} color={DANGER_COLOR} />
