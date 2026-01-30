@@ -97,8 +97,6 @@ export default function AppNavigator() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
 
 
-          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
-          {/* <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} /> */}
 
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -134,8 +132,9 @@ export default function AppNavigator() {
           <Stack.Screen name="OfficeAddressScreen" component={OfficeAddressScreen} />
           <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
           <Stack.Screen name="AllJobs" component={AllJobsScreen} />
-          {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
+          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
 
+          <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
           <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
           <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
           <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
@@ -143,6 +142,7 @@ export default function AppNavigator() {
           <Stack.Screen name="CenterName" component={CenterName} />
           <Stack.Screen name="OfficeAddressET" component={OfficeAddressET} />
           <Stack.Screen name='ETname' component={ETname} />
+          {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
 
           <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} />

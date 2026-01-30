@@ -1,8 +1,6 @@
 // src/screens/ET-Center/Dashboard.tsx
 
-// src/screens/ET-Center/Dashboard.tsx
-
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     View,
     Text,
@@ -11,53 +9,89 @@ import {
     ScrollView,
     StatusBar,
     Dimensions,
+    Modal,
+    Animated,
+    TouchableWithoutFeedback
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
+
+// --- THEME COLORS ---
+const THEME = {
+    primary: "#1c005e",
+    secondary: "#4F46E5",
+    bg: "#F5F7FA",
+    white: "#FFFFFF",
+    text: "#1F2937",
+    gray: "#9CA3AF"
+};
 
 export default function Dashboard() {
-    const navigation = useNavigation<any>();
+    // --- STATE MANAGEMENT ---
+    const [selectedJob, setSelectedJob] = useState<any>(null);
+    const [jobModalVisible, setJobModalVisible] = useState(false);
 
-    // Mock Data for Date
-    const today = new Date().toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
+    const [notifModalVisible, setNotifModalVisible] = useState(false);
 
-    // Mock Data for Stats
+    const [statsModalVisible, setStatsModalVisible] = useState(false);
+    const [selectedStat, setSelectedStat] = useState<any>(null);
+
+    // Toast State
+    const [toastMsg, setToastMsg] = useState("");
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    // --- DATA ---
+    const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
     const statsData = [
-        { label: "Total Cand.", value: "124", icon: "account-group", color: "#4F46E5" },
-        { label: "Active", value: "86", icon: "account-check", color: "#10B981" },
-        { label: "Jobs Nearby", value: "32", icon: "briefcase-search", color: "#F59E0B" },
-        { label: "Revenue", value: "₹45k", icon: "cash-multiple", color: "#1c005e" },
+        { id: 'cand', label: "Total Cand.", value: "124", icon: "account-group", color: "#4F46E5", detail: "124 Total registered candidates this month." },
+        { id: 'active', label: "Active", value: "86", icon: "account-check", color: "#10B981", detail: "86 Candidates currently in interview stages." },
+        { id: 'jobs', label: "Jobs Nearby", value: "32", icon: "briefcase-search", color: "#F59E0B", detail: "32 New job openings within 10km radius." },
+        { id: 'revenue', label: "Revenue", value: "₹45k", icon: "cash-multiple", color: "#1c005e", detail: "Total earnings from placements in October." },
     ];
 
-    // Mock Data for Jobs
     const jobsData = [
-        { id: 1, company: "TechSol Pvt Ltd", role: "Software Tester", loc: "Sector 62" },
-        { id: 2, company: "Bajaj Finance", role: "Sales Executive", loc: "Sector 18" },
-        { id: 3, company: "Urban Company", role: "Helper / Technician", loc: "Noida" },
+        { id: 1, company: "TechSol Pvt Ltd", role: "Software Tester", loc: "Sector 62", desc: "Looking for manual testers with 1yr exp." },
+        { id: 2, company: "Bajaj Finance", role: "Sales Executive", loc: "Sector 18", desc: "Field sales role. Two wheeler mandatory." },
+        { id: 3, company: "Urban Company", role: "Helper / Technician", loc: "Noida", desc: "AC repair technician needed urgently." },
     ];
 
-    // Mock Data for Activity
-    const activityData = [
-        { id: 1, name: "Rahul Verma", action: "Applied for Sales Exec", time: "2h ago", status: "applied" },
-        { id: 2, name: "Neha Gupta", action: "Interview Scheduled", time: "4h ago", status: "interview" },
-        { id: 3, name: "Amit Sharma", action: "Offer Received", time: "1d ago", status: "offer" },
+    const notifications = [
+        { id: 1, title: "Interview Reminder", desc: "Rahul has an interview at 2 PM", time: "10m ago", icon: "clock-outline", color: "#F59E0B" },
+        { id: 2, title: "New Job Alert", desc: "TechSol posted a new QA role", time: "1h ago", icon: "briefcase-outline", color: "#4F46E5" },
+        { id: 3, title: "System Update", desc: "Maintenance scheduled for tonight", time: "5h ago", icon: "cog-outline", color: "#6B7280" },
     ];
+
+    // --- HELPER FUNCTIONS ---
+
+    // 1. Show Custom Toast
+    const showToast = (message: string) => {
+        setToastMsg(message);
+        Animated.sequence([
+            Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+            Animated.delay(2000),
+            Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true })
+        ]).start();
+    };
+
+    // 2. Handle Interactions
+    const openJobModal = (job: any) => { setSelectedJob(job); setJobModalVisible(true); };
+    const openStatsModal = (stat: any) => { setSelectedStat(stat); setStatsModalVisible(true); };
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <StatusBar barStyle="dark-content" backgroundColor="#F5F7FA" />
+            <StatusBar barStyle="dark-content" backgroundColor={THEME.bg} />
 
-            <ScrollView
-                contentContainerStyle={styles.container}
-                showsVerticalScrollIndicator={false}
-            >
+            {/* --- CUSTOM TOAST NOTIFICATION --- */}
+            <Animated.View style={[styles.toast, { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] }) }] }]}>
+                <Icon name="check-circle" size={20} color={THEME.white} />
+                <Text style={styles.toastText}>{toastMsg}</Text>
+            </Animated.View>
+
+            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
                 {/* --- HEADER --- */}
                 <View style={styles.header}>
@@ -65,35 +99,12 @@ export default function Dashboard() {
                         <Text style={styles.welcomeText}>Welcome, Centre Name 👋</Text>
                         <Text style={styles.dateText}>Today: {today}</Text>
                     </View>
-                    <TouchableOpacity style={styles.profileIcon}>
-                        <Icon name="bell-outline" size={24} color="#1c005e" />
-                        <View style={styles.notificationDot} />
-                    </TouchableOpacity>
-                </View>
-
-                {/* --- ACTION BUTTONS --- */}
-                <View style={styles.actionRow}>
                     <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: "#1c005e" }]}
-                        onPress={() => navigation.navigate("ETname")} // Navigate to Step 1
+                        style={styles.profileIcon}
+                        onPress={() => setNotifModalVisible(true)}
                     >
-                        <View style={styles.actionIconCircle}>
-                            <Icon name="account-plus" size={22} color="#1c005e" />
-                        </View>
-                        <View>
-                            <Text style={styles.actionBtnTitle}>Add Candidate</Text>
-                            <Text style={styles.actionBtnSub}>Register new</Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: "#fff", borderWidth: 1, borderColor: "#ddd" }]}>
-                        <View style={[styles.actionIconCircle, { backgroundColor: "#F3E5F5" }]}>
-                            <Icon name="account-group" size={22} color="#1c005e" />
-                        </View>
-                        <View>
-                            <Text style={[styles.actionBtnTitle, { color: "#333" }]}>Enrolled</Text>
-                            <Text style={styles.actionBtnSub}>View list</Text>
-                        </View>
+                        <Icon name="bell-outline" size={24} color={THEME.primary} />
+                        <View style={styles.notificationDot} />
                     </TouchableOpacity>
                 </View>
 
@@ -102,13 +113,18 @@ export default function Dashboard() {
                     <Text style={styles.sectionTitle}>Overview</Text>
                     <View style={styles.statsGrid}>
                         {statsData.map((stat, index) => (
-                            <View key={index} style={styles.statCard}>
+                            <TouchableOpacity
+                                key={index}
+                                style={styles.statCard}
+                                onPress={() => openStatsModal(stat)}
+                                activeOpacity={0.9}
+                            >
                                 <View style={[styles.statIconBox, { backgroundColor: `${stat.color}15` }]}>
                                     <Icon name={stat.icon} size={22} color={stat.color} />
                                 </View>
                                 <Text style={styles.statValue}>{stat.value}</Text>
                                 <Text style={styles.statLabel}>{stat.label}</Text>
-                            </View>
+                            </TouchableOpacity>
                         ))}
                     </View>
                 </View>
@@ -117,7 +133,7 @@ export default function Dashboard() {
                 <View style={styles.sectionContainer}>
                     <View style={styles.sectionHeaderRow}>
                         <Text style={styles.sectionTitle}>Current Jobs Nearby</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => showToast("Loading full job list...")}>
                             <Text style={styles.seeAllText}>View All →</Text>
                         </TouchableOpacity>
                     </View>
@@ -131,281 +147,186 @@ export default function Dashboard() {
                                 <Text style={styles.jobRole}>{job.role}</Text>
                                 <Text style={styles.jobCompany}>{job.company} • {job.loc}</Text>
                             </View>
-                            <TouchableOpacity style={styles.jdBtn}>
+                            <TouchableOpacity
+                                style={styles.jdBtn}
+                                onPress={() => openJobModal(job)}
+                            >
                                 <Text style={styles.jdBtnText}>View JD</Text>
                             </TouchableOpacity>
                         </View>
                     ))}
                 </View>
 
-                {/* --- RECENT ACTIVITY --- */}
-                <View style={[styles.sectionContainer, { marginBottom: 30 }]}>
-                    <Text style={styles.sectionTitle}>Recent Candidate Activity</Text>
+            </ScrollView>
 
-                    <View style={styles.activityCard}>
-                        {activityData.map((item, index) => (
-                            <View key={item.id} style={[
-                                styles.activityRow,
-                                index === activityData.length - 1 && { borderBottomWidth: 0 }
-                            ]}>
-                                <View style={styles.activityContent}>
-                                    <Text style={styles.activityName}>{item.name}</Text>
-                                    <Text style={styles.activityAction}>
-                                        {item.action} <Text style={styles.activityTime}>• {item.time}</Text>
-                                    </Text>
-                                </View>
-                                <Icon
-                                    name={
-                                        item.status === 'offer' ? 'trophy-award' :
-                                            item.status === 'interview' ? 'calendar-check' : 'file-send'
-                                    }
-                                    size={20}
-                                    color={
-                                        item.status === 'offer' ? '#10B981' :
-                                            item.status === 'interview' ? '#F59E0B' : '#666'
-                                    }
-                                />
+            {/* ================= MODALS ================= */}
+
+            {/* 1. NOTIFICATION BOTTOM SHEET */}
+            <Modal transparent visible={notifModalVisible} animationType="fade" onRequestClose={() => setNotifModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setNotifModalVisible(false)}>
+                    <View style={styles.modalBackdrop}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.bottomSheet}>
+                                <View style={styles.sheetHandle} />
+                                <Text style={styles.sheetTitle}>Notifications</Text>
+                                {notifications.map((item) => (
+                                    <TouchableOpacity key={item.id} style={styles.notifItem} onPress={() => showToast("Marked as read")}>
+                                        <View style={[styles.notifIcon, { backgroundColor: `${item.color}20` }]}>
+                                            <Icon name={item.icon} size={20} color={item.color} />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={styles.notifTitle}>{item.title}</Text>
+                                            <Text style={styles.notifDesc}>{item.desc}</Text>
+                                        </View>
+                                        <Text style={styles.notifTime}>{item.time}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                                <TouchableOpacity style={styles.closeBtn} onPress={() => setNotifModalVisible(false)}>
+                                    <Text style={styles.closeBtnText}>Close</Text>
+                                </TouchableOpacity>
                             </View>
-                        ))}
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
+            {/* 2. STATS DETAIL MODAL */}
+            <Modal transparent visible={statsModalVisible} animationType="fade" onRequestClose={() => setStatsModalVisible(false)}>
+                <View style={styles.centerModalBackdrop}>
+                    <View style={styles.centerModalCard}>
+                        {selectedStat && (
+                            <>
+                                <View style={[styles.statBigIcon, { backgroundColor: `${selectedStat.color}20` }]}>
+                                    <Icon name={selectedStat.icon} size={40} color={selectedStat.color} />
+                                </View>
+                                <Text style={styles.centerModalTitle}>{selectedStat.label}</Text>
+                                <Text style={[styles.centerModalValue, { color: selectedStat.color }]}>{selectedStat.value}</Text>
+                                <Text style={styles.centerModalDesc}>{selectedStat.detail}</Text>
+
+                                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: selectedStat.color }]} onPress={() => { setStatsModalVisible(false); showToast("Report Downloaded!") }}>
+                                    <Text style={styles.actionBtnText}>Download Report</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.secondaryBtn} onPress={() => setStatsModalVisible(false)}>
+                                    <Text style={{ color: '#666' }}>Close</Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
                     </View>
                 </View>
+            </Modal>
 
-            </ScrollView>
+            {/* 3. JOB JD BOTTOM SHEET */}
+            <Modal transparent visible={jobModalVisible} animationType="fade" onRequestClose={() => setJobModalVisible(false)}>
+                <View style={styles.modalBackdrop}>
+                    <View style={[styles.bottomSheet, { height: '60%' }]}>
+                        <View style={styles.sheetHandle} />
+                        {selectedJob && (
+                            <>
+                                <View style={styles.jdHeader}>
+                                    <View style={styles.jobIconLg}>
+                                        <Text style={styles.jobIconTextLg}>{selectedJob.company.charAt(0)}</Text>
+                                    </View>
+                                    <View style={{ marginLeft: 15 }}>
+                                        <Text style={styles.jdRole}>{selectedJob.role}</Text>
+                                        <Text style={styles.jdCompany}>{selectedJob.company}</Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.divider} />
+
+                                <Text style={styles.jdSectionTitle}>About the Role</Text>
+                                <Text style={styles.jdText}>{selectedJob.desc}</Text>
+                                <Text style={styles.jdText}>• Competitive Salary{'\n'}• Health Insurance{'\n'}• Flexible Hours</Text>
+
+                                <TouchableOpacity
+                                    style={[styles.actionBtn, { marginTop: 'auto', backgroundColor: THEME.primary }]}
+                                    onPress={() => { setJobModalVisible(false); showToast("Candidate Referred Successfully!"); }}
+                                >
+                                    <Text style={styles.actionBtnText}>Refer Candidate</Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
+                    </View>
+                </View>
+            </Modal>
+
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: "#F5F7FA",
-    },
-    container: {
-        padding: 20,
-        paddingBottom: 40,
-    },
+    safeArea: { flex: 1, backgroundColor: THEME.bg },
+    container: { padding: 20, paddingBottom: 40 },
 
-    // Header
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 24,
+    // TOAST
+    toast: {
+        position: 'absolute', top: 10, alignSelf: 'center', backgroundColor: '#333',
+        paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, flexDirection: 'row',
+        alignItems: 'center', zIndex: 999, elevation: 10
     },
-    welcomeText: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: "#1c005e",
-        marginBottom: 4,
-    },
-    dateText: {
-        fontSize: 14,
-        color: "#666",
-        fontWeight: "500",
-    },
-    profileIcon: {
-        width: 44,
-        height: 44,
-        backgroundColor: "#fff",
-        borderRadius: 12,
-        justifyContent: "center",
-        alignItems: "center",
-        elevation: 2,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    notificationDot: {
-        position: "absolute",
-        top: 10,
-        right: 12,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: "red",
-        borderWidth: 1,
-        borderColor: "#fff",
-    },
+    toastText: { color: 'white', marginLeft: 10, fontWeight: '600' },
 
-    // Action Buttons
-    actionRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 24,
-    },
-    actionBtn: {
-        flexDirection: "row",
-        alignItems: "center",
-        width: "48%",
-        paddingVertical: 16,
-        paddingHorizontal: 12,
-        borderRadius: 16,
-        elevation: 3,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    actionIconCircle: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: "#fff",
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 10,
-    },
-    actionBtnTitle: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: "#fff",
-    },
-    actionBtnSub: {
-        fontSize: 11,
-        color: "rgba(255,255,255,0.7)",
-        marginTop: 1,
-    },
+    // HEADER
+    header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24 },
+    welcomeText: { fontSize: 20, fontWeight: "800", color: THEME.primary, marginBottom: 4 },
+    dateText: { fontSize: 14, color: "#666", fontWeight: "500" },
+    profileIcon: { width: 44, height: 44, backgroundColor: "#fff", borderRadius: 12, justifyContent: "center", alignItems: "center", elevation: 2 },
+    notificationDot: { position: "absolute", top: 10, right: 12, width: 8, height: 8, borderRadius: 4, backgroundColor: "red", borderWidth: 1, borderColor: "#fff" },
 
-    // Sections
-    sectionContainer: {
-        marginBottom: 24,
-    },
-    sectionHeaderRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 12,
-    },
-    sectionTitle: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: "#1d1b25",
-        marginBottom: 12,
-    },
-    seeAllText: {
-        fontSize: 13,
-        color: "#1c005e",
-        fontWeight: "600",
-    },
+    // STATS
+    sectionContainer: { marginBottom: 24 },
+    sectionTitle: { fontSize: 17, fontWeight: "700", color: "#1d1b25", marginBottom: 12 },
+    statsGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
+    statCard: { width: "48%", backgroundColor: "#fff", padding: 16, borderRadius: 16, marginBottom: 14, elevation: 2 },
+    statIconBox: { width: 32, height: 32, borderRadius: 8, justifyContent: "center", alignItems: "center", marginBottom: 10 },
+    statValue: { fontSize: 20, fontWeight: "800", color: "#333", marginBottom: 2 },
+    statLabel: { fontSize: 12, color: "#666", fontWeight: "500" },
 
-    // Stats Grid
-    statsGrid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-    },
-    statCard: {
-        width: "48%", // 2 columns
-        backgroundColor: "#fff",
-        padding: 16,
-        borderRadius: 16,
-        marginBottom: 14,
-        elevation: 2,
-        shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        shadowOffset: { width: 0, height: 2 },
-    },
-    statIconBox: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-        marginBottom: 10,
-    },
-    statValue: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: "#333",
-        marginBottom: 2,
-    },
-    statLabel: {
-        fontSize: 12,
-        color: "#666",
-        fontWeight: "500",
-    },
+    // JOBS
+    sectionHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
+    seeAllText: { fontSize: 13, color: THEME.primary, fontWeight: "600" },
+    jobCard: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", padding: 14, borderRadius: 14, marginBottom: 12, elevation: 1 },
+    jobIcon: { width: 42, height: 42, borderRadius: 10, backgroundColor: "#E8EAF6", justifyContent: "center", alignItems: "center", marginRight: 12 },
+    jobIconText: { fontSize: 18, fontWeight: "bold", color: THEME.primary },
+    jobInfo: { flex: 1 },
+    jobRole: { fontSize: 15, fontWeight: "700", color: "#333" },
+    jobCompany: { fontSize: 12, color: "#777", marginTop: 2 },
+    jdBtn: { paddingVertical: 6, paddingHorizontal: 12, backgroundColor: "#f3e5f5", borderRadius: 8 },
+    jdBtnText: { fontSize: 12, fontWeight: "600", color: THEME.primary },
 
-    // Jobs List
-    jobCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#fff",
-        padding: 14,
-        borderRadius: 14,
-        marginBottom: 12,
-        elevation: 1,
-    },
-    jobIcon: {
-        width: 42,
-        height: 42,
-        borderRadius: 10,
-        backgroundColor: "#E8EAF6",
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 12,
-    },
-    jobIconText: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#1c005e",
-    },
-    jobInfo: {
-        flex: 1,
-    },
-    jobRole: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: "#333",
-    },
-    jobCompany: {
-        fontSize: 12,
-        color: "#777",
-        marginTop: 2,
-    },
-    jdBtn: {
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        backgroundColor: "#f3e5f5",
-        borderRadius: 8,
-    },
-    jdBtnText: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: "#1c005e",
-    },
+    // MODAL COMMON
+    modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    centerModalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+    bottomSheet: { backgroundColor: 'white', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+    sheetHandle: { width: 40, height: 4, backgroundColor: '#E5E7EB', borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
 
-    // Activity List
-    activityCard: {
-        backgroundColor: "#fff",
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        elevation: 2,
-    },
-    activityRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingVertical: 14,
-        borderBottomWidth: 1,
-        borderBottomColor: "#f0f0f0",
-    },
-    activityContent: {
-        flex: 1,
-    },
-    activityName: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: "#333",
-    },
-    activityAction: {
-        fontSize: 12,
-        color: "#666",
-        marginTop: 3,
-    },
-    activityTime: {
-        color: "#999",
-    },
+    // NOTIFICATIONS MODAL
+    sheetTitle: { fontSize: 20, fontWeight: '800', marginBottom: 20, color: '#333' },
+    notifItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+    notifIcon: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+    notifTitle: { fontSize: 16, fontWeight: '700', color: '#333' },
+    notifDesc: { fontSize: 13, color: '#666' },
+    notifTime: { fontSize: 12, color: '#999', marginLeft: 10 },
+    closeBtn: { marginTop: 10, padding: 15, backgroundColor: '#F3F4F6', borderRadius: 12, alignItems: 'center' },
+    closeBtnText: { fontWeight: '700', color: '#555' },
+
+    // CENTER STATS MODAL
+    centerModalCard: { width: '85%', backgroundColor: 'white', borderRadius: 24, padding: 30, alignItems: 'center', elevation: 10 },
+    statBigIcon: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
+    centerModalTitle: { fontSize: 18, color: '#666', fontWeight: '600' },
+    centerModalValue: { fontSize: 32, fontWeight: '900', marginVertical: 10 },
+    centerModalDesc: { textAlign: 'center', color: '#888', marginBottom: 25, lineHeight: 20 },
+    actionBtn: { width: '100%', paddingVertical: 15, borderRadius: 12, alignItems: 'center', marginBottom: 10 },
+    actionBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+    secondaryBtn: { padding: 10 },
+
+    // JD MODAL
+    jdHeader: { flexDirection: 'row', alignItems: 'center' },
+    jobIconLg: { width: 56, height: 56, borderRadius: 16, backgroundColor: '#E8EAF6', justifyContent: 'center', alignItems: 'center' },
+    jobIconTextLg: { fontSize: 24, fontWeight: 'bold', color: THEME.primary },
+    jdRole: { fontSize: 20, fontWeight: '800', color: '#333' },
+    jdCompany: { fontSize: 14, color: '#666' },
+    divider: { height: 1, backgroundColor: '#EEE', marginVertical: 20 },
+    jdSectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 10, color: '#333' },
+    jdText: { fontSize: 14, color: '#555', lineHeight: 22, marginBottom: 15 },
 });
