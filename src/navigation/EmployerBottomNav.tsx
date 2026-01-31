@@ -12,7 +12,7 @@ import ApplicationsScreen from "../screens/Employer/ApplicationsScreen"; // Usin
 import PostJobScreen from "../screens/Employer/PostJobScreen";
 import ChatScreen from "../screens/Employer/ChatScreen";
 import EmployerProfileScreen from "../screens/Employer/EmployerProfileScreen";
-
+import JobPostDashboard from "../screens/Employer/JobPostDashboard";
 const Tab = createBottomTabNavigator();
 
 const PRIMARY_COLOR = "#6C63FF";
@@ -38,7 +38,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
         };
 
         // --- 1. CENTER FAB (Post Job) ---
-        if (route.name === "PostJob") {
+        if (route.name === "JobPostDashboard") {
           return (
             <TouchableOpacity
               key={index}
@@ -47,7 +47,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
               activeOpacity={0.8}
             >
               <View style={styles.fabButton}>
-                <Feather name="plus" size={28} color="white" />
+                <Feather name="user-plus" size={28} color="white" />
               </View>
             </TouchableOpacity>
           );
@@ -113,7 +113,7 @@ const EmployerBottomNav = () => {
       <Tab.Screen name="Applicant" component={ApplicationsScreen} />
 
       {/* 3. CENTER FAB */}
-      <Tab.Screen name="PostJob" component={PostJobScreen} />
+      <Tab.Screen name="JobPostDashboard" component={JobPostDashboard} />
 
       {/* 4. Chat */}
       <Tab.Screen name="Chat" component={ChatScreen} />

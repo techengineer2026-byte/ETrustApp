@@ -127,9 +127,9 @@ const ProfileScreen = () => {
                                     <Text style={styles.userName}>Anurag Kohli</Text>
                                     <Text style={styles.userRole}>Job Seeker • ID: #9021</Text>
                                     {/* <View style={styles.progressBar}>
-                                        <View style={[styles.progressFill, { width: '15%' }]} />
-                                    </View>
-                                    <Text style={styles.progressLabel}>Profile 15% Complete</Text> */}
+                                            <View style={[styles.progressFill, { width: '15%' }]} />
+                                        </View>
+                                        <Text style={styles.progressLabel}>Profile 15% Complete</Text> */}
                                 </View>
                             </View>
                             <TouchableOpacity style={styles.editBtn}
@@ -414,3 +414,4 @@ const styles = StyleSheet.create({
     modalCtaText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginRight: 10 },
     secureText: { textAlign: 'center', fontSize: 10, color: '#9CA3AF', marginTop: 12, fontWeight: '500' }
 });
+

@@ -60,13 +60,12 @@ import RefundPolicyScreen from '../screens/Employee/Setting/RefundPolicyScreen';
 import AllApplicantsScreen from '../screens/Employer/AllApplicantsScreen';
 import AllJobsScreen from '../screens/Employer/AllJobsScreen';
 import EditProfileScreen from '../screens/Employee/EditProfileScreen';
-
+import EChatDetailScreen from '../screens/Employee/EChatDetailScreen';
 import ContactVerificationScreen from '../screens/Employer/ContactVerificationScreen';
 import ContactNumberScreen from '../screens/Employer/ContactNumberScreen';
 import ContactPersonScreen from '../screens/Employer/ContactPersonScreen';
 import OfficeAddressScreen from '../screens/Employer/OfficeAddressScreen';
 import UploadLogo from '../screens/Employer/UploadLogo';
-
 //Etrust auth
 import CenterName from '../screens/ET-Center/CenterName';
 import EtrustBottomNav from './EtrustBottomTabNavigator';
@@ -80,7 +79,8 @@ import TransactionDetail from '../screens/ET-Center/TransactionDetail';
 import CompanyProfile from '../screens/ET-Center/CompanyProfile';
 import EmployerJobs from '../screens/ET-Center/EmployerJobs';
 import ChatDetailScreen from '../screens/Employer/ChatDetailScreen';
-
+import JobPostDashboard from '../screens/Employer/JobPostDashboard';
+import PostJobScreen from '../screens/Employer/PostJobScreen';
 import 'react-native-gesture-handler';
 import React from 'react';
 import { Text, View } from 'react-native';
@@ -96,6 +96,9 @@ export default function AppNavigator() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
 
+          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
+          {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
+          {/* <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} /> */}
 
 
           <Stack.Screen name="Splash" component={SplashScreen} />
@@ -103,8 +106,9 @@ export default function AppNavigator() {
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="Firstname" component={FirstnameScreen} />
           <Stack.Screen name="BDAY" component={BDAYScreen} />
-          <Stack.Screen name="Gender" component={GenderScreen} />
           <Stack.Screen name="EducationForm" component={EducationForm} />
+          <Stack.Screen name="Gender" component={GenderScreen} />
+          <Stack.Screen name="JobPostDashboard" component={JobPostDashboard} />
           <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
           <Stack.Screen name="JobType" component={JobType} />
           <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
@@ -122,7 +126,6 @@ export default function AppNavigator() {
           <Stack.Screen name="SyncLoading" component={SyncLoading} />
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
-          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
           <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
@@ -132,13 +135,13 @@ export default function AppNavigator() {
           <Stack.Screen name="OfficeAddressScreen" component={OfficeAddressScreen} />
           <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
           <Stack.Screen name="AllJobs" component={AllJobsScreen} />
-          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
+          <Stack.Screen name="EChatDetailScreen" component={EChatDetailScreen} />
 
-          <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
           <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
           <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
           <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
           <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
+          <Stack.Screen name="PostJobScreen" component={PostJobScreen} />
           <Stack.Screen name="CenterName" component={CenterName} />
           <Stack.Screen name="OfficeAddressET" component={OfficeAddressET} />
           <Stack.Screen name='ETname' component={ETname} />

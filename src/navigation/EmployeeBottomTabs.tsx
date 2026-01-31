@@ -1,6 +1,5 @@
 // src/navigation/EmployeeBottomTabs.tsx
 
-
 import React, { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -11,9 +10,9 @@ import Dashboard from "../screens/Employee/Dashboard";
 import AppliedJobsScreen from "../screens/Employee/AppliedJobsScreen";
 import NotificationScreen from "../screens/Employee/NotificationScreen";
 import ProfileScreen from "../screens/Employee/ProfileScreen";
+import ChatScreen from "../screens/Employee/ChatScreen";
 
 import { AppliedJob, JobStatus, NotificationItem, INITIAL_NOTIFICATIONS_DATA } from '../types';
-
 
 const Tab = createBottomTabNavigator();
 
@@ -23,14 +22,7 @@ const Placeholder = ({ title }: { title: string }) => (
   </View>
 );
 
-const UploadResumeScreen = () => (
-  <Placeholder title="Upload Resume Screen (Coming Soon)" />
-);
-
-const EmployeeProfileScreen = () => (
-  <Placeholder title="Profile Screen (Coming Soon)" />
-);
-
+// Placeholder for Chat Screen (Replace with real import later)
 
 const EmployeeBottomNav = () => {
   const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([]);
@@ -156,6 +148,21 @@ const EmployeeBottomNav = () => {
         )}
       </Tab.Screen>
 
+      {/* --- NEW CHAT TAB --- */}
+      <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <MaterialCommunityIcons
+              name="message-processing-outline"
+              size={26}
+              color={focused ? "#9B51E0" : "#9E9E9E"} // Purple color to distinguish
+            />
+          ),
+        }}
+      />
+      {/* -------------------- */}
 
       <Tab.Screen
         name="Alerts"

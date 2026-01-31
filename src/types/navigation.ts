@@ -12,8 +12,10 @@ export type RootStackParamList = {
   };
   VerificationCode: undefined;
   Login: undefined;
-
+  JobPostDashboard: undefined;
+  EChatDetailScreen : undefined;
   // --- Forgot Password ---
+
   ForgotPassword: { source: string }; // <-- make sure this exists
   OTPScreen: {
     email: string;

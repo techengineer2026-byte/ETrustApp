@@ -1,6 +1,6 @@
 // src/screens/Employer/PostJobScreen.tsx
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
     StyleSheet,
     Text,
@@ -15,393 +15,468 @@ import {
     StatusBar,
     ActivityIndicator,
     Alert,
-    LayoutAnimation,
+    Switch,
+    Animated,
     UIManager
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 
-// Enable Animation
+// --- CONFIGURATION ---
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// --- CONFIG & COLORS ---
-const PRIMARY_COLOR = '#2563EB'; // Brand Blue
-const ACCENT_COLOR = '#3B82F6';
-const TEXT_COLOR = '#1F2937';
-const GRAY_TEXT = '#6B7280';
-const BG_COLOR = '#F8FAFC'; // Cool Gray
-const DANGER_COLOR = '#EF4444';
-const SUCCESS_COLOR = '#10B981';
+const COLORS = {
+    primary: '#2563EB',      // Brand Blue
+    secondary: '#1E40AF',    // Darker Blue
+    accent: '#F59E0B',       // Amber for Consulting/Premium
+    text: '#0F172A',
+    gray: '#64748B',
+    border: '#E2E8F0',
+    background: '#F8FAFC',
+    white: '#FFFFFF',
+    success: '#10B981',
+    danger: '#EF4444',
+    lightBlue: '#EFF6FF',
+    lightAmber: '#FEF3C7',
+};
 
 const SHADOW_STYLE = {
     shadowColor: "#64748B",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
 };
 
-const JOB_TYPES = ['Full Time', 'Part Time', 'Contractual', 'Freelance'];
-const SALARY_RANGES = ['₹ 0 – ₹ 5 LPA', '₹ 5 LPA – ₹ 10 LPA', '₹ 10 LPA – ₹ 20 LPA', '₹ 20 LPA+'];
-const EXPERIENCE_RANGES = ['Fresher', '1 – 2 Years', '2 – 5 Years', '5 – 10 Years', '10+ Years'];
-const CONTRIBUTION_OPTIONS = [1000, 2000, 5000, 10000];
+// --- DATA LISTS ---
+const JOB_TYPES = ['Full Time', 'Part Time', 'Contract', 'Freelance', 'Internship'];
+const SALARY_RANGES = ['₹ 3L - 5L', '₹ 5L - 8L', '₹ 8L - 12L', '₹ 12L - 20L', '₹ 20L - 35L', '₹ 35L+'];
+const HOURLY_RATES = ['₹ 200 - 500 /hr', '₹ 500 - 1000 /hr', '₹ 1000 - 2000 /hr', '₹ 2000+ /hr'];
+const EXPERIENCE_LEVELS = ['Fresher', '1-3 Years', '3-5 Years', '5-8 Years', '8+ Years', 'Director/Lead'];
+const BENEFIT_TAGS = ['Health Insurance', 'Remote Friendly', 'Paid Leaves', 'PF & ESI', 'Stock Options', 'Gym Support'];
+const CONSULTING_FEE = 4999;
 
-// --- MOCK SERVICES ---
-const mockFilePicker = async () => new Promise<string | null>((resolve) => setTimeout(() => resolve('Job_Description_v1.pdf'), 1000));
-const mockAIGenerator = async () => new Promise<string>((resolve) => setTimeout(() => resolve('• Proficient in React Native & TypeScript\n• Experience with Redux/Zustand\n• Familiar with native modules (iOS/Android)\n• Strong understanding of REST APIs'), 1500));
+// Mock Services
+const mockAIGenerator = async () => new Promise<string>((resolve) => setTimeout(() => resolve('• Deep knowledge of React Native bridging.\n• 5+ years in TypeScript.\n• Ability to lead a team of 4.\n• Experience with CI/CD pipelines.'), 1200));
 
 export default function PostJobScreen() {
     const navigation = useNavigation();
-    const route = useRoute<any>();
-    const { jobId } = route.params || {};
+    const insets = useSafeAreaInsets();
 
     // --- STATE ---
-    const [jobType, setJobType] = useState(JOB_TYPES[0]);
-    const [workMode, setWorkMode] = useState('Work From Home');
-    const [salaryRange, setSalaryRange] = useState(SALARY_RANGES[1]);
-    const [position, setPosition] = useState('');
-    const [experience, setExperience] = useState(EXPERIENCE_RANGES[2]);
-    const [skills, setSkills] = useState('');
-    const [candidates, setCandidates] = useState(5);
-    const [contribution, setContribution] = useState(2000);
+    const [title, setTitle] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
-    const [fileName, setFileName] = useState<string | null>(null);
 
-    // UI State
-    const [isLoading, setIsLoading] = useState(false);
-    const [isAILoading, setIsAILoading] = useState(false);
+    // Complex Selectors
+    const [paymentMode, setPaymentMode] = useState<'SALARY' | 'HOURLY'>('SALARY');
+    const [selectedRange, setSelectedRange] = useState(SALARY_RANGES[1]);
+    const [jobType, setJobType] = useState(JOB_TYPES[0]);
+    const [experience, setExperience] = useState(EXPERIENCE_LEVELS[2]);
+    const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
+
+    // Consulting & Budget
+    const [candidates, setCandidates] = useState(10);
+    const [costPerLead, setCostPerLead] = useState(500);
+    const [addConsulting, setAddConsulting] = useState(false);
+
+    // UI Loading & Modals
+    const [loading, setLoading] = useState({ ai: false, submit: false });
     const [modalVisible, setModalVisible] = useState(false);
-    const [currentModalType, setCurrentModalType] = useState<string | null>(null);
+    const [modalType, setModalType] = useState<'RANGE' | 'EXPERIENCE' | 'TYPE' | null>(null);
 
-    const totalCost = candidates * contribution;
+    // Calculations
+    const jobPostCost = candidates * costPerLead;
+    const totalBudget = jobPostCost + (addConsulting ? CONSULTING_FEE : 0);
 
     // --- HANDLERS ---
-    const handleGenerateAI = async () => {
-        setIsAILoading(true);
+    const toggleBenefit = (tag: string) => {
+        if (selectedBenefits.includes(tag)) {
+            setSelectedBenefits(selectedBenefits.filter(t => t !== tag));
+        } else {
+            setSelectedBenefits([...selectedBenefits, tag]);
+        }
+    };
+
+    const handleAIGenerate = async () => {
+        setLoading(p => ({ ...p, ai: true }));
         try {
-            const aiText = await mockAIGenerator();
-            setSkills(aiText);
-            Alert.alert("✨ AI Magic", "Requirements generated based on the Job Position!");
-        } catch (e) { Alert.alert("Error", "AI Service unavailable"); }
-        setIsAILoading(false);
-    };
-
-    const handleFileUpload = async () => {
-        setIsLoading(true);
-        const file = await mockFilePicker();
-        setFileName(file);
-        setIsLoading(false);
-    };
-
-    const handleDetectLocation = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setLocation('Bengaluru, Karnataka');
-            setIsLoading(false);
-        }, 800);
+            const text = await mockAIGenerator();
+            setDescription(text);
+        } catch (e) { Alert.alert("AI Error"); }
+        setLoading(p => ({ ...p, ai: false }));
     };
 
     const handleSubmit = () => {
-        if (!position || !skills || !location) {
-            Alert.alert("Missing Details", "Please fill all required fields.");
+        if (!title || !companyName || !location || !description) {
+            Alert.alert("Incomplete Details", "Please fill all required fields to proceed.");
             return;
         }
-        setIsLoading(true);
+        setLoading(p => ({ ...p, submit: true }));
         setTimeout(() => {
-            setIsLoading(false);
-            Alert.alert("Success 🚀", "Job Posted Successfully!", [{ text: "OK", onPress: () => navigation.goBack() }]);
+            setLoading(p => ({ ...p, submit: false }));
+            Alert.alert("Job Posted! 🎉", `Total Amount Charged: ₹${totalBudget}`, [
+                { text: "View History", onPress: () => console.log('Go to history') }, // Placeholder
+                { text: "Done", onPress: () => navigation.goBack() }
+            ]);
         }, 1500);
     };
 
-    // --- COMPONENTS ---
-    const DropdownSelector = ({ label, value, type }: any) => (
-        <View style={styles.inputContainer}>
-            <Text style={styles.label}>{label}</Text>
-            <TouchableOpacity
-                style={[styles.dropdownBox, SHADOW_STYLE]}
-                onPress={() => { setCurrentModalType(type); setModalVisible(true); }}
-            >
-                <Text style={styles.inputText}>{value}</Text>
-                <Feather name="chevron-down" size={20} color={GRAY_TEXT} />
+    const openModal = (type: 'RANGE' | 'EXPERIENCE' | 'TYPE') => {
+        setModalType(type);
+        setModalVisible(true);
+    };
+
+    // --- RENDER HELPERS ---
+    const renderHeader = () => (
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
+                <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+            </TouchableOpacity>
+            <View>
+                <Text style={styles.headerTitle}>Post New Job</Text>
+                <Text style={styles.headerSubtitle}>Targeting 50k+ Jobseekers</Text>
+            </View>
+            <TouchableOpacity style={styles.historyBtn} onPress={() => Alert.alert("Job History", "Navigating to posted jobs...")}>
+                <MaterialCommunityIcons name="history" size={22} color={COLORS.primary} />
             </TouchableOpacity>
         </View>
     );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="white" />
-
-            {/* HEADER */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color={TEXT_COLOR} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>{jobId ? 'Edit Job' : 'Create New Job'}</Text>
-                <View style={{ width: 30 }} />
-            </View>
+        <View style={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+            <SafeAreaView edges={['top']} style={{ backgroundColor: COLORS.white }}>
+                {renderHeader()}
+            </SafeAreaView>
 
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <ScrollView
+                    contentContainerStyle={[styles.scrollContent, { paddingBottom: 140 + insets.bottom }]}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* SECTION 1: CORE DETAILS */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Basic Details</Text>
 
-                    {/* JOB POSITION */}
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Job Position <Text style={{ color: DANGER_COLOR }}>*</Text></Text>
-                        <TextInput
-                            style={[styles.textInput, SHADOW_STYLE]}
-                            placeholder="e.g. Senior React Native Developer"
-                            placeholderTextColor="#9CA3AF"
-                            value={position}
-                            onChangeText={setPosition}
-                        />
-                    </View>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Job Title <Text style={styles.req}>*</Text></Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="e.g. Senior Product Designer"
+                                value={title}
+                                onChangeText={setTitle}
+                            />
+                        </View>
 
-                    {/* JOB TYPE & WORK MODE */}
-                    <DropdownSelector label="Job Type" value={jobType} type="JOB_TYPE" />
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Company Name <Text style={styles.req}>*</Text></Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="e.g. TechCorp Solutions"
+                                value={companyName}
+                                onChangeText={setCompanyName}
+                            />
+                        </View>
 
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Work Mode</Text>
-                        <View style={styles.pillsContainer}>
-                            {['Remote', 'On-Site', 'Hybrid'].map((mode) => (
-                                <TouchableOpacity
-                                    key={mode}
-                                    style={[styles.pill, workMode === mode && styles.pillActive]}
-                                    onPress={() => setWorkMode(mode)}
-                                >
-                                    {workMode === mode && <View style={styles.pillDot} />}
-                                    <Text style={[styles.pillText, workMode === mode && styles.pillTextActive]}>{mode}</Text>
+                        <View style={styles.row}>
+                            <View style={[styles.inputGroup, { flex: 1, marginRight: 10 }]}>
+                                <Text style={styles.label}>Job Type</Text>
+                                <TouchableOpacity style={styles.selectBox} onPress={() => openModal('TYPE')}>
+                                    <Text style={styles.selectText}>{jobType}</Text>
+                                    <Feather name="chevron-down" size={18} color={COLORS.gray} />
                                 </TouchableOpacity>
-                            ))}
+                            </View>
+                            <View style={[styles.inputGroup, { flex: 1 }]}>
+                                <Text style={styles.label}>Experience</Text>
+                                <TouchableOpacity style={styles.selectBox} onPress={() => openModal('EXPERIENCE')}>
+                                    <Text style={styles.selectText}>{experience}</Text>
+                                    <Feather name="chevron-down" size={18} color={COLORS.gray} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Location</Text>
+                            <View style={styles.locationContainer}>
+                                <Ionicons name="location-outline" size={20} color={COLORS.gray} />
+                                <TextInput
+                                    style={styles.locationInput}
+                                    placeholder="City, State or Remote"
+                                    value={location}
+                                    onChangeText={setLocation}
+                                />
+                            </View>
                         </View>
                     </View>
 
-                    {/* EXPERIENCE & SALARY */}
-                    <View style={styles.row}>
-                        <View style={{ flex: 1, marginRight: 10 }}>
-                            <DropdownSelector label="Experience" value={experience} type="EXPERIENCE" />
+                    {/* SECTION 2: PAYMENT & HOURLY LOGIC */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Salary & Compensation</Text>
+
+                        {/* Toggle */}
+                        <View style={styles.toggleContainer}>
+                            <TouchableOpacity
+                                style={[styles.toggleBtn, paymentMode === 'SALARY' && styles.toggleBtnActive]}
+                                onPress={() => { setPaymentMode('SALARY'); setSelectedRange(SALARY_RANGES[1]); }}
+                            >
+                                <Text style={[styles.toggleText, paymentMode === 'SALARY' && styles.toggleTextActive]}>Fixed Salary (LPA)</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.toggleBtn, paymentMode === 'HOURLY' && styles.toggleBtnActive]}
+                                onPress={() => { setPaymentMode('HOURLY'); setSelectedRange(HOURLY_RATES[0]); }}
+                            >
+                                <Text style={[styles.toggleText, paymentMode === 'HOURLY' && styles.toggleTextActive]}>Hourly Rate</Text>
+                            </TouchableOpacity>
                         </View>
-                        <View style={{ flex: 1 }}>
-                            <DropdownSelector label="Salary" value={salaryRange} type="SALARY" />
-                        </View>
+
+                        <Text style={styles.helperText}>
+                            {paymentMode === 'SALARY'
+                                ? "Annual CTC offered to the candidate."
+                                : "Per hour rate for contractors/freelancers."}
+                        </Text>
+
+                        <TouchableOpacity style={styles.moneyBox} onPress={() => openModal('RANGE')}>
+                            <Text style={styles.moneyLabel}>Offered Amount</Text>
+                            <Text style={styles.moneyValue}>{selectedRange}</Text>
+                            <Text style={styles.moneyChange}>Tap to change</Text>
+                        </TouchableOpacity>
                     </View>
 
-                    {/* SKILLS WITH AI BUTTON */}
-                    <View style={styles.inputContainer}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                            <Text style={styles.label}>Requirements</Text>
-                            <TouchableOpacity style={styles.aiBtn} onPress={handleGenerateAI} disabled={isAILoading}>
-                                {isAILoading ? <ActivityIndicator size="small" color={PRIMARY_COLOR} /> : (
+                    {/* SECTION 3: DESCRIPTION & AI */}
+                    <View style={styles.section}>
+                        <View style={styles.rowBetween}>
+                            <Text style={styles.sectionTitle}>Job Description</Text>
+                            <TouchableOpacity style={styles.aiBtn} onPress={handleAIGenerate} disabled={loading.ai}>
+                                {loading.ai ? <ActivityIndicator color={COLORS.primary} size="small" /> : (
                                     <>
-                                        <MaterialCommunityIcons name="magic-staff" size={14} color={PRIMARY_COLOR} />
-                                        <Text style={styles.aiBtnText}>Auto-Write</Text>
+                                        <MaterialCommunityIcons name="robot" size={16} color={COLORS.primary} />
+                                        <Text style={styles.aiText}> Auto-Fill</Text>
                                     </>
                                 )}
                             </TouchableOpacity>
                         </View>
                         <TextInput
-                            style={[styles.textInput, styles.textArea, SHADOW_STYLE]}
-                            placeholder="• Core Skills..."
-                            placeholderTextColor="#9CA3AF"
+                            style={styles.textArea}
                             multiline
-                            value={skills}
-                            onChangeText={setSkills}
+                            placeholder="Describe roles, responsibilities, and tech stack..."
+                            value={description}
+                            onChangeText={setDescription}
+                            textAlignVertical="top"
                         />
                     </View>
 
-                    {/* LOCATION */}
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Location</Text>
-                        <View style={[styles.locationBox, SHADOW_STYLE]}>
-                            <Ionicons name="location-outline" size={20} color={GRAY_TEXT} style={{ marginLeft: 10 }} />
-                            <TextInput
-                                style={styles.locationInput}
-                                placeholder="City, State"
-                                value={location}
-                                onChangeText={setLocation}
-                            />
-                            <TouchableOpacity onPress={handleDetectLocation} style={styles.detectBtn}>
-                                <Text style={styles.detectText}>Detect</Text>
-                            </TouchableOpacity>
+                    {/* SECTION 4: BENEFITS */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Perks & Benefits</Text>
+                        <View style={styles.tagContainer}>
+                            {BENEFIT_TAGS.map(tag => (
+                                <TouchableOpacity
+                                    key={tag}
+                                    style={[styles.tag, selectedBenefits.includes(tag) && styles.tagActive]}
+                                    onPress={() => toggleBenefit(tag)}
+                                >
+                                    <Text style={[styles.tagText, selectedBenefits.includes(tag) && styles.tagTextActive]}>{tag}</Text>
+                                </TouchableOpacity>
+                            ))}
                         </View>
                     </View>
 
-                    {/* CANDIDATES & CONTRIBUTION */}
-                    <View style={styles.card}>
-                        <Text style={styles.cardTitle}>Budget & Reach</Text>
-
-                        <View style={styles.budgetRow}>
+                    {/* SECTION 5: BUDGET & CONSULTING SERVICES */}
+                    <View style={[styles.section, styles.consultingSection]}>
+                        <View style={styles.rowBetween}>
                             <View>
-                                <Text style={styles.budgetLabel}>Candidates Needed</Text>
+                                <Text style={styles.consultingTitle}>Need Hiring Experts?</Text>
+                                <Text style={styles.consultingDesc}>Add our Consulting Service to verify candidates.</Text>
+                            </View>
+                            <MaterialCommunityIcons name="briefcase-account" size={32} color={COLORS.accent} />
+                        </View>
+
+                        <View style={styles.consultingCard}>
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.serviceName}>Dedicated HR Consultant</Text>
+                                <Switch
+                                    value={addConsulting}
+                                    onValueChange={setAddConsulting}
+                                    trackColor={{ false: "#D1D5DB", true: COLORS.accent }}
+                                    thumbColor="white"
+                                />
+                            </View>
+                            <Text style={styles.servicePrice}>+ ₹ {CONSULTING_FEE} one-time fee</Text>
+                            {addConsulting && (
+                                <View style={styles.consultingBadge}>
+                                    <Feather name="check-circle" size={14} color={COLORS.accent} />
+                                    <Text style={styles.consultingBadgeText}>Consultant will contact you within 24hrs</Text>
+                                </View>
+                            )}
+                        </View>
+
+                        <View style={styles.divider} />
+
+                        {/* Budget Sliders */}
+                        <Text style={styles.label}>Recruitment Budget</Text>
+                        <View style={styles.budgetRow}>
+                            <View style={styles.budgetBox}>
+                                <Text style={styles.budgetSub}>Candidates</Text>
                                 <View style={styles.stepper}>
-                                    <TouchableOpacity onPress={() => candidates > 1 && setCandidates(c => c - 1)} style={styles.stepBtn}><Feather name="minus" size={16} color="white" /></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setCandidates(c => Math.max(5, c - 5))}><Feather name="minus" size={16} /></TouchableOpacity>
                                     <Text style={styles.stepVal}>{candidates}</Text>
-                                    <TouchableOpacity onPress={() => setCandidates(c => c + 1)} style={styles.stepBtn}><Feather name="plus" size={16} color="white" /></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setCandidates(c => c + 5)}><Feather name="plus" size={16} /></TouchableOpacity>
                                 </View>
                             </View>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={styles.budgetLabel}>Cost / Candidate</Text>
-                                <TouchableOpacity onPress={() => { setCurrentModalType('CONTRIBUTION'); setModalVisible(true); }} style={styles.costSelector}>
-                                    <Text style={styles.costText}>₹ {contribution}</Text>
-                                    <Feather name="chevron-down" size={16} color={PRIMARY_COLOR} />
-                                </TouchableOpacity>
+                            <View style={styles.budgetBox}>
+                                <Text style={styles.budgetSub}>Cost/Lead</Text>
+                                <Text style={styles.staticCost}>₹ {costPerLead}</Text>
                             </View>
                         </View>
                     </View>
 
-                    {/* FILE UPLOAD */}
-                    <TouchableOpacity style={[styles.uploadBox, fileName && styles.uploadBoxDone]} onPress={handleFileUpload}>
-                        {fileName ? (
-                            <>
-                                <MaterialCommunityIcons name="file-document" size={24} color={PRIMARY_COLOR} />
-                                <Text style={styles.fileName}>{fileName}</Text>
-                                <Feather name="check" size={20} color={SUCCESS_COLOR} />
-                            </>
-                        ) : (
-                            <>
-                                <Feather name="upload-cloud" size={24} color={GRAY_TEXT} />
-                                <Text style={styles.uploadText}>Attach Detailed JD (PDF)</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
-
-                    <View style={{ height: 100 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
 
-            {/* FOOTER */}
-            <View style={styles.footer}>
+            {/* BOTTOM DOCK */}
+            <View style={[styles.bottomDock, { paddingBottom: Math.max(20, insets.bottom) }]}>
                 <View>
-                    <Text style={styles.footerLabel}>Total Estimated Cost</Text>
-                    <Text style={styles.totalPrice}>₹ {totalCost.toLocaleString('en-IN')}</Text>
+                    <Text style={styles.totalLabel}>Total Payable</Text>
+                    <Text style={styles.totalAmount}>₹ {totalBudget.toLocaleString('en-IN')}</Text>
+                    {addConsulting && <Text style={styles.totalSub}>(Includes Consulting)</Text>}
                 </View>
-                <TouchableOpacity style={styles.postBtn} onPress={handleSubmit} disabled={isLoading}>
-                    {isLoading ? <ActivityIndicator color="white" /> : (
+                <TouchableOpacity style={styles.postButton} onPress={handleSubmit}>
+                    {loading.submit ? <ActivityIndicator color="white" /> : (
                         <>
-                            <Text style={styles.postBtnText}>{jobId ? 'Update' : 'Post Job'}</Text>
-                            <Feather name="arrow-right" size={18} color="white" />
+                            <Text style={styles.postBtnText}>Pay & Post</Text>
+                            <Feather name="arrow-right" size={20} color="white" />
                         </>
                     )}
                 </TouchableOpacity>
             </View>
 
-            {/* SELECTION MODAL */}
-            <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
+            {/* UNIVERSAL SELECTION MODAL */}
+            <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
                 <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
                     <View style={styles.modalContent}>
-                        <View style={styles.modalHandle} />
-                        <Text style={styles.modalTitle}>Select Option</Text>
+                        <View style={styles.modalIndicator} />
+                        <Text style={styles.modalHeader}>Select Option</Text>
                         <FlatList
                             data={
-                                currentModalType === 'JOB_TYPE' ? JOB_TYPES :
-                                    currentModalType === 'SALARY' ? SALARY_RANGES :
-                                        currentModalType === 'EXPERIENCE' ? EXPERIENCE_RANGES :
-                                            CONTRIBUTION_OPTIONS
+                                modalType === 'TYPE' ? JOB_TYPES :
+                                    modalType === 'EXPERIENCE' ? EXPERIENCE_LEVELS :
+                                        paymentMode === 'SALARY' ? SALARY_RANGES : HOURLY_RATES
                             }
-                            keyExtractor={(item: any) => item.toString()}
+                            keyExtractor={item => item}
                             renderItem={({ item }) => (
                                 <TouchableOpacity style={styles.modalItem} onPress={() => {
-                                    if (currentModalType === 'JOB_TYPE') setJobType(item);
-                                    if (currentModalType === 'SALARY') setSalaryRange(item);
-                                    if (currentModalType === 'EXPERIENCE') setExperience(item);
-                                    if (currentModalType === 'CONTRIBUTION') setContribution(item);
+                                    if (modalType === 'TYPE') setJobType(item);
+                                    if (modalType === 'EXPERIENCE') setExperience(item);
+                                    if (modalType === 'RANGE') setSelectedRange(item);
                                     setModalVisible(false);
                                 }}>
-                                    <Text style={styles.modalText}>
-                                        {currentModalType === 'CONTRIBUTION' ? `₹ ${item}` : item}
-                                    </Text>
-                                    <Feather name="chevron-right" size={18} color="#CBD5E1" />
+                                    <Text style={styles.modalItemText}>{item}</Text>
+                                    <Feather name="circle" size={18} color={COLORS.gray} />
                                 </TouchableOpacity>
                             )}
                         />
                     </View>
                 </TouchableOpacity>
             </Modal>
-
-            {/* LOADING OVERLAY */}
-            {isLoading && (
-                <View style={styles.loaderOverlay}>
-                    <ActivityIndicator size="large" color={PRIMARY_COLOR} />
-                </View>
-            )}
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: BG_COLOR },
+    container: { flex: 1, backgroundColor: COLORS.background },
 
     // Header
-    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-    headerTitle: { fontSize: 18, fontWeight: '700', color: TEXT_COLOR },
-    iconBtn: { padding: 4 },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+    headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text },
+    headerSubtitle: { fontSize: 12, color: COLORS.success, fontWeight: '600' },
+    iconBtn: { padding: 8 },
+    historyBtn: { padding: 8, backgroundColor: COLORS.lightBlue, borderRadius: 8 },
 
-    scrollContent: { padding: 20 },
+    scrollContent: { padding: 16 },
+
+    // Sections
+    section: { backgroundColor: COLORS.white, borderRadius: 16, padding: 16, marginBottom: 16, ...SHADOW_STYLE },
+    sectionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text, marginBottom: 12 },
     row: { flexDirection: 'row' },
+    rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
 
     // Inputs
-    inputContainer: { marginBottom: 20 },
-    label: { fontSize: 14, fontWeight: '600', color: '#475569', marginBottom: 8 },
-    textInput: { backgroundColor: 'white', borderRadius: 12, padding: 14, fontSize: 16, color: TEXT_COLOR, borderWidth: 1, borderColor: 'transparent' },
-    textArea: { height: 100, textAlignVertical: 'top' },
-
-    dropdownBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', borderRadius: 12, padding: 14 },
-    inputText: { fontSize: 16, color: TEXT_COLOR },
-
-    // Work Mode Pills
-    pillsContainer: { flexDirection: 'row', gap: 10 },
-    pill: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0' },
-    pillActive: { borderColor: PRIMARY_COLOR, backgroundColor: '#EFF6FF' },
-    pillDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR, marginRight: 8 },
-    pillText: { fontSize: 14, color: GRAY_TEXT },
-    pillTextActive: { color: PRIMARY_COLOR, fontWeight: '600' },
-
-    // AI Button
-    aiBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
-    aiBtnText: { fontSize: 12, color: PRIMARY_COLOR, fontWeight: '700', marginLeft: 4 },
+    inputGroup: { marginBottom: 16 },
+    label: { fontSize: 13, fontWeight: '600', color: COLORS.gray, marginBottom: 6 },
+    req: { color: COLORS.danger },
+    input: { borderWidth: 1, borderColor: COLORS.border, borderRadius: 10, padding: 12, fontSize: 15, color: COLORS.text, backgroundColor: '#F8FAFC' },
+    selectBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border, borderRadius: 10, padding: 12, backgroundColor: '#F8FAFC' },
+    selectText: { fontSize: 15, color: COLORS.text },
 
     // Location
-    locationBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', borderRadius: 12 },
-    locationInput: { flex: 1, padding: 14, fontSize: 16, color: TEXT_COLOR },
-    detectBtn: { paddingHorizontal: 16, borderLeftWidth: 1, borderLeftColor: '#F1F5F9' },
-    detectText: { color: PRIMARY_COLOR, fontWeight: '600', fontSize: 13 },
+    locationContainer: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border, borderRadius: 10, paddingHorizontal: 12, backgroundColor: '#F8FAFC' },
+    locationInput: { flex: 1, paddingVertical: 12, paddingLeft: 8, fontSize: 15, color: COLORS.text },
 
-    // Budget Card
-    card: { backgroundColor: 'white', padding: 16, borderRadius: 16, marginBottom: 20, ...SHADOW_STYLE },
-    cardTitle: { fontSize: 16, fontWeight: '700', color: TEXT_COLOR, marginBottom: 15 },
-    budgetRow: { flexDirection: 'row', justifyContent: 'space-between' },
-    budgetLabel: { fontSize: 12, color: GRAY_TEXT, marginBottom: 6 },
+    // Payment Toggle
+    toggleContainer: { flexDirection: 'row', backgroundColor: '#F1F5F9', borderRadius: 10, padding: 4, marginBottom: 12 },
+    toggleBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
+    toggleBtnActive: { backgroundColor: COLORS.white, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+    toggleText: { fontSize: 14, color: COLORS.gray, fontWeight: '500' },
+    toggleTextActive: { color: COLORS.primary, fontWeight: '700' },
+    helperText: { fontSize: 12, color: COLORS.gray, fontStyle: 'italic', marginBottom: 12 },
 
-    stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 8, padding: 4 },
-    stepBtn: { backgroundColor: PRIMARY_COLOR, width: 28, height: 28, borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
-    stepVal: { fontSize: 16, fontWeight: '700', marginHorizontal: 12, minWidth: 20, textAlign: 'center' },
+    // Money Box
+    moneyBox: { backgroundColor: COLORS.lightBlue, padding: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: COLORS.primary, borderStyle: 'dashed' },
+    moneyLabel: { fontSize: 12, color: COLORS.secondary, fontWeight: '600', textTransform: 'uppercase' },
+    moneyValue: { fontSize: 24, fontWeight: '800', color: COLORS.primary, marginVertical: 4 },
+    moneyChange: { fontSize: 12, color: COLORS.primary, textDecorationLine: 'underline' },
 
-    costSelector: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8 },
-    costText: { fontSize: 16, fontWeight: '700', color: PRIMARY_COLOR, marginRight: 4 },
+    // Description
+    textArea: { borderWidth: 1, borderColor: COLORS.border, borderRadius: 10, padding: 12, fontSize: 15, color: COLORS.text, height: 120, backgroundColor: '#F8FAFC' },
+    aiBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E0E7FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+    aiText: { fontSize: 12, fontWeight: '700', color: COLORS.primary },
 
-    // Upload
-    uploadBox: { height: 60, borderRadius: 12, borderStyle: 'dashed', borderWidth: 2, borderColor: '#CBD5E1', justifyContent: 'center', alignItems: 'center', flexDirection: 'row', backgroundColor: '#F8FAFC' },
-    uploadBoxDone: { borderColor: SUCCESS_COLOR, backgroundColor: '#F0FDF4', borderStyle: 'solid' },
-    uploadText: { color: GRAY_TEXT, marginLeft: 10, fontWeight: '500' },
-    fileName: { color: TEXT_COLOR, fontWeight: '600', marginHorizontal: 10 },
+    // Benefits
+    tagContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    tag: { borderWidth: 1, borderColor: COLORS.border, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6 },
+    tagActive: { backgroundColor: '#DCFCE7', borderColor: COLORS.success },
+    tagText: { fontSize: 12, color: COLORS.gray },
+    tagTextActive: { color: '#166534', fontWeight: '600' },
 
-    // Footer
-    footer: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: 'white', padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F1F5F9', elevation: 20 },
-    footerLabel: { fontSize: 12, color: GRAY_TEXT },
-    totalPrice: { fontSize: 20, fontWeight: '800', color: TEXT_COLOR },
-    postBtn: { backgroundColor: PRIMARY_COLOR, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 8, shadowColor: PRIMARY_COLOR, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
-    postBtnText: { color: 'white', fontSize: 16, fontWeight: '700' },
+    // Consulting Section (Premium)
+    consultingSection: { borderWidth: 1, borderColor: '#FCD34D', backgroundColor: '#FFFBEB' },
+    consultingTitle: { fontSize: 16, fontWeight: '700', color: '#92400E' },
+    consultingDesc: { fontSize: 12, color: '#B45309' },
+    consultingCard: { backgroundColor: COLORS.white, borderRadius: 10, padding: 12, marginTop: 10 },
+    serviceName: { fontSize: 14, fontWeight: '600', color: COLORS.text },
+    servicePrice: { fontSize: 12, color: COLORS.gray, marginTop: 2 },
+    consultingBadge: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 4 },
+    consultingBadgeText: { fontSize: 11, color: COLORS.accent, fontWeight: '600' },
+    divider: { height: 1, backgroundColor: '#FDE68A', marginVertical: 16 },
 
-    // Modals
+    // Budget Sliders
+    budgetRow: { flexDirection: 'row', gap: 12 },
+    budgetBox: { flex: 1, backgroundColor: COLORS.white, borderRadius: 8, padding: 10 },
+    budgetSub: { fontSize: 12, color: COLORS.gray, marginBottom: 6 },
+    stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F1F5F9', borderRadius: 6, padding: 4 },
+    stepVal: { fontWeight: '700' },
+    staticCost: { fontSize: 16, fontWeight: '700', color: COLORS.text },
+
+    // Bottom Dock
+    bottomDock: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.border, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', shadowColor: "#000", shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 10 },
+    totalLabel: { fontSize: 12, color: COLORS.gray },
+    totalAmount: { fontSize: 20, fontWeight: '800', color: COLORS.text },
+    totalSub: { fontSize: 10, color: COLORS.accent, fontWeight: '600' },
+    postButton: { backgroundColor: COLORS.primary, paddingHorizontal: 24, paddingVertical: 14, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 8 },
+    postBtnText: { color: 'white', fontWeight: '700', fontSize: 16 },
+
+    // Modal
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { backgroundColor: 'white', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '60%' },
-    modalHandle: { width: 40, height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
-    modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 15 },
+    modalContent: { backgroundColor: COLORS.white, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '50%' },
+    modalIndicator: { width: 40, height: 4, backgroundColor: COLORS.border, borderRadius: 2, alignSelf: 'center', marginBottom: 15 },
+    modalHeader: { fontSize: 18, fontWeight: '700', marginBottom: 15, color: COLORS.text },
     modalItem: { paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', flexDirection: 'row', justifyContent: 'space-between' },
-    modalText: { fontSize: 16, color: TEXT_COLOR },
-
-    loaderOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255,255,255,0.7)', justifyContent: 'center', alignItems: 'center', zIndex: 50 },
+    modalItemText: { fontSize: 16, color: COLORS.text },
 });
