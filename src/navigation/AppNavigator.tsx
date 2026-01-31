@@ -81,6 +81,7 @@ import EmployerJobs from '../screens/ET-Center/EmployerJobs';
 import ChatDetailScreen from '../screens/Employer/ChatDetailScreen';
 import JobPostDashboard from '../screens/Employer/JobPostDashboard';
 import PostJobScreen from '../screens/Employer/PostJobScreen';
+import EditEmployerProfileScreen from '../screens/Employer/EditEmployerProfileScreen';
 import 'react-native-gesture-handler';
 import React from 'react';
 import { Text, View } from 'react-native';
@@ -96,8 +97,8 @@ export default function AppNavigator() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
 
-          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
-          {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
+          {/* <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} /> */}
+          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
           {/* <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} /> */}
 
 
@@ -130,6 +131,7 @@ export default function AppNavigator() {
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
           <Stack.Screen name="UploadLogo" component={UploadLogo} />
+          <Stack.Screen name="EditEmployerProfileScreen" component={EditEmployerProfileScreen} />
           <Stack.Screen name="ContactPersonScreen" component={ContactPersonScreen} />
           <Stack.Screen name="ContactNumberScreen" component={ContactNumberScreen} />
           <Stack.Screen name="OfficeAddressScreen" component={OfficeAddressScreen} />

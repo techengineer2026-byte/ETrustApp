@@ -1,437 +1,446 @@
 // src/screens/Employer/EmployerProfileScreen.tsx
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-    StyleSheet,
-    Text,
     View,
-    ScrollView,
-    TextInput,
+    Text,
+    StyleSheet,
     TouchableOpacity,
-    StatusBar,
     Image,
-    KeyboardTypeOptions,
-    Alert
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-// CLI Icons
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Feather from 'react-native-vector-icons/Feather';
-interface SomeComponentProps {
-    label: string;
-    value: string;
-    icon: string;
-    onChange: (val: string) => void;
-    isVerified?: boolean; // optional to avoid errors when not provided
-    keyboardType?: KeyboardTypeOptions;
-}
+    ScrollView,
+    Dimensions,
+    Modal,
+    Alert,
+    StatusBar,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from "@react-navigation/native";
 
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = width * 0.85;
+const SPACING = (width - CARD_WIDTH) / 2;
 
-type RootStackParamList = {
-    EmployerProfile: undefined;
-    Welcome: undefined;
-};
+// --- EMPLOYER PLAN DATA ---
+const employerPlans = [
+    {
+        id: 'startup',
+        title: 'Startup',
+        subtitle: 'For small teams',
+        price: 999,
+        gradient: ['#F0F9FF', '#E0F2FE'], // Light Blue
+        accent: '#0284C7',
+        buttonColor: '#0EA5E9',
+        badge: null,
+        features: [
+            '5 Active Job Posts',
+            'Access to 50 Resumes',
+            'Standard Support',
+            'Company Branding Page',
+            'Email Notifications',
+        ],
+        disclaimer: "Best for immediate, small-scale hiring needs."
+    },
+    {
+        id: 'growth',
+        title: 'Growth',
+        subtitle: 'Rapid expansion',
+        price: 2499,
+        gradient: ['#F5F3FF', '#EDE9FE'], // Light Purple
+        accent: '#7C3AED',
+        buttonColor: '#8B5CF6',
+        badge: 'POPULAR',
+        features: [
+            '20 Active Job Posts',
+            'Access to 500 Resumes',
+            'AI Candidate Matching',
+            'Priority Support',
+            'Featured Job Listings',
+        ],
+        disclaimer: "Accelerate your hiring with AI tools and better visibility."
+    },
+    {
+        id: 'enterprise',
+        title: 'Enterprise',
+        subtitle: 'Maximum power',
+        price: 4999,
+        gradient: ['#FFF7ED', '#FFEDD5'], // Light Orange
+        accent: '#C2410C',
+        buttonColor: '#F97316',
+        badge: 'UNLIMITED',
+        features: [
+            'Unlimited Job Posts',
+            'Unlimited Database Access',
+            'Dedicated Account Manager',
+            'API Access',
+            'Legal & Compliance Support',
+        ],
+        disclaimer: "Complete recruitment solution for large organizations."
+    },
+];
 
-type EmployerProfileScreenNavigationProp = NativeStackNavigationProp<
-    RootStackParamList,
-    'EmployerProfile'
->;
+const EmployerProfileScreen = () => {
+    const navigation = useNavigation<any>();
+    const [selectedPlan, setSelectedPlan] = useState<any>(null);
+    const [showModal, setShowModal] = useState(false);
 
-type Props = {
-    navigation: EmployerProfileScreenNavigationProp;
-};
+    // Mock Company Data
+    const companyData = {
+        name: "Tech Solutions Pvt Ltd",
+        person: "Anurag Kohli",
+        role: "HR Manager",
+        address: "Plot 45, Tech Park, Mohali",
+        phone: "+91 98765 43210",
+        email: "hr@techsolutions.com",
+        verified: true
+    };
 
+    const handleBuy = (plan: any) => {
+        setSelectedPlan(plan);
+        setShowModal(true);
+    };
 
-// --- Configuration ---
-const PRIMARY_COLOR = '#2563EB'; // Brand Blue
-const DANGER_COLOR = '#EF4444';  // Red for Logout
-const TEXT_COLOR = '#1F2937';
-const GRAY_TEXT = '#6B7280';
-const BG_COLOR = '#F9FAFB';
-
-export default function EmployerProfileScreen({ navigation }: Props) {
-    // --- State (Mock Data based on your list) ---
-    const [companyName, setCompanyName] = useState('Tech Solutions Pvt Ltd');
-    const [contactPerson, setContactPerson] = useState('Anurag kohli');
-    const [email, setEmail] = useState('Anuragkohli@Techengineer.com');
-    const [phone, setPhone] = useState('+91 98765 43210');
-    const [address, setAddress] = useState('Plot No 45, Tech Park, Sector 5');
-    const [city, setCity] = useState('Mohali');
-    const [district, setDistrict] = useState('SAS Nagar');
-    const [pincode, setPincode] = useState('140301');
-
-    // Mock Image State
-    const [logo, setLogo] = useState('https://randomuser.me/api/portraits/lego/1.jpg');
-
-    // --- Logic ---
     const handleLogout = () => {
-        Alert.alert(
-            "Logout",
-            "Are you sure you want to logout?",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Logout",
-                    style: "destructive",
-                    onPress: () => {
-                        // In a real app: navigation.reset() or navigation.replace('Welcome')
-                        console.log("Navigating to Welcome Screen...");
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Welcome' }],
-                        });
-                    }
-                }
-            ]
-        );
+        Alert.alert("Logout", "Are you sure?", [
+            { text: "Cancel", style: "cancel" },
+            { text: "Logout", style: "destructive", onPress: () => navigation.replace("Welcome") }
+        ]);
     };
-
-    const handleGPSUpdate = () => {
-        Alert.alert("GPS Location", "Fetching current coordinates...\nLocation Updated!");
-    };
-
-    const handleImageUpload = () => {
-        Alert.alert("Upload Logo", "Open Gallery/Camera");
-    };
-
-    // --- Reusable Input Component ---
-    const ProfileInput: React.FC<SomeComponentProps> = ({
-        label,
-        value,
-        icon,
-        onChange,
-        isVerified,
-        keyboardType = 'default',
-    }) => (
-        <View style={styles.inputWrapper}>
-            <Text style={styles.label}>{label}</Text>
-            <View style={styles.inputContainer}>
-                <Feather name={icon} size={20} color={GRAY_TEXT} style={styles.inputIcon} />
-                <TextInput
-                    style={styles.textInput}
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType={keyboardType}
-                />
-                {isVerified && (
-                    <View style={styles.verifiedBadge}>
-                        <MaterialCommunityIcons name="check-decagram" size={18} color="#10B981" />
-                        <Text style={styles.verifiedText}>Verified</Text>
-                    </View>
-                )}
-            </View>
-        </View>
-    );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="white" />
+        <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
+            <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+            <SafeAreaView style={{ flex: 1 }}>
 
-            {/* 🔝 Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Company Profile</Text>
-                <TouchableOpacity>
-                    <Text style={styles.editBtnText}>Save</Text>
-                </TouchableOpacity>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                {/* 📸 Company Logo Section */}
-                <View style={styles.logoSection}>
-                    <View style={styles.imageWrapper}>
-                        <Image source={{ uri: logo }} style={styles.logoImage} />
-                        <TouchableOpacity style={styles.cameraBtn} onPress={handleImageUpload}>
-                            <Ionicons name="camera" size={20} color="white" />
-                        </TouchableOpacity>
+                {/* --- HEADER --- */}
+                <View style={styles.header}>
+                    <View>
+                        <Text style={styles.headerTitle}>Employer Zone</Text>
+                        <Text style={styles.headerSubtitle}>Manage hiring & subscriptions</Text>
                     </View>
-                    <Text style={styles.companyNameDisplay}>{companyName}</Text>
-                    <Text style={styles.subText}>Employer Account</Text>
-                </View>
-
-                {/* 📝 Section 1: Contact Details */}
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionHeader}>Contact Information</Text>
-
-                    <ProfileInput
-                        label="Company Name"
-                        value={companyName}
-                        icon="briefcase"
-                        onChange={setCompanyName}
-                    />
-
-                    <ProfileInput
-                        label="Contact Person Name"
-                        value={contactPerson}
-                        icon="user"
-                        onChange={setContactPerson}
-                    />
-
-                    <ProfileInput
-                        label="Email ID"
-                        value={email}
-                        icon="mail"
-                        onChange={setEmail}
-                        isVerified={true} // From Login Step
-                    />
-
-                    <ProfileInput
-                        label="Contact No (Official)"
-                        value={phone}
-                        icon="phone"
-                        onChange={setPhone}
-                        keyboardType="phone-pad"
-                        isVerified={true} // From Login Step
-                    />
-                </View>
-
-                {/* 📍 Section 2: Address & Location */}
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionHeader}>Office Address</Text>
-
-                    <View style={styles.inputWrapper}>
-                        <Text style={styles.label}>Full Address</Text>
-                        <View style={[styles.inputContainer, { alignItems: 'flex-start' }]}>
-                            <Feather name="map-pin" size={20} color={GRAY_TEXT} style={[styles.inputIcon, { marginTop: 12 }]} />
-                            <TextInput
-                                style={[styles.textInput, { height: 80, textAlignVertical: 'top', paddingTop: 10 }]}
-                                value={address}
-                                onChangeText={setAddress}
-                                multiline
-                            />
-                        </View>
-                    </View>
-
-                    {/* Row for City/District */}
-                    <View style={styles.row}>
-                        <View style={{ flex: 1, marginRight: 10 }}>
-                            <ProfileInput label="City" value={city} icon="map" onChange={setCity} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <ProfileInput label="District" value={district} icon="map" onChange={setDistrict} />
-                        </View>
-                    </View>
-
-                    <ProfileInput label="Pin Code" value={pincode} icon="hash" onChange={setPincode} keyboardType="numeric" />
-
-                    {/* GPS Button */}
-                    <TouchableOpacity style={styles.gpsBtn} onPress={handleGPSUpdate}>
-                        <MaterialCommunityIcons name="crosshairs-gps" size={20} color={PRIMARY_COLOR} />
-                        <Text style={styles.gpsText}>Update Location on GPS</Text>
+                    <TouchableOpacity
+                        style={styles.iconBtn}
+                        onPress={handleLogout}
+                    >
+                        <Icon name="logout" size={24} color="#EF4444" />
                     </TouchableOpacity>
                 </View>
 
-                {/* ⚙️ Section 3: Settings & Logout */}
-                <View style={styles.sectionContainer}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 50 }}>
 
-                    {/* LOGOUT BUTTON */}
-                    <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-                        <Feather name="log-out" size={20} color={DANGER_COLOR} />
-                        <Text style={styles.logoutText}>Logout to Welcome</Text>
+                    {/* --- COMPANY PROFILE CARD --- */}
+                    <View style={styles.profileSection}>
+                        <View style={styles.profileCard}>
+                            <View style={styles.profileHeaderRow}>
+                                <Image
+                                    source={{ uri: 'https://randomuser.me/api/portraits/lego/1.jpg' }}
+                                    style={styles.avatar}
+                                />
+                                <View style={styles.profileInfo}>
+                                    <Text style={styles.companyName}>{companyData.name}</Text>
+                                    <View style={styles.verifiedRow}>
+                                        <Text style={styles.contactPerson}>{companyData.person}</Text>
+                                        {companyData.verified && (
+                                            <Icon name="check-decagram" size={16} color="#10B981" style={{ marginLeft: 4 }} />
+                                        )}
+                                    </View>
+                                </View>
+                            </View>
+
+                            <View style={styles.divider} />
+
+                            {/* Missing Details Column Added Here */}
+                            <View style={styles.detailsGrid}>
+                                <View style={styles.detailItem}>
+                                    <Icon name="email-outline" size={16} color="#64748B" />
+                                    <Text style={styles.detailText}>{companyData.email}</Text>
+                                </View>
+                                <View style={styles.detailItem}>
+                                    <Icon name="phone-outline" size={16} color="#64748B" />
+                                    <Text style={styles.detailText}>{companyData.phone}</Text>
+                                </View>
+                                <View style={styles.detailItemFull}>
+                                    <Icon name="map-marker-outline" size={16} color="#64748B" />
+                                    <Text style={styles.detailText}>{companyData.address}</Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity style={styles.editBtn}
+                                onPress={() => navigation.navigate("EditEmployerProfileScreen")} // <--- ADD THIS
+                            >
+                                <Text style={styles.editBtnText}>Edit Company Profile</Text>
+                                <Icon name="chevron-right" size={16} color="#2563EB" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* --- DASHBOARD STATS --- */}
+                    <View style={styles.statsGrid}>
+                        <View style={styles.statCard}>
+                            <View style={[styles.iconBox, { backgroundColor: '#EFF6FF' }]}>
+                                <Icon name="briefcase-outline" size={24} color="#2563EB" />
+                            </View>
+                            <Text style={styles.statValue}>12</Text>
+                            <Text style={styles.statLabel}>Active Jobs</Text>
+                        </View>
+                        <View style={styles.statCard}>
+                            <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}>
+                                <Icon name="account-group-outline" size={24} color="#16A34A" />
+                            </View>
+                            <Text style={styles.statValue}>48</Text>
+                            <Text style={styles.statLabel}>Applications</Text>
+                        </View>
+                        <View style={styles.statCard}>
+                            <View style={[styles.iconBox, { backgroundColor: '#FFF7ED' }]}>
+                                <Icon name="credit-card-outline" size={24} color="#EA580C" />
+                            </View>
+                            <Text style={styles.statValue}>Pro</Text>
+                            <Text style={styles.statLabel}>Plan</Text>
+                        </View>
+                    </View>
+
+                    {/* --- FLEXIBLE BUDGET HIRING (New Feature) --- */}
+                    <TouchableOpacity onPress={() => Alert.alert("Flexible Hiring", "Define your own budget and pay per hire.")}>
+                        <LinearGradient
+                            colors={['#1E1B4B', '#312E81']} // Deep Indigo
+                            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                            style={styles.flexBanner}
+                        >
+                            <View style={{ flex: 1 }}>
+                                <View style={styles.flexBadge}>
+                                    <Text style={styles.flexBadgeText}>NEW FEATURE</Text>
+                                </View>
+                                <Text style={styles.flexTitle}>Flexible Budget Hiring</Text>
+                                <Text style={styles.flexText}>Don't want a subscription? Set your own budget and pay only when you hire.</Text>
+                            </View>
+                            <View style={styles.flexIcon}>
+                                <Icon name="scale-balance" size={32} color="#818CF8" />
+                            </View>
+                        </LinearGradient>
                     </TouchableOpacity>
-                </View>
 
-                <View style={{ height: 40 }} />
-            </ScrollView>
-        </SafeAreaView>
+                    {/* --- PLANS SECTION --- */}
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>Recruitment Packages</Text>
+                        <Text style={styles.sectionSubtitle}>Choose a plan that fits your hiring volume</Text>
+                    </View>
+
+                    {/* --- HORIZONTAL CARDS --- */}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        snapToInterval={CARD_WIDTH + 20}
+                        decelerationRate="fast"
+                        contentContainerStyle={{ paddingHorizontal: SPACING, paddingBottom: 30 }}
+                    >
+                        {employerPlans.map((plan, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                activeOpacity={0.9}
+                                onPress={() => handleBuy(plan)}
+                                style={styles.planContainer}
+                            >
+                                <LinearGradient
+                                    colors={plan.gradient}
+                                    style={styles.planCard}
+                                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                                >
+                                    {plan.badge && (
+                                        <View style={styles.badgeContainer}>
+                                            <Text style={styles.badgeText}>{plan.badge}</Text>
+                                        </View>
+                                    )}
+
+                                    <View style={styles.cardHeader}>
+                                        <View>
+                                            <Text style={[styles.planName, { color: plan.accent }]}>{plan.title}</Text>
+                                            <Text style={styles.planSubtitle}>{plan.subtitle}</Text>
+                                        </View>
+                                        <View style={styles.priceBlock}>
+                                            <Text style={[styles.currency, { color: plan.accent }]}>₹</Text>
+                                            <Text style={[styles.amount, { color: plan.accent }]}>{plan.price}</Text>
+                                            <Text style={{ fontSize: 12, color: plan.accent, marginBottom: 6 }}>/mo</Text>
+                                        </View>
+                                    </View>
+
+                                    <View style={styles.cardDivider} />
+
+                                    <View style={styles.featuresList}>
+                                        {plan.features.slice(0, 4).map((feature: string, i: number) => (
+                                            <View key={i} style={styles.featureItem}>
+                                                <Icon name="check-circle" size={18} color={plan.accent} />
+                                                <Text style={styles.featureText}>{feature}</Text>
+                                            </View>
+                                        ))}
+                                    </View>
+
+                                    <TouchableOpacity
+                                        style={[styles.buyBtn, { backgroundColor: plan.buttonColor }]}
+                                        onPress={() => handleBuy(plan)}
+                                    >
+                                        <Text style={styles.buyBtnText}>Upgrade Now</Text>
+                                        <Icon name="arrow-right" size={18} color="#fff" />
+                                    </TouchableOpacity>
+
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+
+                </ScrollView>
+
+                {/* --- PURCHASE MODAL --- */}
+                <Modal
+                    visible={showModal}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowModal(false)}
+                >
+                    <View style={styles.modalBackdrop}>
+                        <TouchableOpacity style={styles.modalCloser} onPress={() => setShowModal(false)} />
+                        <View style={styles.modalContent}>
+                            <View style={styles.modalHandle} />
+                            {selectedPlan && (
+                                <>
+                                    <View style={styles.modalHeader}>
+                                        <View>
+                                            <Text style={styles.modalTitle}>{selectedPlan.title} Plan</Text>
+                                            <Text style={styles.modalSubtitle}>Monthly Subscription</Text>
+                                        </View>
+                                        <View style={styles.modalPriceTag}>
+                                            <Text style={styles.modalPrice}>₹{selectedPlan.price}</Text>
+                                        </View>
+                                    </View>
+
+                                    <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+                                        <Text style={styles.sectionLabel}>INCLUDED FEATURES</Text>
+                                        {selectedPlan.features.map((item: string, index: number) => (
+                                            <View key={index} style={styles.modalFeatureRow}>
+                                                <Icon name="star-four-points" size={16} color={selectedPlan.buttonColor} style={{ marginTop: 3 }} />
+                                                <Text style={styles.modalFeatureText}>{item}</Text>
+                                            </View>
+                                        ))}
+
+                                        <View style={styles.disclaimerBox}>
+                                            <Icon name="information-outline" size={20} color="#666" style={{ marginRight: 8 }} />
+                                            <Text style={styles.disclaimerText}>{selectedPlan.disclaimer}</Text>
+                                        </View>
+                                    </ScrollView>
+
+                                    <View style={styles.modalFooter}>
+                                        <TouchableOpacity
+                                            style={[styles.modalCta, { backgroundColor: selectedPlan.buttonColor }]}
+                                            onPress={() => Alert.alert("Payment Gateway", "Proceeding to secure payment...")}
+                                        >
+                                            <Text style={styles.modalCtaText}>Pay ₹{selectedPlan.price} & Subscribe</Text>
+                                        </TouchableOpacity>
+                                        <Text style={styles.secureText}>Business GST Invoice available upon payment.</Text>
+                                    </View>
+                                </>
+                            )}
+                        </View>
+                    </View>
+                </Modal>
+
+            </SafeAreaView>
+        </View>
     );
-}
+};
+
+export default EmployerProfileScreen;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: BG_COLOR,
-    },
     // Header
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: 'white',
-        borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: TEXT_COLOR,
-    },
-    editBtnText: {
-        color: PRIMARY_COLOR,
-        fontWeight: '600',
-        fontSize: 16,
-    },
+    header: { paddingHorizontal: 20, paddingVertical: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+    headerTitle: { fontSize: 22, fontWeight: '800', color: '#0F172A' },
+    headerSubtitle: { fontSize: 13, color: '#64748B', marginTop: 2 },
+    iconBtn: { padding: 8, backgroundColor: '#FEF2F2', borderRadius: 8 },
 
-    // Scroll Content
-    scrollContent: {
-        padding: 16,
-    },
+    // Profile Section
+    profileSection: { paddingHorizontal: 20, marginTop: 20 },
+    profileCard: { backgroundColor: '#fff', borderRadius: 20, padding: 20, shadowColor: '#64748B', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
+    profileHeaderRow: { flexDirection: 'row', alignItems: 'center' },
+    avatar: { width: 64, height: 64, borderRadius: 12, backgroundColor: '#F1F5F9' },
+    profileInfo: { marginLeft: 16, flex: 1 },
+    companyName: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
+    verifiedRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+    contactPerson: { fontSize: 13, color: '#64748B', fontWeight: '500' },
 
-    // Logo Section
-    logoSection: {
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    imageWrapper: {
-        position: 'relative',
-        marginBottom: 12,
-    },
-    logoImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        borderWidth: 2,
-        borderColor: 'white',
-        backgroundColor: '#E5E7EB', // Placeholder color
-    },
-    cameraBtn: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        backgroundColor: PRIMARY_COLOR,
-        padding: 8,
-        borderRadius: 20,
-        borderWidth: 2,
-        borderColor: 'white',
-    },
-    companyNameDisplay: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: TEXT_COLOR,
-    },
-    subText: {
-        color: GRAY_TEXT,
-        fontSize: 14,
-    },
+    divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 16 },
 
-    // Section Container
-    sectionContainer: {
-        backgroundColor: 'white',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 20,
-        // Shadow
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    sectionHeader: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: TEXT_COLOR,
-        marginBottom: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
-        paddingBottom: 8,
-    },
+    // Detail Columns
+    detailsGrid: { marginBottom: 16 },
+    detailItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+    detailItemFull: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+    detailText: { fontSize: 13, color: '#475569', marginLeft: 10, flex: 1 },
 
-    // Inputs
-    inputWrapper: {
-        marginBottom: 16,
-    },
-    label: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: '#4B5563',
-        marginBottom: 6,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F9FAFB',
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-    },
-    inputIcon: {
-        marginRight: 10,
-    },
-    textInput: {
-        flex: 1,
-        paddingVertical: 12,
-        fontSize: 15,
-        color: TEXT_COLOR,
-    },
+    editBtn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 10, backgroundColor: '#F0F9FF', borderRadius: 10 },
+    editBtnText: { color: '#2563EB', fontSize: 13, fontWeight: '600', marginRight: 4 },
 
-    // Verification Badge
-    verifiedBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#ECFDF5',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderColor: '#10B981',
-    },
-    verifiedText: {
-        fontSize: 10,
-        color: '#059669',
-        fontWeight: '600',
-        marginLeft: 2,
-    },
+    // Stats Grid
+    statsGrid: { flexDirection: 'row', paddingHorizontal: 20, marginTop: 20, justifyContent: 'space-between' },
+    statCard: { width: '31%', backgroundColor: '#fff', paddingVertical: 15, borderRadius: 16, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 6, elevation: 2 },
+    iconBox: { width: 42, height: 42, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+    statValue: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
+    statLabel: { fontSize: 11, color: '#64748B', marginTop: 2, textTransform: 'uppercase', fontWeight: '600' },
 
-    // Layout Utils
-    row: {
-        flexDirection: 'row',
-    },
+    // Flex Banner
+    flexBanner: { marginHorizontal: 20, marginTop: 24, borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', shadowColor: '#312E81', shadowOpacity: 0.25, shadowRadius: 10, elevation: 6 },
+    flexBadge: { backgroundColor: 'rgba(255,255,255,0.2)', alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, marginBottom: 8 },
+    flexBadgeText: { color: '#C7D2FE', fontSize: 10, fontWeight: '700' },
+    flexTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+    flexText: { color: '#A5B4FC', fontSize: 12, marginTop: 4, lineHeight: 18, paddingRight: 10 },
+    flexIcon: { width: 48, height: 48, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
 
-    // GPS Button
-    gpsBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: PRIMARY_COLOR,
-        backgroundColor: '#EFF6FF',
-        marginTop: 8,
-    },
-    gpsText: {
-        color: PRIMARY_COLOR,
-        fontWeight: '600',
-        marginLeft: 8,
-    },
+    // Plans Section
+    sectionHeader: { paddingHorizontal: 24, marginTop: 32, marginBottom: 16 },
+    sectionTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
+    sectionSubtitle: { fontSize: 13, color: '#64748B', marginTop: 4 },
 
-    // Settings & Logout
-    menuItem: {
+    // Card Styles
+    planContainer: { width: CARD_WIDTH, marginRight: 20, paddingVertical: 10 },
+    planCard: { borderRadius: 24, padding: 24, height: 380, borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, elevation: 5, justifyContent: 'space-between' },
+    badgeContainer: { position: 'absolute', top: 0, right: 0, backgroundColor: '#0F172A', paddingVertical: 6, paddingHorizontal: 12, borderBottomLeftRadius: 16, borderTopRightRadius: 24, zIndex: 10 },
+    badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+
+    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+    planName: { fontSize: 22, fontWeight: '800', marginBottom: 4 },
+    planSubtitle: { fontSize: 13, color: 'rgba(0,0,0,0.6)', fontWeight: '500' },
+    priceBlock: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
+        alignItems: 'baseline', // ✅ or 'flex-end'
     },
-    menuRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    menuText: {
-        fontSize: 16,
-        color: TEXT_COLOR,
-        marginLeft: 12,
-    },
-    logoutBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 20,
-        padding: 14,
-        backgroundColor: '#FEE2E2',
-        borderRadius: 8,
-    },
-    logoutText: {
-        color: DANGER_COLOR,
-        fontWeight: '700',
-        fontSize: 16,
-        marginLeft: 8,
-    },
+    currency: { fontSize: 16, fontWeight: '600', marginRight: 2 },
+    amount: { fontSize: 28, fontWeight: '900' },
+
+    cardDivider: { height: 1, backgroundColor: 'rgba(0,0,0,0.05)', marginVertical: 15 },
+
+    featuresList: { flex: 1 },
+    featureItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+    featureText: { fontSize: 14, color: '#334155', marginLeft: 10, fontWeight: '500', flex: 1 },
+
+    buyBtn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 14, borderRadius: 12, marginTop: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
+    buyBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 15, marginRight: 8 },
+
+    // Modal
+    modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    modalCloser: { flex: 1 },
+    modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 24, paddingBottom: 40, maxHeight: '85%' },
+    modalHandle: { width: 40, height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 20 },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', paddingBottom: 20 },
+    modalTitle: { fontSize: 22, fontWeight: '800', color: '#0F172A' },
+    modalSubtitle: { fontSize: 13, color: '#64748B' },
+    modalPriceTag: { backgroundColor: '#F1F5F9', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12 },
+    modalPrice: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
+    modalScroll: { marginBottom: 20 },
+    sectionLabel: { fontSize: 11, fontWeight: '700', color: '#94A3B8', letterSpacing: 1, marginBottom: 16 },
+    modalFeatureRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 16 },
+    modalFeatureText: { fontSize: 15, color: '#334155', lineHeight: 22, flex: 1, marginLeft: 12 },
+    disclaimerBox: { backgroundColor: '#F8FAFC', padding: 16, borderRadius: 12, marginTop: 10, flexDirection: 'row' },
+    disclaimerText: { fontSize: 12, color: '#64748B', flex: 1, lineHeight: 18 },
+    modalFooter: { marginTop: 10 },
+    modalCta: { paddingVertical: 16, borderRadius: 16, alignItems: 'center', justifyContent: 'center', shadowOpacity: 0.2, elevation: 4 },
+    modalCtaText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    secureText: { textAlign: 'center', fontSize: 11, color: '#94A3B8', marginTop: 12, fontWeight: '500' }
 });
