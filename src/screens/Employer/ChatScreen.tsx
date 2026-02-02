@@ -1,5 +1,3 @@
-// src/screens/Employer/ChatScreen.tsx
-
 import React, { useState } from 'react';
 import {
     StyleSheet,
@@ -34,11 +32,15 @@ const CHAT_DATA = [
 export default function ChatScreen({ navigation }: any) {
     const [searchText, setSearchText] = useState('');
 
+    // Filter Logic
+    const filteredData = CHAT_DATA.filter(item => 
+        item.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+
     const renderChatItem = ({ item }: any) => (
         <TouchableOpacity
             style={styles.chatRow}
             activeOpacity={0.7}
-            // 👇 ADD THIS NAVIGATION LOGIC
             onPress={() => navigation.navigate('ChatDetailScreen', {
                 name: item.name,
                 img: item.img,
@@ -108,7 +110,7 @@ export default function ChatScreen({ navigation }: any) {
 
             {/* Chat List */}
             <FlatList
-                data={CHAT_DATA}
+                data={filteredData}
                 keyExtractor={(item) => item.id}
                 renderItem={renderChatItem}
                 contentContainerStyle={styles.listContent}

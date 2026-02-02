@@ -82,7 +82,12 @@ import ChatDetailScreen from '../screens/Employer/ChatDetailScreen';
 import JobPostDashboard from '../screens/Employer/JobPostDashboard';
 import PostJobScreen from '../screens/Employer/PostJobScreen';
 import EditEmployerProfileScreen from '../screens/Employer/EditEmployerProfileScreen';
+import ETEditProfileScreen from '../screens/ET-Center/ETEditProfileScreen';
+import CandidateListScreen from '../screens/Employer/CandidateListScreen';
+import ETChatDetailScreen from '../screens/ET-Center/ETChatDetailScreen';
+import JobHistoryScreen from '../screens/Employer/JobHistoryScreen';
 import 'react-native-gesture-handler';
+
 import React from 'react';
 import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -96,10 +101,6 @@ export default function AppNavigator() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-
-          {/* <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} /> */}
-          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
-          {/* <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} /> */}
 
 
           <Stack.Screen name="Splash" component={SplashScreen} />
@@ -128,6 +129,7 @@ export default function AppNavigator() {
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
           <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
+          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
           <Stack.Screen name="UploadLogo" component={UploadLogo} />
@@ -138,10 +140,16 @@ export default function AppNavigator() {
           <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
           <Stack.Screen name="AllJobs" component={AllJobsScreen} />
           <Stack.Screen name="EChatDetailScreen" component={EChatDetailScreen} />
+          <Stack.Screen name="ETEditProfileScreen" component={ETEditProfileScreen} />
+          <Stack.Screen name="CandidateListScreen" component={CandidateListScreen} />
+          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
+
+          <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
 
           <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
           <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
           <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
+          <Stack.Screen name="ETChatDetailScreen" component={ETChatDetailScreen} />
           <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
           <Stack.Screen name="PostJobScreen" component={PostJobScreen} />
           <Stack.Screen name="CenterName" component={CenterName} />
@@ -158,6 +166,7 @@ export default function AppNavigator() {
           <Stack.Screen name='EmployerJobs' component={EmployerJobs} />
           <Stack.Screen name='CompanyProfile' component={CompanyProfile} />
           {/* <Stack.Screen name='SettingsScreen' component={SettingsScreen} /> */}
+          <Stack.Screen name="JobHistoryScreen" component={JobHistoryScreen} />
 
           <Stack.Screen
             name="ChangeMobileNumber"

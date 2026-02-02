@@ -65,7 +65,7 @@ const CONSULTING_FEE = 4999;
 const mockAIGenerator = async () => new Promise<string>((resolve) => setTimeout(() => resolve('• Deep knowledge of React Native bridging.\n• 5+ years in TypeScript.\n• Ability to lead a team of 4.\n• Experience with CI/CD pipelines.'), 1200));
 
 export default function PostJobScreen() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
 
     // --- STATE ---
@@ -134,16 +134,23 @@ export default function PostJobScreen() {
     };
 
     // --- RENDER HELPERS ---
+    // Inside PostJobScreen.tsx
+
     const renderHeader = () => (
         <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
                 <Ionicons name="arrow-back" size={24} color={COLORS.text} />
             </TouchableOpacity>
             <View>
-                <Text style={styles.headerTitle}>Post New Job</Text>
+                <Text style={styles.headerTitle}>Post a Job</Text>
                 <Text style={styles.headerSubtitle}>Targeting 50k+ Jobseekers</Text>
             </View>
-            <TouchableOpacity style={styles.historyBtn} onPress={() => Alert.alert("Job History", "Navigating to posted jobs...")}>
+
+            {/* 👇 FIX THIS LINE 👇 */}
+            <TouchableOpacity
+                style={styles.historyBtn}
+                onPress={() => navigation.navigate("JobHistoryScreen")}
+            >
                 <MaterialCommunityIcons name="history" size={22} color={COLORS.primary} />
             </TouchableOpacity>
         </View>

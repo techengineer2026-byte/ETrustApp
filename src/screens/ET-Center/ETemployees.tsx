@@ -1,5 +1,3 @@
-// src/screens/ET-Center/ETemployees.tsx
-
 import React, { useState, useMemo } from "react";
 import {
     View,
@@ -26,6 +24,7 @@ const ALL_CANDIDATES = [
     { id: "3", name: "Amit Kumar", mobile: "8899001122", qualification: "ITI - Fitter", lookingFor: "Contractual", status: "Open to Work", salary: "18000", skill: "Technical" },
     { id: "4", name: "Sonia Singh", mobile: "7766554433", qualification: "B.Tech (CS)", lookingFor: "Internship", status: "Studying", salary: "15000", skill: "Coding" },
     { id: "5", name: "Vikas Dubey", mobile: "9911223344", qualification: "12th Pass", lookingFor: "Full Time", status: "Open to Work", salary: "12000", skill: "Delivery" },
+    { id: "6", name: "Priya Das", mobile: "8877665544", qualification: "B.Sc Nursing", lookingFor: "Full Time", status: "Working", salary: "30000", skill: "Healthcare" },
 ];
 
 const FILTERS = ["All", "Working", "Not Working", "Open to Work", "Studying"];
@@ -62,7 +61,7 @@ export default function ETEmployees() {
     };
 
     const handleApplyJob = (name: string) => {
-        // Show Toast
+        // Show Toast Animation
         setToastVisible(true);
         Animated.sequence([
             Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
@@ -75,7 +74,8 @@ export default function ETEmployees() {
     const getStatusColor = (status: string) => {
         if (status === 'Working') return '#10B981'; // Green
         if (status === 'Not Working') return '#EF4444'; // Red
-        return '#F59E0B'; // Orange
+        if (status === 'Studying') return '#6366F1'; // Indigo
+        return '#F59E0B'; // Orange (Open to work)
     };
 
     const renderCandidate = ({ item }: { item: typeof ALL_CANDIDATES[0] }) => (
@@ -89,7 +89,7 @@ export default function ETEmployees() {
                     <Text style={styles.name}>{item.name}</Text>
                     <View style={styles.row}>
                         <Icon name="phone-outline" size={14} color="#666" />
-                        <Text style={styles.phone}>{item.mobile}</Text>
+                        <Text style={styles.phone}>+91 {item.mobile}</Text>
                     </View>
                 </View>
                 <View style={[styles.badge, { backgroundColor: `${getStatusColor(item.status)}15` }]}>
@@ -111,7 +111,7 @@ export default function ETEmployees() {
                     <Text style={styles.value}>{item.lookingFor}</Text>
                 </View>
                 <View style={[styles.gridItem, { marginTop: 10 }]}>
-                    <Text style={styles.label}>Expected Salary</Text>
+                    <Text style={styles.label}>Exp. Salary</Text>
                     <Text style={styles.value}>₹{item.salary}</Text>
                 </View>
                 <View style={[styles.gridItem, { marginTop: 10 }]}>
@@ -140,7 +140,7 @@ export default function ETEmployees() {
             {toastVisible && (
                 <Animated.View style={[styles.toast, { opacity: fadeAnim }]}>
                     <Icon name="check-circle" size={20} color="white" />
-                    <Text style={styles.toastText}>Candidate Referred Successfully!</Text>
+                    <Text style={styles.toastText}>Referred Successfully!</Text>
                 </Animated.View>
             )}
 
@@ -198,9 +198,9 @@ export default function ETEmployees() {
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                     <View style={styles.emptyBox}>
-                        <Icon name="account-off-outline" size={48} color="#CBD5E1" />
+                        <Icon name="account-search-outline" size={48} color="#CBD5E1" />
                         <Text style={styles.emptyTitle}>No Candidates Found</Text>
-                        <Text style={styles.emptySub}>Try adjusting your filters</Text>
+                        <Text style={styles.emptySub}>Try searching for something else</Text>
                     </View>
                 }
             />
@@ -243,8 +243,12 @@ export default function ETEmployees() {
                                     <Text style={styles.infoText}>{selectedCandidate.status}</Text>
                                 </View>
                                 <View style={styles.infoRow}>
-                                    <Icon name="cash" size={20} color="#64748B" />
+                                    <Icon name="currency-inr" size={20} color="#64748B" />
                                     <Text style={styles.infoText}>Exp. Salary: ₹{selectedCandidate.salary}</Text>
+                                </View>
+                                <View style={styles.infoRow}>
+                                    <Icon name="tools" size={20} color="#64748B" />
+                                    <Text style={styles.infoText}>Skills: {selectedCandidate.skill}</Text>
                                 </View>
 
                                 <TouchableOpacity

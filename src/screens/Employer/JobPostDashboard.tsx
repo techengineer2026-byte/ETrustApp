@@ -19,7 +19,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Feather from 'react-native-vector-icons/Feather';
 
 // --- CONFIGURATION ---
-// Enable Layout Animation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -33,13 +32,13 @@ const COLORS = {
     gray: '#64748B',         // Slate 500
     border: '#E2E8F0',
     success: '#10B981',
-    warning: '#F59E0B',      // Amber (Premium)
+    warning: '#F59E0B',      // Amber
     danger: '#EF4444',
     purple: '#8B5CF6',
     lightBlue: '#EFF6FF'
 };
 
-// --- MOCK GLOBAL STORE ---
+// --- MOCK DATA ---
 export const GLOBAL_JOBS_DATA = [
     {
         id: '1',
@@ -52,7 +51,7 @@ export const GLOBAL_JOBS_DATA = [
         applicants: 42,
         newApplicants: 5,
         status: 'ACTIVE',
-        isPremium: true, 
+        isPremium: true,
         views: 1205
     },
     {
@@ -88,14 +87,14 @@ export const GLOBAL_JOBS_DATA = [
 export default function JobPostDashboard() {
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
-    const isFocused = useIsFocused(); 
-    
+    const isFocused = useIsFocused();
+
     // --- STATE ---
     const [jobs, setJobs] = useState(GLOBAL_JOBS_DATA);
     const [selectedTab, setSelectedTab] = useState<'ACTIVE' | 'CLOSED'>('ACTIVE');
     const [refreshing, setRefreshing] = useState(false);
 
-    // --- EFFECT: REFRESH DATA ON FOCUS ---
+    // --- REFRESH LOGIC ---
     useEffect(() => {
         if (isFocused) {
             fetchJobs();
@@ -103,7 +102,7 @@ export default function JobPostDashboard() {
     }, [isFocused]);
 
     const fetchJobs = () => {
-        setJobs([...GLOBAL_JOBS_DATA]); 
+        setJobs([...GLOBAL_JOBS_DATA]);
     };
 
     const onRefresh = useCallback(() => {
@@ -114,8 +113,7 @@ export default function JobPostDashboard() {
         }, 1000);
     }, []);
 
-    // --- FILTER LOGIC ---
-    const filteredJobs = jobs.filter(job => 
+    const filteredJobs = jobs.filter(job =>
         selectedTab === 'ACTIVE' ? job.status === 'ACTIVE' : job.status === 'CLOSED'
     );
 
@@ -126,6 +124,7 @@ export default function JobPostDashboard() {
     };
 
     const handleViewCandidates = (jobId: string, jobTitle: string) => {
+        // Ensure 'CandidateListScreen' is registered in your Navigator!
         navigation.navigate('CandidateListScreen', { jobId, jobTitle });
     };
 
@@ -133,7 +132,7 @@ export default function JobPostDashboard() {
         Alert.alert("Edit Job", "Navigate to edit screen for ID: " + jobId);
     };
 
-    // --- RENDER HELPERS ---
+    // --- COMPONENT: Stat Card ---
     const StatCard = ({ label, value, icon, color }: any) => (
         <View style={styles.statCard}>
             <View style={[styles.statIconBox, { backgroundColor: color + '20' }]}>
@@ -146,13 +145,14 @@ export default function JobPostDashboard() {
         </View>
     );
 
+    // --- COMPONENT: Job Item ---
     const renderJobItem = ({ item }: { item: typeof GLOBAL_JOBS_DATA[0] }) => (
-        <TouchableOpacity 
-            style={styles.jobCard} 
+        <TouchableOpacity
+            style={styles.jobCard}
             activeOpacity={0.9}
             onPress={() => handleViewCandidates(item.id, item.title)}
         >
-            {/* Header: Title & Premium Badge */}
+            {/* Header */}
             <View style={styles.cardHeader}>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.jobTitle} numberOfLines={1}>{item.title}</Text>
@@ -160,13 +160,13 @@ export default function JobPostDashboard() {
                 </View>
                 {item.isPremium && (
                     <View style={styles.premiumBadge}>
-                        <MaterialCommunityIcons name="star-circle" size={14} color="white" />
+                        <MaterialCommunityIcons name="star-circle" size={12} color="white" />
                         <Text style={styles.premiumText}>Premium</Text>
                     </View>
                 )}
             </View>
 
-            {/* Salary Info */}
+            {/* Salary */}
             <View style={styles.salaryRow}>
                 <Text style={styles.salaryText}>{item.salary}</Text>
                 <Text style={styles.dateText}>Posted {item.postedDate}</Text>
@@ -174,34 +174,27 @@ export default function JobPostDashboard() {
 
             <View style={styles.divider} />
 
-            {/* Footer: Stats & Buttons */}
+            {/* Footer */}
             <View style={styles.cardFooter}>
                 <View style={styles.metricContainer}>
-                    <View style={styles.metric}>
-                        <Text style={styles.metricValue}>{item.applicants}</Text>
-                        <Text style={styles.metricLabel}>Applicants</Text>
-                    </View>
-                    {item.newApplicants > 0 && (
-                        <View style={styles.newBadge}>
-                            <Text style={styles.newBadgeText}>+{item.newApplicants} New</Text>
-                        </View>
-                    )}
+                    <Text style={styles.metricValue}>{item.applicants}</Text>
+                    <Text style={styles.metricLabel}>Applicants</Text>
+
                 </View>
-                
+
                 <View style={styles.actionRow}>
-                    <TouchableOpacity 
-                        style={styles.iconBtn} 
+                    <TouchableOpacity
+                        style={styles.iconBtn}
                         onPress={() => handleEditJob(item.id)}
                     >
                         <Feather name="edit-2" size={18} color={COLORS.gray} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.viewBtn}
                         onPress={() => handleViewCandidates(item.id, item.title)}
                     >
-                        <Text style={styles.viewBtnText}>View Candidates</Text>
-                        <Feather name="chevron-right" size={16} color="white" />
+                        <Text style={styles.viewBtnText} numberOfLines={1}>View Candidates</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -211,46 +204,46 @@ export default function JobPostDashboard() {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
-            
-            {/* --- HEADER SECTION --- */}
+
+            {/* --- HEADER --- */}
             <SafeAreaView edges={['top']} style={styles.headerContainer}>
                 <View style={styles.headerRow}>
                     <View>
                         <Text style={styles.welcomeText}>Hello, Recruiter 👋</Text>
                         <Text style={styles.headerTitle}>My Job Dashboard</Text>
                     </View>
-                    <Image 
-                        source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} 
-                        style={styles.profileImage} 
+                    <Image
+                        source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+                        style={styles.profileImage}
                     />
                 </View>
 
-                {/* OVERVIEW STATS */}
+                {/* Stats Grid */}
                 <View style={styles.statsContainer}>
-                    <StatCard 
-                        label="Active Jobs" 
-                        value={jobs.filter(j => j.status === 'ACTIVE').length} 
-                        icon="briefcase-outline" 
-                        color={COLORS.primary} 
+                    <StatCard
+                        label="Active Jobs"
+                        value={jobs.filter(j => j.status === 'ACTIVE').length}
+                        icon="briefcase-outline"
+                        color={COLORS.primary}
                     />
-                    <StatCard 
-                        label="Total Candidates" 
-                        value={jobs.reduce((acc, curr) => acc + curr.applicants, 0)} 
-                        icon="account-group-outline" 
-                        color={COLORS.purple} 
+                    <StatCard
+                        label="Total Candidates"
+                        value={jobs.reduce((acc, curr) => acc + curr.applicants, 0)}
+                        icon="account-group-outline"
+                        color={COLORS.purple}
                     />
-                    <StatCard 
-                        label="Total Views" 
-                        value="3.2k" 
-                        icon="eye-outline" 
-                        color={COLORS.warning} 
+                    <StatCard
+                        label="Total Views"
+                        value="3.2k"
+                        icon="eye-outline"
+                        color={COLORS.warning}
                     />
                 </View>
             </SafeAreaView>
 
-            {/* --- TABS SECTION --- */}
+            {/* --- TABS --- */}
             <View style={styles.tabContainer}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={[styles.tab, selectedTab === 'ACTIVE' && styles.activeTab]}
                     onPress={() => handleTabChange('ACTIVE')}
                 >
@@ -258,7 +251,7 @@ export default function JobPostDashboard() {
                     {selectedTab === 'ACTIVE' && <View style={styles.activeIndicator} />}
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={[styles.tab, selectedTab === 'CLOSED' && styles.activeTab]}
                     onPress={() => handleTabChange('CLOSED')}
                 >
@@ -267,7 +260,7 @@ export default function JobPostDashboard() {
                 </TouchableOpacity>
             </View>
 
-            {/* --- LIST SECTION --- */}
+            {/* --- LIST --- */}
             <FlatList
                 data={filteredJobs}
                 keyExtractor={(item) => item.id}
@@ -286,8 +279,8 @@ export default function JobPostDashboard() {
                 }
             />
 
-            {/* --- FAB: POST NEW JOB --- */}
-            <TouchableOpacity 
+            {/* --- FAB --- */}
+            <TouchableOpacity
                 style={[styles.fab, { bottom: insets.bottom + 20 }]}
                 onPress={() => navigation.navigate('PostJobScreen')}
                 activeOpacity={0.8}
@@ -301,7 +294,7 @@ export default function JobPostDashboard() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: COLORS.background },
-    
+
     // Header
     headerContainer: { paddingHorizontal: 20, paddingBottom: 20, backgroundColor: COLORS.background },
     headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, marginTop: 10 },
@@ -319,7 +312,7 @@ const styles = StyleSheet.create({
     // Tabs
     tabContainer: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border },
     tab: { marginRight: 25, paddingVertical: 12 },
-    activeTab: { opacity: 1 }, // Added this to fix the TS Error
+    activeTab: {},
     tabText: { fontSize: 16, color: COLORS.gray, fontWeight: '600' },
     activeTabText: { color: COLORS.primary },
     activeIndicator: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, backgroundColor: COLORS.primary, borderRadius: 2 },
@@ -335,42 +328,50 @@ const styles = StyleSheet.create({
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
     jobTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text, marginBottom: 4 },
     jobLocation: { fontSize: 13, color: COLORS.gray },
-    
+
     // Premium Badge
     premiumBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.warning, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, gap: 4 },
     premiumText: { color: 'white', fontSize: 10, fontWeight: '700' },
 
     // Salary Row
     salaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-    salaryText: { 
-        fontSize: 14, 
-        fontWeight: '700', 
-        backgroundColor: COLORS.lightBlue, 
-        paddingHorizontal: 8, 
-        paddingVertical: 2, 
-        borderRadius: 4, 
-        color: COLORS.primary // Removed duplicate color property
+    salaryText: {
+        fontSize: 14,
+        fontWeight: '700',
+        backgroundColor: COLORS.lightBlue,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
+        color: COLORS.primary
     },
     dateText: { fontSize: 12, color: COLORS.gray },
-    
+
     divider: { height: 1, backgroundColor: COLORS.border, marginBottom: 12 },
 
     // Card Footer
     cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    metricContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    metric: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    metricContainer: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     metricValue: { fontSize: 18, fontWeight: '700', color: COLORS.text },
-    metricLabel: { fontSize: 12, color: COLORS.gray },
-    
+    metricLabel: { fontSize: 12, color: COLORS.gray, marginRight: 5 },
+
     newBadge: { backgroundColor: '#DCFCE7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
     newBadgeText: { color: '#166534', fontSize: 10, fontWeight: '700' },
 
     actionRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     iconBtn: { padding: 8, backgroundColor: '#F1F5F9', borderRadius: 8 },
-    viewBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.primary, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10, gap: 4, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 4 },
+    viewBtn: {
+        backgroundColor: COLORS.primary,
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4
+    },
     viewBtnText: { color: 'white', fontSize: 13, fontWeight: '700' },
 
     // FAB
-    fab: { position: 'absolute', right: 20, backgroundColor: COLORS.text, paddingVertical: 14, paddingHorizontal: 20, borderRadius: 30, flexDirection: 'row', alignItems: 'center', gap: 8, elevation: 8, shadowColor: COLORS.text, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+    fab: { position: 'absolute', right: 20, backgroundColor: '#0F172A', paddingVertical: 14, paddingHorizontal: 20, borderRadius: 30, flexDirection: 'row', alignItems: 'center', gap: 8, elevation: 8, shadowColor: '#0F172A', shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
     fabText: { color: 'white', fontWeight: '700', fontSize: 16 },
 });

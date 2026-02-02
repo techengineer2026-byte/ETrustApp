@@ -1,5 +1,3 @@
-// src/screens/Employer/ChatDetailScreen.tsx
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
     StyleSheet,
@@ -33,7 +31,8 @@ const RANDOM_REPLIES = [
 ];
 
 export default function ChatDetailScreen({ route, navigation }: any) {
-    const { name, img, isOnline } = route.params;
+    // Get params safely
+    const { name, img, isOnline } = route.params || { name: 'Candidate', img: 'https://via.placeholder.com/150', isOnline: false };
 
     // --- STATE ---
     const [messages, setMessages] = useState<any[]>([
@@ -51,12 +50,13 @@ export default function ChatDetailScreen({ route, navigation }: any) {
 
     // --- AUTO REPLY SIMULATION ---
     useEffect(() => {
-        const typingTimer = setTimeout(() => setIsTyping(true), 800);
+        // Only trigger auto-reply once on load for demo purposes
+        const typingTimer = setTimeout(() => setIsTyping(true), 1500);
         const replyTimer = setTimeout(() => {
             setIsTyping(false);
             const randomMsg = RANDOM_REPLIES[Math.floor(Math.random() * RANDOM_REPLIES.length)];
             addMessage(randomMsg, 'them');
-        }, 2500);
+        }, 3500);
 
         return () => { clearTimeout(typingTimer); clearTimeout(replyTimer); };
     }, []);

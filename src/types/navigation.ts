@@ -11,6 +11,9 @@ export type RootStackParamList = {
     country: string;
   };
   VerificationCode: undefined;
+  CandidateListScreen: undefined;
+  JobHistoryScreen: undefined;
+  ETEditProfileScreen: undefined;
   Login: undefined;
   JobPostDashboard: undefined;
   EChatDetailScreen: undefined;
@@ -23,7 +26,7 @@ export type RootStackParamList = {
   };
   AllApplicants: undefined; // Add this
   AllJobs: undefined;       // Add this
-
+ETChatDetailScreen: undefined;
   ResetPassword: {
     email: string;
     otp?: string;

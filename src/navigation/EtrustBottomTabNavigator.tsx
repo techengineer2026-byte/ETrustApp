@@ -5,51 +5,53 @@ import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+
+// --- Screens ---
 import Dashboard from "../screens/ET-Center/Dashboard";
 import ETEmployees from "../screens/ET-Center/ETemployees";
 import ETEmployers from "../screens/ET-Center/ETemployers";
 import Transactions from "../screens/ET-Center/Transactions";
 import ETProfile from "../screens/ET-Center/ETProfile";
+import ETChatScreen from "../screens/ET-Center/ETChatScreen"; // Real Chat Screen
+
+// --- Context for Dynamic Badges ---
+import { useChat } from "../context/ChatContext";
 
 const Tab = createBottomTabNavigator();
-/*
-  TEMP SCREENS – Replace later with real screens
-  ---------------------------------------------
-  DashboardScreen     → Overall system stats
-  EmployersScreen     → Employer list & verification
-  EmployeesScreen     → Job seekers list & verification
-  TransactionsScreen  → Payments, commissions, reports
-  AdminProfileScreen  → Etrust admin profile & settings
-*/
-
-const Placeholder = ({ title }: { title: string }) => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-    <Text style={{ fontSize: 18 }}>{title}</Text>
-  </View>
-);
-
-
-
 
 const EtrustBottomNav = () => {
+  // 1. Get Real Data from Context
+  const { tickets } = useChat();
+
+  // 2. Calculate Total Unread Messages dynamically
+  const totalUnread = tickets.reduce((sum, ticket) => sum + ticket.unreadCount, 0);
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           marginBottom: 4,
+          fontWeight: '600'
         },
         tabBarStyle: {
-          height: 100,
+          height: 90,
           backgroundColor: "#ffffff",
           borderTopWidth: 0,
-          elevation: 8,
+          elevation: 15,
+          paddingTop: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
+        tabBarActiveTintColor: '#333',
+        tabBarInactiveTintColor: '#9E9E9E',
       }}
     >
-      {/* DASHBOARD */}
+      {/* 1. DASHBOARD */}
       <Tab.Screen
         name="Dashboard"
         component={Dashboard}
@@ -64,7 +66,7 @@ const EtrustBottomNav = () => {
         }}
       />
 
-      {/* EMPLOYERS */}
+      {/* 2. EMPLOYERS */}
       <Tab.Screen
         name="Employers"
         component={ETEmployers}
@@ -79,14 +81,14 @@ const EtrustBottomNav = () => {
         }}
       />
 
-      {/* EMPLOYEES */}
+      {/* 3. EMPLOYEES (SEEKERS) */}
       <Tab.Screen
-        name="Employees"
+        name="Seekers"
         component={ETEmployees}
         options={{
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
-              name="account-multiple-outline"
+              name="account-tie-outline"
               size={26}
               color={focused ? "#27AE60" : "#9E9E9E"}
             />
@@ -94,9 +96,33 @@ const EtrustBottomNav = () => {
         }}
       />
 
-      {/* TRANSACTIONS */}
+      {/* 4. CHAT (Dynamic Badge from Context) */}
       <Tab.Screen
-        name="Transactions"
+        name="Chat"
+        component={ETChatScreen}
+        options={{
+          tabBarLabel: 'Support',
+          tabBarIcon: ({ focused }) => (
+            <MaterialCommunityIcons
+              name="message-processing-outline"
+              size={26}
+              color={focused ? "#E91E63" : "#9E9E9E"}
+            />
+          ),
+          // Dynamic Badge: Only show if there are unread messages
+          tabBarBadge: totalUnread > 0 ? totalUnread : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: '#E91E63',
+            color: 'white',
+            fontSize: 10,
+            fontWeight: 'bold'
+          }
+        }}
+      />
+
+      {/* 5. FINANCE */}
+      <Tab.Screen
+        name="Finance"
         component={Transactions}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -109,7 +135,7 @@ const EtrustBottomNav = () => {
         }}
       />
 
-      {/* PROFILE */}
+      {/* 6. PROFILE */}
       <Tab.Screen
         name="Profile"
         component={ETProfile}
