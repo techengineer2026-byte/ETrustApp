@@ -15,7 +15,6 @@ import EducationForm from '../screens/EducationForm';
 import SkillsScreen from '../screens/SkillsScreen';
 import PhotoUploadScreen from '../screens/PhotoUploadScreen';
 import SalaryRange from '../screens/SalaryRange';
-import ProfileScreen from '../screens/ProfileScreen';
 import BottomTabNavigator from "./BottomTabNavigator";
 import Invitefriend from '../screens/Invitefriend';
 import ChatDetailsScreen from '../screens/ChatDetailsScreen';
@@ -102,6 +101,7 @@ export default function AppNavigator() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
 
+      <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
 
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -129,7 +129,6 @@ export default function AppNavigator() {
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
           <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
-          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
           <Stack.Screen name="UploadLogo" component={UploadLogo} />
@@ -150,6 +149,7 @@ export default function AppNavigator() {
           <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
           <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
           <Stack.Screen name="ETChatDetailScreen" component={ETChatDetailScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPassword} />
           <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
           <Stack.Screen name="PostJobScreen" component={PostJobScreen} />
           <Stack.Screen name="CenterName" component={CenterName} />
@@ -159,7 +159,6 @@ export default function AppNavigator() {
 
           <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-          <Stack.Screen name="ResetPassword" component={ResetPassword} />
           <Stack.Screen name="OTPScreen" component={OTPScreen} />
 
           <Stack.Screen name='TransactionDetail' component={TransactionDetail} />
