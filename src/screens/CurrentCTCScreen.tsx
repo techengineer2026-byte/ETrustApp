@@ -1,4 +1,4 @@
-// src/screens/CurrentCTCScreen.tsx
+// src/screens/CurrentSalaryScreen.tsx
 
 import React, { useState } from "react";
 import {
@@ -7,8 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
-  Platform,
-  Switch
+  Platform
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -18,25 +17,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Slider from '@react-native-community/slider';
 import CheckBox from "@react-native-community/checkbox"; 
 
-type CTCNavProp = NativeStackNavigationProp<RootStackParamList, "CurrentCTC">;
+type SalaryNavProp = NativeStackNavigationProp<RootStackParamList, "CMS">;
 
-export default function CurrentCTCScreen() {
-  const navigation = useNavigation<CTCNavProp>();
-  const [ctc, setCtc] = useState<number>(500000); // Default 5 Lakhs
-  const [hideCTC, setHideCTC] = useState(false);
+export default function CurrentSalaryScreen() {
+  const navigation = useNavigation<SalaryNavProp>();
+  const [salary, setSalary] = useState<number>(30000); // Default 30k
+  const [hideSalary, setHideSalary] = useState(false);
 
   const handleNext = () => {
-    console.log("CTC:", ctc, "Hidden:", hideCTC);
-    // Navigate to Salary Range or next screen
+    // Navigate to Expected Monthly Salary
     navigation.navigate("SalaryRange"); 
   };
 
-  // Helper to format CTC (e.g., 550000 -> 5.5 Lakhs)
-  const formatCTC = (value: number) => {
-    if (value >= 10000000) {
-        return `₹ ${(value / 10000000).toFixed(2)} Cr`;
-    }
-    return `₹ ${(value / 100000).toFixed(1)} LPA`;
+  // Helper to format Indian Currency (e.g. 30000 -> 30,000)
+  const formatSalary = (value: number) => {
+    return value.toLocaleString("en-IN");
   };
 
   return (
@@ -50,61 +45,65 @@ export default function CurrentCTCScreen() {
         {/* Header */}
         <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Icon name="chevron-back" size={26} color="#1F2937" />
+              <Icon name="chevron-back" size={28} color="#000" />
             </TouchableOpacity>
         </View>
 
         <View style={styles.contentContainer}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Current CTC</Text>
-            <Text style={styles.subtitle}>What is your current annual compensation?</Text>
-          </View>
+          <Text style={styles.title}>Current Salary</Text>
+          <Text style={styles.subtitle}>What is your current monthly take-home salary?</Text>
 
           {/* Main Card */}
           <View style={styles.card}>
             
             {/* Big Number Display */}
             <View style={styles.counterContainer}>
+              <Text style={styles.currencySymbol}>₹</Text>
               <Text style={styles.counterText}>
-                {formatCTC(ctc)}
+                {formatSalary(salary)}
               </Text>
-              <Text style={styles.counterLabel}>Annual Salary</Text>
             </View>
+            <Text style={styles.counterLabel}>per month</Text>
 
             {/* SLIDER COMPONENT */}
             <View style={styles.sliderContainer}>
               <Slider
                 style={{width: '100%', height: 40}}
-                minimumValue={100000}  // 1 Lakh
-                maximumValue={5000000} // 50 Lakhs
-                step={50000}           // 50k steps
-                value={ctc}
-                onValueChange={setCtc}
-                minimumTrackTintColor="#2563EB" 
-                maximumTrackTintColor="#E5E7EB" 
-                thumbTintColor="#2563EB"       
+                minimumValue={5000}    // Min 5k
+                maximumValue={200000}  // Max 2 Lakhs per month
+                step={1000}            // 1k steps
+                value={salary}
+                onValueChange={setSalary}
+                minimumTrackTintColor="#000" 
+                maximumTrackTintColor="#ccc" 
+                thumbTintColor="#000"       
               />
               <View style={styles.sliderLabels}>
-                <Text style={styles.sliderLabelText}>₹1 L</Text>
-                <Text style={styles.sliderLabelText}>₹50 L+</Text>
+                <Text style={styles.sliderLabelText}>₹5k</Text>
+                <Text style={styles.sliderLabelText}>₹2L+</Text>
               </View>
             </View>
 
-            {/* Hide CTC Checkbox */}
-            <View style={styles.checkboxContainer}>
-                <View style={styles.checkboxWrapper}>
+            {/* Hide Salary Checkbox */}
+            <TouchableOpacity 
+                style={styles.checkboxContainer}
+                activeOpacity={1}
+                onPress={() => setHideSalary(!hideSalary)}
+            >
+                <View style={{ transform: [{ scale: 0.9 }] }}>
                     <CheckBox
-                        value={hideCTC}
-                        onValueChange={setHideCTC}
-                        tintColors={{ true: "#2563EB", false: "#9CA3AF" }}
+                        value={hideSalary}
+                        onValueChange={setHideSalary}
+                        tintColors={{ true: "#000", false: "#666" }}
                         boxType="square"
-                        lineWidth={2}
+                        onCheckColor="#fff"
+                        onFillColor="#000"
+                        onTintColor="#000"
+                        style={Platform.OS === 'ios' ? { width: 20, height: 20, marginRight: 10 } : {}}
                     />
                 </View>
-                <TouchableOpacity onPress={() => setHideCTC(!hideCTC)}>
-                    <Text style={styles.checkboxLabel}>Hide my CTC </Text>
-                </TouchableOpacity>
-            </View>
+                <Text style={styles.checkboxLabel}>Hide from profile</Text>
+            </TouchableOpacity>
 
           </View>
         </View>
@@ -128,76 +127,69 @@ export default function CurrentCTCScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: "100%",
-    height: "100%",
   },
   safeArea: {
     flex: 1,
   },
   /* Header Styles */
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
+    paddingHorizontal: 24,
+    paddingTop: 10,
   },
-  backButton: { marginRight: 15 },
-
-  progressBarFill: {
-    width: "90%", // Almost done
-    height: "100%",
-    backgroundColor: "#2563EB",
-    borderRadius: 3,
-  },
-  stepText: { fontSize: 12, fontWeight: "600", color: "#6B7280" },
+  backButton: { marginBottom: 15 },
 
   /* Content */
   contentContainer: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 24,
   },
-  titleContainer: { marginBottom: 24 },
   title: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#111827",
+    color: "#000",
     marginBottom: 8,
-    textShadowColor: 'rgba(255, 255, 255, 0.5)',
-    textShadowOffset: {width: 0, height: 1},
-    textShadowRadius: 2,
   },
-  subtitle: { fontSize: 15, color: "#4B5563", fontWeight: "500", lineHeight: 22 },
+  subtitle: { fontSize: 15, color: "#444", marginBottom: 30, lineHeight: 22 },
 
   /* Card */
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.7)", // Glass effect
+    borderRadius: 24,
     padding: 24,
+    borderWidth: 2,
+    borderColor: "#fff",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
     elevation: 5,
     alignItems: 'center',
   },
   
   /* Counter (Big Number) */
   counterContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  currencySymbol: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#000",
+    marginTop: 8,
+    marginRight: 4,
   },
   counterText: {
-    fontSize: 42,
+    fontSize: 48,
     fontWeight: "800",
-    color: "#2563EB",
+    color: "#000",
   },
   counterLabel: {
-    fontSize: 16,
-    color: "#6B7280",
+    fontSize: 14,
+    color: "#555",
     fontWeight: "600",
-    marginTop: 0
+    marginBottom: 30,
+    marginTop: -5,
   },
 
   /* Slider Section */
@@ -208,11 +200,11 @@ const styles = StyleSheet.create({
   sliderLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     marginTop: 5,
   },
   sliderLabelText: {
-    color: "#9CA3AF",
+    color: "#666",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -221,41 +213,39 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#fff",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     width: "100%",
     borderWidth: 1,
-    borderColor: "#E5E7EB"
-  },
-  checkboxWrapper: {
-      transform: Platform.OS === 'ios' ? [{scale: 0.8}] : [{scale: 1}],
-      marginRight: 10
+    borderColor: "#eee",
   },
   checkboxLabel: {
-    fontSize: 14,
-    color: "#374151",
-    fontWeight: "600",
+    fontSize: 15,
+    color: "#333",
+    fontWeight: "500",
+    marginLeft: Platform.OS === 'android' ? 0 : 5, 
   },
 
   /* Bottom Actions */
   bottomContainer: {
-    padding: 24,
-    paddingBottom: 20,
+    paddingHorizontal: 24,
+    paddingBottom: 10,
+    justifyContent: 'flex-end',
   },
   nextButton: {
-    backgroundColor: "#111827",
+    backgroundColor: "#000",
     borderRadius: 30,
     paddingVertical: 18,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  nextButtonText: { color: "#fff", fontSize: 18, fontWeight: "700" },
+  nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

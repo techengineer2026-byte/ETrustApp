@@ -1,20 +1,26 @@
+// src/screens/LocationSelection.tsx
+
 import React, { useState, useRef, useEffect } from "react";
 import {
-    View,
-    Text,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    FlatList,
-    Animated,
-    ImageBackground,
-    Modal,
-    KeyboardAvoidingView,
-    Platform
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Animated,
+  ImageBackground,
+  Modal,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
 
-// Location Data
+// --- DATA ---
 const INDIA_LOCATIONS: Record<string, string[]> = {
     Punjab: ["Mohali", "Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Kharar"],
     Haryana: ["Panchkula", "Gurgaon", "Faridabad", "Panipat", "Ambala"],
@@ -22,328 +28,373 @@ const INDIA_LOCATIONS: Record<string, string[]> = {
     HimachalPradesh: ["Shimla", "Solan", "Kullu", "Kangra", "Mandi"],
     UttarPradesh: ["Lucknow", "Noida", "Varanasi", "Kanpur", "Agra"],
     Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
-    Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"],
-    Rajasthan: ["Jaipur", "Udaipur", "Jodhpur", "Kota", "Ajmer"],
-    MadhyaPradesh: ["Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain"],
-    Telangana: ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar"],
-    TamilNadu: ["Chennai", "Coimbatore", "Madurai", "Salem", "Tiruchirappalli"],
-    Karnataka: ["Bengaluru", "Mysuru", "Mangalore", "Hubli", "Belagavi"],
-    Kerala: ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Alappuzha"],
-    WestBengal: ["Kolkata", "Howrah", "Siliguri", "Durgapur", "Asansol"],
-    Bihar: ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Darbhanga"],
-    Odisha: ["Bhubaneswar", "Cuttack", "Rourkela", "Sambalpur", "Balasore"],
-    Assam: ["Guwahati", "Dibrugarh", "Silchar", "Jorhat", "Tezpur"],
-    Jharkhand: ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Hazaribagh"],
-    Chhattisgarh: ["Raipur", "Bilaspur", "Durg", "Korba", "Jagdalpur"],
-    Delhi: ["Central Delhi", "South Delhi", "West Delhi", "North Delhi"],
+    Delhi: ["New Delhi", "North Delhi", "South Delhi", "West Delhi"],
+    Karnataka: ["Bengaluru", "Mysuru", "Mangalore"],
+    Telangana: ["Hyderabad", "Warangal"],
+    TamilNadu: ["Chennai", "Coimbatore", "Madurai"],
+    Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
+    Rajasthan: ["Jaipur", "Udaipur", "Jodhpur"],
 };
 
-const LocationSelection = ({ navigation }: any) => {
-    // State Variables
-    const [stateSearch, setStateSearch] = useState("");
-    const [districtSearch, setDistrictSearch] = useState("");
+const { height } = Dimensions.get("window");
+
+const LocationSelection = () => {
+  const navigation = useNavigation<any>();
+
+  // Selection State
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectionType, setSelectionType] = useState<"STATE" | "DISTRICT">("STATE");
+  const [searchText, setSearchText] = useState("");
+
+  // Animation for Bottom Drawer
+  const slideAnim = useRef(new Animated.Value(300)).current; // Start off-screen
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  // --- DRAWER ANIMATION LOGIC ---
+  useEffect(() => {
+    if (selectedState && selectedDistrict) {
+      setShowDrawer(true);
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 40,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: 300,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => setShowDrawer(false));
+    }
+  }, [selectedState, selectedDistrict]);
+
+  // --- HANDLERS ---
+  const openModal = (type: "STATE" | "DISTRICT") => {
+    if (type === "DISTRICT" && !selectedState) return; // Block district if no state
+    setSelectionType(type);
+    setSearchText("");
+    setModalVisible(true);
+  };
+
+  const handleSelect = (item: string) => {
+    if (selectionType === "STATE") {
+      setSelectedState(item);
+      setSelectedDistrict(null); // Reset district when state changes
+      setModalVisible(false);
+      // Automatically open district selection after short delay
+      setTimeout(() => openModal("DISTRICT"), 300);
+    } else {
+      setSelectedDistrict(item);
+      setModalVisible(false);
+    }
+  };
+
+  const handleConfirm = () => {
+    // Navigate to Preferred Location (Screen 11)
+    navigation.navigate("PreferredCity", {
+        state: selectedState,
+        district: selectedDistrict
+    });
+  };
+
+  // --- FILTER DATA ---
+  const getData = () => {
+    let data = [];
+    if (selectionType === "STATE") {
+      data = Object.keys(INDIA_LOCATIONS);
+    } else {
+      data = selectedState ? INDIA_LOCATIONS[selectedState] : [];
+    }
     
-    const [selectedState, setSelectedState] = useState<string | null>(null);
-    const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+    if (searchText) {
+      return data.filter(item => item.toLowerCase().includes(searchText.toLowerCase()));
+    }
+    return data;
+  };
 
-    // Filtered Data States
-    const [filteredStates, setFilteredStates] = useState<string[]>(Object.keys(INDIA_LOCATIONS));
-    const [filteredDistricts, setFilteredDistricts] = useState<string[]>([]);
+  return (
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.safeArea}>
+        
+        {/* Header */}
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Icon name="chevron-back" size={28} color="#000" />
+            </TouchableOpacity>
+        </View>
 
-    // Modals Control
-    const [showDistrictModal, setShowDistrictModal] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
+        <View style={styles.container}>
+          <Text style={styles.title}>Where are you located?</Text>
+          <Text style={styles.subtitle}>
+            Select your current location to find jobs near you.
+          </Text>
 
-    // 🔹 Animation value
-    const scaleAnim = useRef(new Animated.Value(0)).current;
+          {/* --- CUSTOM DROPDOWN TRIGGER: STATE --- */}
+          <Text style={styles.label}>State</Text>
+          <TouchableOpacity 
+            style={styles.dropdownTrigger} 
+            onPress={() => openModal("STATE")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.triggerContent}>
+                <Icon name="map-outline" size={20} color="#000" style={{marginRight: 10}}/>
+                <Text style={[styles.triggerText, !selectedState && styles.placeholderText]}>
+                    {selectedState || "Select State"}
+                </Text>
+            </View>
+            <Icon name="chevron-down" size={20} color="#666" />
+          </TouchableOpacity>
 
-    useEffect(() => {
-        if (showConfirm) {
-            Animated.spring(scaleAnim, {
-                toValue: 1,
-                useNativeDriver: true,
-                friction: 6,
-            }).start();
-        } else {
-            scaleAnim.setValue(0);
-        }
-    }, [showConfirm]);
+          {/* --- CUSTOM DROPDOWN TRIGGER: DISTRICT --- */}
+          <Text style={styles.label}>City / District</Text>
+          <TouchableOpacity 
+            style={[styles.dropdownTrigger, !selectedState && { opacity: 0.5 }]} 
+            onPress={() => openModal("DISTRICT")}
+            activeOpacity={0.8}
+            disabled={!selectedState}
+          >
+            <View style={styles.triggerContent}>
+                <Icon name="business-outline" size={20} color="#000" style={{marginRight: 10}}/>
+                <Text style={[styles.triggerText, !selectedDistrict && styles.placeholderText]}>
+                    {selectedDistrict || "Select City"}
+                </Text>
+            </View>
+            <Icon name="chevron-down" size={20} color="#666" />
+          </TouchableOpacity>
 
-    // 1. Handle State Search
-    const handleStateSearch = (text: string) => {
-        setStateSearch(text);
-        const allStates = Object.keys(INDIA_LOCATIONS);
-        const results = allStates.filter((item) =>
-            item.toLowerCase().includes(text.toLowerCase())
-        );
-        setFilteredStates(results);
-    };
+        </View>
 
-    // 2. Handle District Search (Inside Popup)
-    const handleDistrictSearch = (text: string) => {
-        setDistrictSearch(text);
-        if (selectedState) {
-            const allDistricts = INDIA_LOCATIONS[selectedState];
-            const results = allDistricts.filter((item) =>
-                item.toLowerCase().includes(text.toLowerCase())
-            );
-            setFilteredDistricts(results);
-        }
-    };
+        {/* --- BOTTOM DRAWER CONFIRMATION --- */}
+        {showDrawer && (
+            <Animated.View style={[styles.bottomDrawer, { transform: [{ translateY: slideAnim }] }]}>
+                {/* Handle Bar */}
+                <View style={styles.drawerHandle} />
+                
+                <Text style={styles.drawerTitle}>Confirm Location</Text>
+                
+                <View style={styles.locationSummary}>
+                    <Icon name="location-sharp" size={24} color="#000" />
+                    <Text style={styles.summaryText}>
+                        {selectedDistrict}, {selectedState}
+                    </Text>
+                </View>
 
-    // 3. User Clicks a State -> Open District Popup
-    const onSelectState = (stateName: string) => {
-        setSelectedState(stateName);
-        setFilteredDistricts(INDIA_LOCATIONS[stateName]); // Reset list for that state
-        setDistrictSearch(""); // Clear previous search
-        setShowDistrictModal(true); // Open Popup
-    };
+                <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+                    <Text style={styles.confirmButtonText}>Confirm Location</Text>
+                </TouchableOpacity>
 
-    // 4. User Clicks a District -> Close District Popup -> Show Confirmation
-    const onSelectDistrict = (districtName: string) => {
-        setSelectedDistrict(districtName);
-        setShowDistrictModal(false); // Close District List
-        setTimeout(() => setShowConfirm(true), 300); // Open Confirmation
-    };
+                <TouchableOpacity 
+                    style={styles.changeButton} 
+                    onPress={() => {
+                        setSelectedDistrict(null); // Reset to force re-selection or just hide drawer
+                    }}
+                >
+                    <Text style={styles.changeButtonText}>Change</Text>
+                </TouchableOpacity>
+            </Animated.View>
+        )}
 
-    return (
-        <ImageBackground
-            source={require("../assets/bg.jpg")}
-            style={styles.background}
-            resizeMode="cover"
-        >
-            <SafeAreaView style={styles.container}>
-                <Text style={styles.title}>Select Location</Text>
-                <Text style={styles.subtitle}>Choose your State</Text>
-
-                {/* State Search Input */}
-                <TextInput
-                    style={styles.input}
-                    placeholder="Search state..."
-                    value={stateSearch}
-                    onChangeText={handleStateSearch}
-                />
-
-                {/* Main List: STATES Only */}
-                <FlatList
-                    data={filteredStates}
-                    keyExtractor={(item) => item}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={styles.option}
-                            onPress={() => onSelectState(item)}
-                        >
-                            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                                <Text style={styles.optionText}>{item}</Text>
-                                <Text style={styles.arrowText}>›</Text>
-                            </View>
+        {/* --- FULL SCREEN SELECTION MODAL --- */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+            <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                    
+                    {/* Modal Header */}
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>
+                            Select {selectionType === "STATE" ? "State" : "City"}
+                        </Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeIcon}>
+                            <Icon name="close" size={24} color="#000" />
                         </TouchableOpacity>
-                    )}
-                />
-
-                {/* ============================================== */}
-                {/* 🔹 MODAL 1: District Selection Dropdown/Popup  */}
-                {/* ============================================== */}
-                <Modal visible={showDistrictModal} transparent animationType="slide">
-                    <KeyboardAvoidingView 
-                        behavior={Platform.OS === "ios" ? "padding" : "height"}
-                        style={styles.overlay}
-                    >
-                        <View style={styles.districtPopup}>
-                            <View style={styles.popupHeader}>
-                                <Text style={styles.popupTitle}>Select District in {selectedState}</Text>
-                                <TouchableOpacity onPress={() => setShowDistrictModal(false)}>
-                                    <Text style={styles.closeText}>✕</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Search district..."
-                                value={districtSearch}
-                                onChangeText={handleDistrictSearch}
-                                autoFocus={true}
-                            />
-
-                            <FlatList
-                                data={filteredDistricts}
-                                keyExtractor={(item) => item}
-                                style={{ maxHeight: 300 }}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity
-                                        style={styles.option}
-                                        onPress={() => onSelectDistrict(item)}
-                                    >
-                                        <Text style={styles.optionText}>{item}</Text>
-                                    </TouchableOpacity>
-                                )}
-                            />
-                        </View>
-                    </KeyboardAvoidingView>
-                </Modal>
-
-                {/* ============================================== */}
-                {/* 🔹 MODAL 2: Final Confirmation Popup           */}
-                {/* ============================================== */}
-                <Modal transparent visible={showConfirm} animationType="fade">
-                    <View style={styles.overlay}>
-                        <Animated.View
-                            style={[
-                                styles.popup,
-                                { transform: [{ scale: scaleAnim }] },
-                            ]}
-                        >
-                            <Text style={styles.confirmText}>Confirm Location</Text>
-                            
-                            <View style={styles.infoBox}>
-                                <Text style={styles.confirmLabel}>State:</Text>
-                                <Text style={styles.confirmValue}>{selectedState}</Text>
-                            </View>
-                            
-                            <View style={styles.infoBox}>
-                                <Text style={styles.confirmLabel}>District:</Text>
-                                <Text style={styles.confirmValue}>{selectedDistrict}</Text>
-                            </View>
-
-                            <View style={styles.confirmActions}>
-                                <TouchableOpacity
-                                    style={styles.editBtn}
-                                    onPress={() => {
-                                        setShowConfirm(false);
-                                        setShowDistrictModal(true); // Go back to district select
-                                    }}
-                                >
-                                    <Text style={styles.editText}>Change</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={styles.doneBtn}
-                                    onPress={() => {
-                                        setShowConfirm(false);
-                                        navigation.navigate("UploadResume", {
-                                            state: selectedState,
-                                            district: selectedDistrict,
-                                        });
-                                    }}
-                                >
-                                    <Text style={styles.doneText}>Confirm</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </Animated.View>
                     </View>
-                </Modal>
 
-            </SafeAreaView>
-        </ImageBackground>
-    );
+                    {/* Search Bar */}
+                    <View style={styles.searchContainer}>
+                        <Icon name="search" size={20} color="#666" />
+                        <TextInput 
+                            style={styles.searchInput}
+                            placeholder="Search..."
+                            value={searchText}
+                            onChangeText={setSearchText}
+                            autoFocus
+                        />
+                    </View>
+
+                    {/* List */}
+                    <FlatList 
+                        data={getData()}
+                        keyExtractor={(item) => item}
+                        keyboardShouldPersistTaps="handled"
+                        renderItem={({ item }) => (
+                            <TouchableOpacity 
+                                style={styles.listItem} 
+                                onPress={() => handleSelect(item)}
+                            >
+                                <Text style={styles.listItemText}>{item}</Text>
+                                <Icon name="chevron-forward" size={18} color="#ccc" />
+                            </TouchableOpacity>
+                        )}
+                    />
+                </View>
+            </View>
+        </Modal>
+
+      </SafeAreaView>
+    </ImageBackground>
+  );
 };
 
 export default LocationSelection;
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-    },
-    container: {
-        flex: 1,
-        padding: 24,
-    },
-    title: { fontSize: 24, fontWeight: "700", color: "#000", marginBottom: 8 },
-    subtitle: { color: "#555", marginBottom: 24 },
-    input: {
-        borderWidth: 1.5,
-        borderColor: "#ccc",
-        borderRadius: 12,
-        padding: 12,
-        fontSize: 16,
-        marginBottom: 12,
-        backgroundColor: "rgba(255,255,255,0.8)"
-    },
-    option: {
-        borderBottomWidth: 1,
-        borderBottomColor: "#eee",
-        paddingVertical: 14,
-        backgroundColor: "rgba(255,255,255,0.5)", // slight background for readability
-        paddingHorizontal: 8
-    },
-    optionText: { fontSize: 16, color: "#000" },
-    arrowText: { fontSize: 20, color: "#999", fontWeight:'bold' },
-    
-    // Modal Styles
-    overlay: {
-        flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    popup: {
-        backgroundColor: "#fff",
-        borderRadius: 20,
-        padding: 24,
-        alignItems: "center",
-        width: "85%",
-        shadowColor: "#000",
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 5,
-    },
-    districtPopup: {
-        backgroundColor: "#fff",
-        borderRadius: 20,
-        padding: 20,
-        width: "90%",
-        maxHeight: "80%",
-        shadowColor: "#000",
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 5,
-    },
-    popupHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 15
-    },
-    popupTitle: { fontSize: 18, fontWeight: "700", color: "#333" },
-    closeText: { fontSize: 22, color: "#999", padding: 5 },
+  background: { flex: 1 },
+  safeArea: { flex: 1 },
+  
+  header: { paddingHorizontal: 24, paddingTop: 10 },
+  backButton: { marginBottom: 10 },
 
-    // Confirmation Styles
-    confirmText: { fontSize: 20, fontWeight: "700", color: "#000", marginBottom: 20 },
-    infoBox: {
-        flexDirection:'row',
-        width: '100%',
-        marginBottom: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-        paddingBottom: 8
-    },
-    confirmLabel: { fontSize: 16, color: "#666", width: 80 },
-    confirmValue: { fontSize: 16, color: "#000", fontWeight: '600' },
+  container: { flex: 1, paddingHorizontal: 24 },
+  
+  title: { fontSize: 28, fontWeight: "800", color: "#000", marginBottom: 8 },
+  subtitle: { fontSize: 15, color: "#444", marginBottom: 30 },
 
-    confirmActions: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-        marginTop: 20,
-    },
-    editBtn: {
-        backgroundColor: "#eee",
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-        flex: 1,
-        marginRight: 10,
-        alignItems: 'center'
-    },
-    doneBtn: {
-        backgroundColor: "#007BFF",
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-        flex: 1,
-        marginLeft: 10,
-        alignItems: 'center'
-    },
-    editText: { color: "#333", fontWeight: "600", fontSize: 16 },
-    doneText: { color: "#fff", fontWeight: "600", fontSize: 16 },
+  /* Dropdown Styles */
+  label: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: "#333",
+      marginBottom: 8,
+      marginTop: 10,
+      marginLeft: 4
+  },
+  dropdownTrigger: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: "#fff",
+      // Shadow
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 5,
+      elevation: 3,
+      marginBottom: 10
+  },
+  triggerContent: { flexDirection: "row", alignItems: "center" },
+  triggerText: { fontSize: 16, color: "#000", fontWeight: "500" },
+  placeholderText: { color: "#888" },
+
+  /* --- BOTTOM DRAWER STYLES --- */
+  bottomDrawer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: "#fff",
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
+      padding: 24,
+      paddingBottom: 40,
+      // Deep Shadow
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: -5 },
+      shadowOpacity: 0.2,
+      shadowRadius: 10,
+      elevation: 20,
+      alignItems: "center"
+  },
+  drawerHandle: {
+      width: 40,
+      height: 4,
+      backgroundColor: "#ddd",
+      borderRadius: 2,
+      marginBottom: 20,
+  },
+  drawerTitle: { fontSize: 20, fontWeight: "700", marginBottom: 15 },
+  locationSummary: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#f5f5f5",
+      padding: 15,
+      borderRadius: 12,
+      marginBottom: 20,
+      width: "100%",
+      justifyContent: "center"
+  },
+  summaryText: { fontSize: 18, fontWeight: "600", marginLeft: 10 },
+  
+  confirmButton: {
+      backgroundColor: "#000",
+      width: "100%",
+      paddingVertical: 18,
+      borderRadius: 30,
+      alignItems: "center",
+      marginBottom: 10
+  },
+  confirmButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  
+  changeButton: { paddingVertical: 10 },
+  changeButtonText: { color: "#666", fontWeight: "600" },
+
+  /* --- MODAL STYLES --- */
+  modalContainer: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "flex-end",
+  },
+  modalContent: {
+      backgroundColor: "#fff",
+      height: "85%",
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+  },
+  modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+  },
+  modalTitle: { fontSize: 22, fontWeight: "700" },
+  closeIcon: { padding: 5 },
+  
+  searchContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#f0f0f0",
+      borderRadius: 12,
+      paddingHorizontal: 15,
+      height: 50,
+      marginBottom: 20,
+  },
+  searchInput: {
+      flex: 1,
+      marginLeft: 10,
+      fontSize: 16,
+      color: "#000",
+  },
+  listItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: "#f0f0f0",
+  },
+  listItemText: { fontSize: 16, color: "#333" },
 });

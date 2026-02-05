@@ -10,14 +10,15 @@ import {
   StyleSheet,
   Platform,
   Modal,
-  Keyboard
+  Keyboard,
+  KeyboardAvoidingView // 1. Imported
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import Icon from "react-native-vector-icons/Ionicons";
-import DateTimePicker from '@react-native-community/datetimepicker'; // npm install @react-native-community/datetimepicker
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 type BdayNavProp = NativeStackNavigationProp<RootStackParamList, "BDAY">;
 
@@ -30,7 +31,7 @@ export default function BDAYScreen() {
   const [year, setYear] = useState("");
 
   // Picker States
-  const [date, setDate] = useState(new Date(2000, 0, 1)); // Default to year 2000
+  const [date, setDate] = useState(new Date(2000, 0, 1));
   const [showPicker, setShowPicker] = useState(false);
 
   // Refs for auto-focus
@@ -53,7 +54,7 @@ export default function BDAYScreen() {
     return (
       d > 0 && d <= 31 &&
       m > 0 && m <= 12 &&
-      y > 1900 && y <= currentYear - 14 // Assuming user must be at least 14
+      y > 1900 && y <= currentYear - 14
     );
   };
 
@@ -95,92 +96,97 @@ export default function BDAYScreen() {
       resizeMode="cover"
     >
       <SafeAreaView style={styles.safe}>
-        <View style={styles.container}>
-          
-          {/* Header */}
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Icon name="chevron-back" size={26} color="#1F2937" />
-          </TouchableOpacity>
+        
+        {/* 2. Wrapped in KeyboardAvoidingView */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.container}>
+            
+            {/* Header */}
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Icon name="chevron-back" size={26} color="#1F2937" />
+            </TouchableOpacity>
 
-          <View style={styles.contentContainer}>
-             <Text style={styles.title}>When is your Date of birth?</Text>
-             <Text style={styles.subtitle}>Your age will be displayed on your profile, not your birth date.</Text>
-             
-             {/* Card Input Area */}
-             <View style={styles.card}>
-                <View style={styles.row}>
-                    
-                    {/* Manual Inputs */}
-                    <View style={styles.inputsWrapper}>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="DD"
-                            placeholderTextColor="#9CA3AF"
-                            keyboardType="numeric"
-                            maxLength={2}
-                            value={day}
-                            onChangeText={handleDayChange}
-                        />
-                        <Text style={styles.slash}>/</Text>
-                        <TextInput
-                            ref={monthRef}
-                            style={styles.input}
-                            placeholder="MM"
-                            placeholderTextColor="#9CA3AF"
-                            keyboardType="numeric"
-                            maxLength={2}
-                            value={month}
-                            onChangeText={handleMonthChange}
-                        />
-                        <Text style={styles.slash}>/</Text>
-                        <TextInput
-                            ref={yearRef}
-                            style={[styles.input, { width: 60 }]}
-                            placeholder="YYYY"
-                            placeholderTextColor="#9CA3AF"
-                            keyboardType="numeric"
-                            maxLength={4}
-                            value={year}
-                            onChangeText={setYear}
-                        />
-                    </View>
+            <View style={styles.contentContainer}>
+               <Text style={styles.title}>When is your Date of birth?</Text>
+               <Text style={styles.subtitle}>Your age will be displayed on your profile, not your birth date.</Text>
+               
+               {/* Card Input Area */}
+               <View style={styles.card}>
+                  <View style={styles.row}>
+                      
+                      {/* Manual Inputs */}
+                      <View style={styles.inputsWrapper}>
+                          <TextInput
+                              style={styles.input}
+                              placeholder="DD"
+                              placeholderTextColor="#9CA3AF"
+                              keyboardType="numeric"
+                              maxLength={2}
+                              value={day}
+                              onChangeText={handleDayChange}
+                          />
+                          <Text style={styles.slash}>/</Text>
+                          <TextInput
+                              ref={monthRef}
+                              style={styles.input}
+                              placeholder="MM"
+                              placeholderTextColor="#9CA3AF"
+                              keyboardType="numeric"
+                              maxLength={2}
+                              value={month}
+                              onChangeText={handleMonthChange}
+                          />
+                          <Text style={styles.slash}>/</Text>
+                          <TextInput
+                              ref={yearRef}
+                              style={[styles.input, { width: 60 }]}
+                              placeholder="YYYY"
+                              placeholderTextColor="#9CA3AF"
+                              keyboardType="numeric"
+                              maxLength={4}
+                              value={year}
+                              onChangeText={setYear}
+                          />
+                      </View>
 
-                    {/* Calendar Icon Button */}
-                    <TouchableOpacity style={styles.iconButton} onPress={togglePicker}>
-                        <Icon name="calendar" size={24} color="#2563EB" />
-                    </TouchableOpacity>
+                      {/* Calendar Icon Button */}
+                      <TouchableOpacity style={styles.iconButton} onPress={togglePicker}>
+                          <Icon name="calendar" size={24} color="#2563EB" />
+                      </TouchableOpacity>
 
-                </View>
-             </View>
+                  </View>
+               </View>
+            </View>
           </View>
-        </View>
 
-        {/* Next Button */}
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity
-            style={[styles.nextButton, { opacity: isValidDate() ? 1 : 0.5 }]}
-            onPress={handleNext}
-            disabled={!isValidDate()}
-          >
-            <Text style={styles.nextButtonText}>Next</Text>
-            <Icon name="arrow-forward" size={20} color="#fff" style={{marginLeft: 8}} />
-          </TouchableOpacity>
-        </View>
+          {/* 3. Button at Bottom with Radius */}
+          <View style={styles.bottomContainer}>
+            <TouchableOpacity
+              style={[styles.nextButton, { opacity: isValidDate() ? 1 : 0.5 }]}
+              onPress={handleNext}
+              disabled={!isValidDate()}
+            >
+              <Text style={styles.nextButtonText}>Next</Text>
+              <Icon name="arrow-forward" size={20} color="#fff" style={{marginLeft: 8}} />
+            </TouchableOpacity>
+          </View>
+
+        </KeyboardAvoidingView>
 
         {/* --- DATE PICKER LOGIC --- */}
-        
-        {/* Android Picker (Shows automatically when requested) */}
         {showPicker && Platform.OS === 'android' && (
             <DateTimePicker
                 value={date}
                 mode="date"
-                display="spinner" // This creates the wheel effect
+                display="spinner"
                 onChange={onDateChange}
                 maximumDate={new Date()}
             />
         )}
 
-        {/* iOS Picker (Needs a Modal to pop up from bottom) */}
         {Platform.OS === 'ios' && (
             <Modal
                 transparent={true}
@@ -197,7 +203,7 @@ export default function BDAYScreen() {
                         <DateTimePicker
                             value={date}
                             mode="date"
-                            display="spinner" // Wheel effect
+                            display="spinner"
                             onChange={onDateChange}
                             maximumDate={new Date()}
                             textColor="#000"
@@ -259,7 +265,6 @@ const styles = StyleSheet.create({
       fontWeight: "300"
   },
   
-  /* Icon Button */
   iconButton: {
       backgroundColor: "#EFF6FF",
       padding: 12,
@@ -268,14 +273,19 @@ const styles = StyleSheet.create({
       borderColor: "#DBEAFE"
   },
 
-  /* Footer */
-  bottomContainer: { padding: 24, paddingBottom: 20, alignItems: 'flex-end' },
+  /* --- UPDATED FOOTER STYLES --- */
+  bottomContainer: { 
+    paddingHorizontal: 24,
+    paddingBottom: 10, // Small padding for the radius look, no big gap
+    justifyContent: 'flex-end',
+  },
   nextButton: {
     backgroundColor: "#000",
-    borderRadius: 30,
+    borderRadius: 30, // Keep Radius
     paddingVertical: 16,
-    paddingHorizontal: 24,
+    width: "100%", // Full Width
     flexDirection: 'row',
+    justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -284,6 +294,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  /* --------------------------- */
 
   /* iOS Modal Styles */
   modalOverlay: {

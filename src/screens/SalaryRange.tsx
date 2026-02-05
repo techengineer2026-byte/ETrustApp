@@ -12,17 +12,21 @@ import Slider from "@react-native-community/slider";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types/navigation";
+
+type SalaryRangeProp = NativeStackNavigationProp<RootStackParamList, "EMS">;
 
 const SalaryRange = () => {
-  const navigation = useNavigation<any>();
-  const [salary, setSalary] = useState(15000);
+  const navigation = useNavigation<SalaryRangeProp>();
+  const [salary, setSalary] = useState(25000);
 
   const handleNext = () => {
-    console.log("Selected salary:", salary);
-    navigation.navigate("DistancePreference");
+    // Navigate to Location Selection (Screen 10)
+    navigation.navigate("LocationSelection");
   };
 
-  // Helper to format currency (e.g. 15,000)
+  // Helper to format currency
   const formatSalary = (val: number) => {
     return val.toLocaleString('en-IN');
   };
@@ -36,14 +40,14 @@ const SalaryRange = () => {
       <SafeAreaView style={styles.safeArea}>
         
         <View style={styles.container}>
-            {/* Simple Back Button */}
+            {/* Header */}
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Icon name="chevron-back" size={26} color="#000" />
+              <Icon name="chevron-back" size={28} color="#000" />
             </TouchableOpacity>
 
             <View style={styles.titleContainer}>
-                <Text style={styles.title} allowFontScaling={false}>Expected Salary</Text>
-                <Text style={styles.subtitle} allowFontScaling={false}>
+                <Text style={styles.title}>Expected Salary</Text>
+                <Text style={styles.subtitle}>
                     What is your expected monthly salary?
                 </Text>
             </View>
@@ -53,11 +57,12 @@ const SalaryRange = () => {
                 
                 {/* Big Number Display */}
                 <View style={styles.counterContainer}>
-                    <Text style={styles.counterText} allowFontScaling={false}>
-                        ₹ {formatSalary(salary)}
+                    <Text style={styles.currencySymbol}>₹</Text>
+                    <Text style={styles.counterText}>
+                        {formatSalary(salary)}
                     </Text>
-                    <Text style={styles.counterLabel} allowFontScaling={false}>Monthly</Text>
                 </View>
+                <Text style={styles.counterLabel}>Monthly</Text>
 
                 {/* SLIDER COMPONENT */}
                 <View style={styles.sliderContainer}>
@@ -66,9 +71,9 @@ const SalaryRange = () => {
                         minimumValue={10000}
                         maximumValue={300000}
                         step={1000}
-                        minimumTrackTintColor="#2563EB" // Blue
-                        maximumTrackTintColor="#E5E7EB" // Light Grey
-                        thumbTintColor="#2563EB"        // Blue Knob
+                        minimumTrackTintColor="#000" // Black Track
+                        maximumTrackTintColor="#ccc" // Grey Track
+                        thumbTintColor="#000"        // Black Knob
                         value={salary}
                         onValueChange={(value) => setSalary(Math.round(value))}
                     />
@@ -80,9 +85,9 @@ const SalaryRange = () => {
 
                 {/* Info Badge */}
                 <View style={styles.infoBox}>
-                    <Icon name="information-circle-outline" size={20} color="#2563EB" />
+                    <Icon name="information-circle-outline" size={22} color="#333" />
                     <Text style={styles.infoText}>
-                        We will find jobs matching your expectation.
+                        We use this to filter jobs that match your financial goals.
                     </Text>
                 </View>
 
@@ -107,8 +112,6 @@ export default SalaryRange;
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: "100%",
-    height: "100%",
   },
   safeArea: {
     flex: 1,
@@ -119,52 +122,63 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   
-  /* Simple Header Elements */
-  backButton: { marginBottom: 20 },
+  /* Header Elements */
+  backButton: { marginBottom: 15 },
   
-  titleContainer: { marginBottom: 24 },
+  titleContainer: { marginBottom: 10 },
   title: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#111827",
+    color: "#000",
     marginBottom: 8,
   },
   subtitle: { 
     fontSize: 15, 
-    color: "#4B5563", 
-    fontWeight: "500", 
-    lineHeight: 22 
+    color: "#444", 
+    fontWeight: "400", 
+    lineHeight: 22,
+    marginBottom: 20,
   },
 
   /* Card */
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.7)", // Glass effect
+    borderRadius: 24,
     padding: 24,
+    borderWidth: 2,
+    borderColor: "transparent",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
     elevation: 5,
     alignItems: 'center',
-    marginTop: 10,
   },
   
   /* Counter (Big Number) */
   counterContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 0,
+  },
+  currencySymbol: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#000",
+    marginTop: 8,
+    marginRight: 4,
   },
   counterText: {
-    fontSize: 42,
+    fontSize: 48,
     fontWeight: "800",
-    color: "#2563EB",
-    marginBottom: 4,
+    color: "#000",
   },
   counterLabel: {
-    fontSize: 16,
-    color: "#6B7280",
+    fontSize: 14,
+    color: "#555",
     fontWeight: "600",
+    marginBottom: 30,
+    marginTop: -5,
   },
 
   /* Slider Section */
@@ -179,7 +193,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   sliderLabelText: {
-    color: "#9CA3AF",
+    color: "#666",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -187,31 +201,37 @@ const styles = StyleSheet.create({
   /* Info Box */
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: "#EFF6FF",
-    padding: 12,
-    borderRadius: 12,
+    backgroundColor: "#fff", // White box inside glass card
+    padding: 16,
+    borderRadius: 16,
     alignItems: 'center',
     width: '100%',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   infoText: {
-    marginLeft: 10,
+    marginLeft: 12,
     fontSize: 13,
-    color: "#2563EB",
+    color: "#444",
     flex: 1,
     fontWeight: "500",
+    lineHeight: 18,
   },
 
   /* Bottom Actions */
   bottomContainer: {
-    padding: 24,
-    paddingBottom: 20,
-    alignItems: 'flex-end',
+    paddingHorizontal: 24,
+    paddingBottom: 10,
+    justifyContent: 'flex-end',
   },
   nextButton: {
     backgroundColor: "#000", 
     borderRadius: 30,
-    paddingVertical: 16,
-    paddingHorizontal: 30,
+    paddingVertical: 18,
+    width: "100%", // Full Width
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: "center",
@@ -220,7 +240,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
-    minWidth: 120,
   },
   nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

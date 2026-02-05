@@ -101,7 +101,6 @@ export default function AppNavigator() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
 
-      <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
 
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -114,14 +113,15 @@ export default function AppNavigator() {
           <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
           <Stack.Screen name="JobType" component={JobType} />
           <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
+          <Stack.Screen name='Employeeuser' component={Employeeuser} />
           <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
           <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
           <Stack.Screen name="JobProfile" component={JobProfileScreen} />
+          <Stack.Screen name="LocationSelection" component={LocationSelection} />
           <Stack.Screen name="ChatDetailScreen" component={ChatDetailScreen} />
           <Stack.Screen name="CurrentCTC" component={CurrentCTCScreen} />
           <Stack.Screen name="SalaryRange" component={SalaryRange} />
           <Stack.Screen name="DistancePreference" component={DistancePreference} />
-          <Stack.Screen name="LocationSelection" component={LocationSelection} />
           <Stack.Screen name="UploadResume" component={UploadResumeScreen} />
           <Stack.Screen name="Reference" component={ReferenceScreen} />
           <Stack.Screen name="PreferredCity" component={PreferredCityScreen} />
@@ -133,7 +133,6 @@ export default function AppNavigator() {
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
           <Stack.Screen name="UploadLogo" component={UploadLogo} />
           <Stack.Screen name="EditEmployerProfileScreen" component={EditEmployerProfileScreen} />
-          <Stack.Screen name="ContactPersonScreen" component={ContactPersonScreen} />
           <Stack.Screen name="ContactNumberScreen" component={ContactNumberScreen} />
           <Stack.Screen name="OfficeAddressScreen" component={OfficeAddressScreen} />
           <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
@@ -141,7 +140,9 @@ export default function AppNavigator() {
           <Stack.Screen name="EChatDetailScreen" component={EChatDetailScreen} />
           <Stack.Screen name="ETEditProfileScreen" component={ETEditProfileScreen} />
           <Stack.Screen name="CandidateListScreen" component={CandidateListScreen} />
+          <Stack.Screen name="ContactPersonScreen" component={ContactPersonScreen} />
           <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
+      <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
 
           <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
 

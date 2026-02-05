@@ -5,14 +5,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
-  Platform
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation"; 
 import Icon from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Slider from '@react-native-community/slider'; // npm install @react-native-community/slider
+import Slider from '@react-native-community/slider'; 
 
 type ExpNavProp = NativeStackNavigationProp<RootStackParamList, "WorkExperience">;
 
@@ -21,8 +21,8 @@ export default function WorkExperienceScreen() {
   const [years, setYears] = useState<number>(0);
 
   const handleNext = () => {
-    // Navigate to next screen
-    navigation.navigate("JobProfile"); 
+    // Navigate to Screen 7: WorkStatus (Working or Not Working)
+    navigation.navigate("WorkStatus"); 
   };
 
   // Dynamic label based on years
@@ -40,67 +40,69 @@ export default function WorkExperienceScreen() {
       style={styles.background}
       resizeMode="cover"
     >
-      {/* Dark Overlay for better contrast */}
-      {/* <View style={styles.overlay} /> */}
-
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safe}>
         
-        {/* Header */}
-        <View style={styles.header}>
+        <View style={styles.container}>
+            {/* Header */}
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Icon name="chevron-back" size={26} color="#1F2937" />
+              <Icon name="chevron-back" size={28} color="#000" />
             </TouchableOpacity>
-        </View>
 
-        <View style={styles.contentContainer}>
-          <View style={styles.titleContainer}>
             <Text style={styles.title}>Work Experience</Text>
-            <Text style={styles.subtitle}>How many years of relevant experience do you have?</Text>
-          </View>
+            <Text style={styles.subtitle}>
+                How many years of relevant experience do you have?
+            </Text>
 
-          {/* Main Card */}
-          <View style={styles.card}>
-            
-            {/* Big Number Display */}
-            <View style={styles.counterContainer}>
-              <Text style={styles.counterText}>{years}</Text>
-              <Text style={styles.counterLabel}>{years === 1 ? "Year" : "Years"}</Text>
+            {/* Main Card */}
+            <View style={styles.card}>
+                
+                {/* Big Number Display */}
+                <View style={styles.counterContainer}>
+                <Text style={styles.counterText}>{years}</Text>
+                <Text style={styles.counterLabel}>{years === 1 ? "Year" : "Years"}</Text>
+                </View>
+
+                {/* Experience Level Badge */}
+                <View style={styles.badgeContainer}>
+                <Text style={styles.badgeText}>{getExperienceLevel(years)}</Text>
+                </View>
+
+                {/* SLIDER COMPONENT */}
+                <View style={styles.sliderContainer}>
+                <Slider
+                    style={{width: '100%', height: 40}}
+                    minimumValue={0}
+                    maximumValue={20}
+                    step={1}
+                    value={years}
+                    onValueChange={setYears}
+                    minimumTrackTintColor="#000000" // Black active track
+                    maximumTrackTintColor="#ccc"    // Grey inactive track
+                    thumbTintColor="#000000"        // Black knob
+                />
+                <View style={styles.sliderLabels}>
+                    <Text style={styles.sliderLabelText}>0 Years</Text>
+                    <Text style={styles.sliderLabelText}>20+ Years</Text>
+                </View>
+                </View>
+
+                {/* Quick Fresher Button */}
+                <TouchableOpacity 
+                    style={[styles.fresherButton, years === 0 && styles.fresherButtonActive]}
+                    onPress={() => setYears(0)}
+                    activeOpacity={0.7}
+                >
+                    <Icon 
+                        name={years === 0 ? "radio-button-on" : "radio-button-off"} 
+                        size={20} 
+                        color={years === 0 ? "#fff" : "#666"} 
+                    />
+                    <Text style={[styles.fresherText, years === 0 && styles.fresherTextActive]}>
+                        I am a Fresher (0 Years)
+                    </Text>
+                </TouchableOpacity>
+
             </View>
-
-            {/* Experience Level Badge */}
-            <View style={styles.badgeContainer}>
-              <Text style={styles.badgeText}>{getExperienceLevel(years)}</Text>
-            </View>
-
-            {/* SLIDER COMPONENT */}
-            <View style={styles.sliderContainer}>
-              <Slider
-                style={{width: '100%', height: 40}}
-                minimumValue={0}
-                maximumValue={20}
-                step={1}
-                value={years}
-                onValueChange={setYears}
-                minimumTrackTintColor="#2563EB" // Blue active track
-                maximumTrackTintColor="#E5E7EB" // Grey inactive track
-                thumbTintColor="#2563EB"        // Blue knob
-              />
-              <View style={styles.sliderLabels}>
-                <Text style={styles.sliderLabelText}>0 Years</Text>
-                <Text style={styles.sliderLabelText}>20+ Years</Text>
-              </View>
-            </View>
-
-            {/* Quick Fresher Button */}
-            <TouchableOpacity 
-                style={[styles.fresherButton, years === 0 && styles.fresherButtonActive]}
-                onPress={() => setYears(0)}
-            >
-                <Icon name={years === 0 ? "radio-button-on" : "radio-button-off"} size={20} color={years === 0 ? "#2563EB" : "#6B7280"} />
-                <Text style={[styles.fresherText, years === 0 && styles.fresherTextActive]}>I am a Fresher (0 Years)</Text>
-            </TouchableOpacity>
-
-          </View>
         </View>
 
         {/* Footer */}
@@ -109,7 +111,7 @@ export default function WorkExperienceScreen() {
             style={styles.nextButton}
             onPress={handleNext}
           >
-            <Text style={styles.nextButtonText}>Save & Continue</Text>
+            <Text style={styles.nextButtonText}>Next</Text>
             <Icon name="arrow-forward" size={20} color="#fff" style={{marginLeft: 8}} />
           </TouchableOpacity>
         </View>
@@ -120,69 +122,31 @@ export default function WorkExperienceScreen() {
 }
 
 const styles = StyleSheet.create({
-  background: {
+  background: { flex: 1 },
+  safe: { flex: 1 },
+  
+  container: {
     flex: 1,
-    width: "100%",
-    height: "100%",
+    paddingHorizontal: 24,
+    paddingTop: 10,
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.4)", // Slight white tint
-  },
-  safeArea: {
-    flex: 1,
-  },
+  
   /* Header Styles */
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
-  },
-  backButton: { marginRight: 15 },
-  progressBarContainer: {
-    flex: 1,
-    height: 6,
-    backgroundColor: "#E5E7EB",
-    borderRadius: 3,
-    marginRight: 15,
-  },
-  progressBarFill: {
-    width: "100%", // Full progress
-    height: "100%",
-    backgroundColor: "#2563EB",
-    borderRadius: 3,
-  },
-  stepText: { fontSize: 12, fontWeight: "600", color: "#6B7280" },
-
-  /* Content */
-  contentContainer: {
-    flex: 1,
-    padding: 24,
-  },
-  titleContainer: { marginBottom: 24, marginTop: 10 },
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 8,
-    textShadowColor: 'rgba(255, 255, 255, 0.5)',
-    textShadowOffset: {width: 0, height: 1},
-    textShadowRadius: 2,
-  },
-  subtitle: { fontSize: 15, color: "#4B5563", fontWeight: "500", lineHeight: 22 },
+  backButton: { marginBottom: 15 },
+  title: { fontSize: 28, fontWeight: "800", color: "#000", marginBottom: 8 },
+  subtitle: { fontSize: 15, color: "#444", marginBottom: 30, lineHeight: 22 },
 
   /* Card */
   card: {
-    backgroundColor: "#ffffffff",
-    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // Glass effect
+    borderRadius: 24,
     padding: 24,
+    borderWidth: 1,
+    borderColor: "#fff",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
     elevation: 5,
     alignItems: 'center',
   },
@@ -190,34 +154,32 @@ const styles = StyleSheet.create({
   /* Counter (Big Number) */
   counterContainer: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   counterText: {
-    fontSize: 64,
+    fontSize: 70,
     fontWeight: "800",
-    color: "#2563EB",
-    lineHeight: 70,
+    color: "#000",
+    lineHeight: 80,
   },
   counterLabel: {
     fontSize: 18,
-    color: "#6B7280",
+    color: "#555",
     fontWeight: "600",
     marginTop: -5
   },
 
   /* Badge */
   badgeContainer: {
-    backgroundColor: "#EFF6FF",
+    backgroundColor: "#f0f0f0",
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 20,
     marginBottom: 30,
     marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#DBEAFE",
   },
   badgeText: {
-    color: "#2563EB",
+    color: "#000",
     fontWeight: "700",
     fontSize: 14,
   },
@@ -230,11 +192,11 @@ const styles = StyleSheet.create({
   sliderLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     marginTop: 5,
   },
   sliderLabelText: {
-    color: "#9CA3AF",
+    color: "#666",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -243,46 +205,48 @@ const styles = StyleSheet.create({
   fresherButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 12,
-    backgroundColor: "#F9FAFB",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderRadius: 16,
+    backgroundColor: "transparent",
+    borderWidth: 1.5,
+    borderColor: "#ccc",
     width: '100%',
     justifyContent: 'center',
   },
   fresherButtonActive: {
-    backgroundColor: "#EFF6FF",
-    borderColor: "#2563EB",
+    backgroundColor: "#000",
+    borderColor: "#000",
   },
   fresherText: {
     marginLeft: 10,
-    fontSize: 14,
-    color: "#4B5563",
+    fontSize: 15,
+    color: "#444",
     fontWeight: "600",
   },
   fresherTextActive: {
-    color: "#2563EB",
+    color: "#fff",
   },
 
   /* Bottom Actions */
   bottomContainer: {
-    padding: 24,
-    paddingBottom: 20,
+    paddingHorizontal: 24,
+    paddingBottom: 10,
+    justifyContent: 'flex-end',
   },
   nextButton: {
-    backgroundColor: "#111827",
+    backgroundColor: "#000",
     borderRadius: 30,
     paddingVertical: 18,
+    width: "100%",
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  nextButtonText: { color: "#fff", fontSize: 18, fontWeight: "700" },
+  nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

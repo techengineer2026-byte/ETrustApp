@@ -1,3 +1,5 @@
+// src/screens/ReferenceScreen.tsx
+
 import React, { useState } from "react";
 import {
     View,
@@ -19,17 +21,20 @@ export default function ReferenceScreen() {
     const navigation = useNavigation<ReferenceNavProp>();
     const [selectedRef, setSelectedRef] = useState<string | null>(null);
 
+    // Data with Icons
     const options = [
-        "Social Media",
-        "Poster / Banner",
-        "ET Center",
-        "Self",
-        "Others"
+        { id: "Social Media", label: "Social Media (Insta/FB)", icon: "logo-instagram" },
+        { id: "Poster", label: "Poster / Banner", icon: "newspaper-outline" },
+        { id: "ET Center", label: "ET Center", icon: "business-outline" },
+        { id: "Friend", label: "Friend / Referral", icon: "people-outline" },
+        { id: "Self", label: "Self / Walk-in", icon: "person-outline" },
+        { id: "Others", label: "Others", icon: "ellipsis-horizontal-circle-outline" }
     ];
 
     const handleNext = () => {
         if (!selectedRef) return;
-        navigation.navigate("PreferredCity");
+        // Proceed to Sync/Loading or Dashboard
+        navigation.navigate("SyncLoading");
     };
 
     return (
@@ -40,8 +45,10 @@ export default function ReferenceScreen() {
         >
             <SafeAreaView style={styles.safe}>
                 <View style={styles.container}>
+                    
+                    {/* Header */}
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Icon name="chevron-back" size={26} color="#000" />
+                        <Icon name="chevron-back" size={28} color="#000" />
                     </TouchableOpacity>
 
                     <Text style={styles.title}>Reference</Text>
@@ -49,39 +56,59 @@ export default function ReferenceScreen() {
                         How did you hear about us?
                     </Text>
 
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                        {options.map((item) => (
-                            <TouchableOpacity
-                                key={item}
-                                style={[
-                                    styles.option,
-                                    selectedRef === item && styles.optionSelected,
-                                ]}
-                                onPress={() => setSelectedRef(item)}
-                            >
-                                <Text
+                    {/* Options Grid */}
+                    <ScrollView 
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.listContent}
+                    >
+                        {options.map((item) => {
+                            const isSelected = selectedRef === item.id;
+                            return (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    activeOpacity={0.8}
                                     style={[
-                                        styles.optionText,
-                                        selectedRef === item && styles.optionTextSelected,
+                                        styles.optionCard,
+                                        isSelected && styles.optionCardSelected,
                                     ]}
+                                    onPress={() => setSelectedRef(item.id)}
                                 >
-                                    {item}
-                                </Text>
-                                {selectedRef === item && (
-                                    <Icon name="checkmark-circle" size={20} color="#000" />
-                                )}
-                            </TouchableOpacity>
-                        ))}
+                                    <View style={styles.cardLeft}>
+                                        <View style={[styles.iconBox, isSelected && styles.iconBoxSelected]}>
+                                            <Icon 
+                                                name={item.icon} 
+                                                size={22} 
+                                                color={isSelected ? "#fff" : "#000"} 
+                                            />
+                                        </View>
+                                        <Text
+                                            style={[
+                                                styles.optionText,
+                                                isSelected && styles.optionTextSelected,
+                                            ]}
+                                        >
+                                            {item.label}
+                                        </Text>
+                                    </View>
+
+                                    {isSelected && (
+                                        <Icon name="checkmark-circle" size={24} color="#000" />
+                                    )}
+                                </TouchableOpacity>
+                            );
+                        })}
                     </ScrollView>
                 </View>
 
+                {/* Footer */}
                 <View style={styles.bottomContainer}>
                     <TouchableOpacity
-                        style={[styles.nextButton, { opacity: selectedRef ? 1 : 0.4 }]}
+                        style={[styles.nextButton, { opacity: selectedRef ? 1 : 0.5 }]}
                         disabled={!selectedRef}
                         onPress={handleNext}
                     >
-                        <Text style={styles.nextButtonText}>Next</Text>
+                        <Text style={styles.nextButtonText}>Complete Setup</Text>
+                        <Icon name="arrow-forward" size={20} color="#fff" style={{ marginLeft: 8 }} />
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -92,39 +119,86 @@ export default function ReferenceScreen() {
 const styles = StyleSheet.create({
     safe: { flex: 1 },
     background: { flex: 1 },
-    container: { flex: 1, paddingHorizontal: 24, paddingTop: 10 },
-    backButton: { marginBottom: 20 },
-    title: { fontSize: 24, fontWeight: "700", color: "#000", marginBottom: 10 },
-    desc: { fontSize: 14, color: "#555", marginBottom: 30, lineHeight: 20 },
+    
+    container: { 
+        flex: 1, 
+        paddingHorizontal: 24, 
+        paddingTop: 10 
+    },
+    
+    backButton: { marginBottom: 15 },
+    title: { fontSize: 28, fontWeight: "800", color: "#000", marginBottom: 8 },
+    desc: { fontSize: 15, color: "#444", marginBottom: 20 },
 
-    option: {
+    listContent: {
+        paddingBottom: 20,
+    },
+
+    /* Option Card Styles */
+    optionCard: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 10,
-        paddingVertical: 14,
+        backgroundColor: "rgba(255, 255, 255, 0.7)", // Glass effect
+        borderRadius: 20,
+        paddingVertical: 12,
         paddingHorizontal: 16,
         marginBottom: 12,
-        backgroundColor: "rgba(255,255,255,0.4)" // Slight background for readability
+        borderWidth: 2,
+        borderColor: "transparent",
+        // Shadow
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
     },
-    optionSelected: {
-        borderColor: "#000", // Changed to black for contrast or use red as before
-        backgroundColor: "#e0e0e0",
-        borderWidth: 1.5
+    optionCardSelected: {
+        backgroundColor: "#fff",
+        borderColor: "#000",
+        shadowOpacity: 0.1,
     },
-    optionText: { fontSize: 16, color: "#000" },
-    optionTextSelected: { fontWeight: "700" },
+    
+    cardLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    
+    /* Icon Box */
+    iconBox: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: "#eee",
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+    },
+    iconBoxSelected: {
+        backgroundColor: "#000",
+    },
 
-    bottomContainer: { paddingHorizontal: 24, paddingBottom: 20, alignItems: 'flex-end' },
+    optionText: { fontSize: 16, color: "#333", fontWeight: "500" },
+    optionTextSelected: { fontWeight: "700", color: "#000" },
+
+    /* Footer */
+    bottomContainer: { 
+        paddingHorizontal: 24, 
+        paddingBottom: 10, 
+        justifyContent: 'flex-end' 
+    },
     nextButton: {
         backgroundColor: "#000",
-        borderRadius: 25,
-        paddingVertical: 16,
-        paddingHorizontal: 30,
+        borderRadius: 30,
+        paddingVertical: 18,
+        width: "100%",
+        flexDirection: 'row',
+        justifyContent: "center",
         alignItems: "center",
-        minWidth: 120,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
     },
-    nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+    nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

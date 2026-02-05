@@ -1,520 +1,413 @@
 // src/screens/PreferredCityScreen.tsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    ScrollView,
-    FlatList,
-    Platform,
-    KeyboardAvoidingView,
-    ImageBackground,
-    Keyboard,
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Animated,
+  ImageBackground,
+  Modal,
+  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/Ionicons"; // Ensure you have this installed
+import Icon from "react-native-vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
 
-/* ===== DATA SOURCE ===== */
+// --- DATA ---
 const INDIA_LOCATIONS: Record<string, string[]> = {
-
-    Punjab: [
-        "Amritsar", "Ludhiana", "Jalandhar", "Patiala", "Bathinda",
-        "Mohali", "Hoshiarpur", "Pathankot", "Moga", "Firozpur" , 
-        "Batala" , "Kharar"
-    ],
-
-    Haryana: [
-        "Gurgaon", "Faridabad", "Panipat", "Ambala",
-        "Karnal", "Kurukshetra", "Rohtak", "Hisar",
-        "Sirsa", "Panchkula"
-    ],
-
+    Punjab: ["Mohali", "Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Kharar", "Bathinda"],
+    Haryana: ["Panchkula", "Gurgaon", "Faridabad", "Panipat", "Ambala", "Karnal"],
     Chandigarh: ["Chandigarh"],
-
-    HimachalPradesh: [
-        "Shimla", "Solan", "Kullu", "Manali", "Mandi",
-        "Kangra", "Hamirpur", "Bilaspur", "Una", "Chamba"
-    ],
-
-    UttarPradesh: [
-        "Lucknow", "Noida", "Greater Noida", "Ghaziabad", "Kanpur",
-        "Agra", "Varanasi", "Prayagraj", "Meerut", "Bareilly",
-        "Aligarh", "Mathura", "Moradabad", "Ayodhya"
-    ],
-
-    Maharashtra: [
-        "Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad",
-        "Thane", "Kalyan", "Solapur", "Kolhapur", "Satara",
-        "Ahmednagar", "Jalgaon", "Akola", "Amravati"
-    ],
-
-    Gujarat: [
-        "Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar",
-        "Jamnagar", "Junagadh", "Anand", "Gandhinagar", "Morbi"
-    ],
-
-    Rajasthan: [
-        "Jaipur", "Udaipur", "Jodhpur", "Kota", "Ajmer",
-        "Bikaner", "Alwar", "Bhilwara", "Sri Ganganagar", "Sikar"
-    ],
-
-    MadhyaPradesh: [
-        "Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain",
-        "Sagar", "Ratlam", "Satna", "Rewa", "Dewas"
-    ],
-
-    Telangana: [
-        "Hyderabad", "Warangal", "Nizamabad", "Karimnagar",
-        "Khammam", "Mahbubnagar", "Adilabad", "Siddipet"
-    ],
-
-    AndhraPradesh: [
-        "Visakhapatnam", "Vijayawada", "Guntur", "Nellore",
-        "Kurnool", "Rajahmundry", "Tirupati", "Anantapur", "Kadapa"
-    ],
-
-    TamilNadu: [
-        "Chennai", "Coimbatore", "Madurai", "Salem", "Erode",
-        "Tiruppur", "Tiruchirappalli", "Vellore", "Thoothukudi",
-        "Nagercoil"
-    ],
-
-    Karnataka: [
-        "Bengaluru", "Mysuru", "Mangalore", "Hubli", "Belagavi",
-        "Davangere", "Ballari", "Tumakuru", "Udupi", "Shivamogga"
-    ],
-
-    Kerala: [
-        "Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur",
-        "Alappuzha", "Kottayam", "Palakkad", "Malappuram",
-        "Kannur", "Kasaragod"
-    ],
-
-    WestBengal: [
-        "Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri",
-        "Kharagpur", "Bardhaman", "Malda", "Haldia", "Jalpaiguri"
-    ],
-
-    Bihar: [
-        "Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Darbhanga",
-        "Purnia", "Ara", "Begusarai", "Katihar", "Chapra"
-    ],
-
-    Odisha: [
-        "Bhubaneswar", "Cuttack", "Rourkela", "Sambalpur",
-        "Balasore", "Baripada", "Berhampur", "Jharsuguda",
-        "Rayagada", "Koraput"
-    ],
-
-    Assam: [
-        "Guwahati", "Dibrugarh", "Silchar", "Jorhat",
-        "Tezpur", "Tinsukia", "Nagaon", "Bongaigaon", "Goalpara"
-    ],
-
-    Jharkhand: [
-        "Ranchi", "Jamshedpur", "Dhanbad", "Bokaro",
-        "Hazaribagh", "Giridih", "Ramgarh", "Deoghar"
-    ],
-
-    Chhattisgarh: [
-        "Raipur", "Bilaspur", "Durg", "Bhilai",
-        "Korba", "Jagdalpur", "Ambikapur", "Rajnandgaon"
-    ],
-
-    Delhi: [
-        "Central Delhi", "South Delhi", "North Delhi",
-        "East Delhi", "West Delhi", "New Delhi"
-    ],
-
-    Uttarakhand: [
-        "Dehradun", "Haridwar", "Rishikesh",
-        "Haldwani", "Roorkee", "Nainital"
-    ],
-
-    Goa: [
-        "Panaji", "Margao", "Vasco da Gama",
-        "Mapusa", "Ponda"
-    ],
-
-    JammuAndKashmir: [
-        "Srinagar", "Jammu", "Anantnag",
-        "Baramulla", "Pulwama"
-    ],
-
-    NorthEast: [
-        "Imphal", "Aizawl", "Kohima", "Shillong",
-        "Agartala", "Itanagar"
-    ]
+    HimachalPradesh: ["Shimla", "Solan", "Kullu", "Kangra", "Mandi", "Manali"],
+    UttarPradesh: ["Lucknow", "Noida", "Varanasi", "Kanpur", "Agra", "Meerut"],
+    Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
+    Delhi: ["New Delhi", "North Delhi", "South Delhi", "West Delhi"],
+    Karnataka: ["Bengaluru", "Mysuru", "Mangalore"],
+    Telangana: ["Hyderabad", "Warangal"],
+    TamilNadu: ["Chennai", "Coimbatore", "Madurai"],
+    Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
+    Rajasthan: ["Jaipur", "Udaipur", "Jodhpur", "Kota"],
+    WestBengal: ["Kolkata", "Howrah", "Siliguri"],
 };
 
-const STATES_LIST = Object.keys(INDIA_LOCATIONS).sort();
+const { height } = Dimensions.get("window");
 
-/* ===== REUSABLE AUTOCOMPLETE COMPONENT ===== */
-const AutoComplete = ({
-    label,
-    placeholder,
-    value,
-    setValue,
-    data,
-    zIndex = 1,
-    disabled = false,
-    iconName
-}: any) => {
-    const [list, setList] = useState<string[]>([]);
-    const [show, setShow] = useState(false);
-    const [isFocused, setIsFocused] = useState(false);
+const PreferredCityScreen = () => {
+  const navigation = useNavigation<any>();
 
-    const onChange = (text: string) => {
-        setValue(text);
-        if (text.length > 0 && data) {
-            const filtered = data.filter((item: string) =>
-                item.toLowerCase().includes(text.toLowerCase())
-            );
-            setList(filtered);
-            setShow(true);
-        } else {
-            setShow(false);
-        }
-    };
+  // Selection State
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
-    return (
-        <View style={[styles.inputContainer, { zIndex: zIndex }]}>
-            <Text style={styles.label}>{label}</Text>
-            <View style={[
-                styles.inputWrapper,
-                isFocused && styles.inputWrapperFocused,
-                disabled && styles.inputWrapperDisabled,
-                show && list.length > 0 && styles.inputBottomFlat
-            ]}>
-                <Icon name={iconName} size={20} color={isFocused ? "#2563EB" : "#9CA3AF"} style={styles.inputIcon} />
-                <TextInput
-                    style={styles.input}
-                    placeholder={placeholder}
-                    placeholderTextColor="#9CA3AF"
-                    value={value}
-                    onChangeText={onChange}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => {
-                        setIsFocused(false);
-                        setTimeout(() => setShow(false), 200);
-                    }}
-                    editable={!disabled}
-                />
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectionType, setSelectionType] = useState<"STATE" | "CITY">("STATE");
+  const [searchText, setSearchText] = useState("");
+
+  // Animation for Bottom Drawer
+  const slideAnim = useRef(new Animated.Value(300)).current; // Start off-screen
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  // --- DRAWER ANIMATION LOGIC ---
+  useEffect(() => {
+    if (selectedState && selectedCity) {
+      setShowDrawer(true);
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 40,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: 300,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => setShowDrawer(false));
+    }
+  }, [selectedState, selectedCity]);
+
+  // --- HANDLERS ---
+  const openModal = (type: "STATE" | "CITY") => {
+    if (type === "CITY" && !selectedState) return; 
+    setSelectionType(type);
+    setSearchText("");
+    setModalVisible(true);
+  };
+
+  const handleSelect = (item: string) => {
+    if (selectionType === "STATE") {
+      setSelectedState(item);
+      setSelectedCity(null); // Reset city when state changes
+      setModalVisible(false);
+      // Automatically open city selection after short delay
+      setTimeout(() => openModal("CITY"), 300);
+    } else {
+      setSelectedCity(item);
+      setModalVisible(false);
+    }
+  };
+
+  const handleConfirm = () => {
+    // Navigate to Resume Upload (Screen 12)
+    navigation.navigate("UploadResume");
+  };
+
+  // --- FILTER DATA ---
+  const getData = () => {
+    let data = [];
+    if (selectionType === "STATE") {
+      data = Object.keys(INDIA_LOCATIONS);
+    } else {
+      data = selectedState ? INDIA_LOCATIONS[selectedState] : [];
+    }
+    
+    if (searchText) {
+      return data.filter(item => item.toLowerCase().includes(searchText.toLowerCase()));
+    }
+    return data;
+  };
+
+  return (
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.safeArea}>
+        
+        {/* Header */}
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Icon name="chevron-back" size={28} color="#000" />
+            </TouchableOpacity>
+        </View>
+
+        <View style={styles.container}>
+          <Text style={styles.title}>Preferred Location</Text>
+          <Text style={styles.subtitle}>
+            Where do you want to work?
+          </Text>
+
+          {/* --- CUSTOM DROPDOWN TRIGGER: STATE --- */}
+          <Text style={styles.label}>Preferred State</Text>
+          <TouchableOpacity 
+            style={styles.dropdownTrigger} 
+            onPress={() => openModal("STATE")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.triggerContent}>
+                <Icon name="map-outline" size={22} color="#000" style={{marginRight: 10}}/>
+                <Text style={[styles.triggerText, !selectedState && styles.placeholderText]}>
+                    {selectedState || "Select State"}
+                </Text>
             </View>
+            <Icon name="chevron-down" size={20} color="#666" />
+          </TouchableOpacity>
 
-            {show && list.length > 0 && (
-                <View style={styles.dropdownOverlay}>
-                    <FlatList
-                        data={list.slice(0, 5)}
+          {/* --- CUSTOM DROPDOWN TRIGGER: CITY --- */}
+          <Text style={styles.label}>Preferred City</Text>
+          <TouchableOpacity 
+            style={[styles.dropdownTrigger, !selectedState && { opacity: 0.5 }]} 
+            onPress={() => openModal("CITY")}
+            activeOpacity={0.8}
+            disabled={!selectedState}
+          >
+            <View style={styles.triggerContent}>
+                <Icon name="business-outline" size={22} color="#000" style={{marginRight: 10}}/>
+                <Text style={[styles.triggerText, !selectedCity && styles.placeholderText]}>
+                    {selectedCity || "Select City"}
+                </Text>
+            </View>
+            <Icon name="chevron-down" size={20} color="#666" />
+          </TouchableOpacity>
+
+           {/* Info Note */}
+           <View style={styles.infoBox}>
+              <Icon name="information-circle-outline" size={20} color="#444" />
+              <Text style={styles.infoText}>
+                  Jobs will be filtered based on this preference.
+              </Text>
+           </View>
+
+        </View>
+
+        {/* --- BOTTOM DRAWER CONFIRMATION --- */}
+        {showDrawer && (
+            <Animated.View style={[styles.bottomDrawer, { transform: [{ translateY: slideAnim }] }]}>
+                {/* Handle Bar */}
+                <View style={styles.drawerHandle} />
+                
+                <Text style={styles.drawerTitle}>Confirm Preference</Text>
+                
+                <View style={styles.locationSummary}>
+                    <Icon name="briefcase" size={24} color="#000" />
+                    <Text style={styles.summaryText}>
+                        {selectedCity}, {selectedState}
+                    </Text>
+                </View>
+
+                <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+                    <Text style={styles.confirmButtonText}>Next</Text>
+                    <Icon name="arrow-forward" size={20} color="#fff" style={{ marginLeft: 8 }} />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={styles.changeButton} 
+                    onPress={() => {
+                        setSelectedCity(null); // Reset to hide drawer and allow edit
+                    }}
+                >
+                    <Text style={styles.changeButtonText}>Change</Text>
+                </TouchableOpacity>
+            </Animated.View>
+        )}
+
+        {/* --- FULL SCREEN SELECTION MODAL --- */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+            <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                    
+                    {/* Modal Header */}
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>
+                            Select {selectionType === "STATE" ? "State" : "City"}
+                        </Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeIcon}>
+                            <Icon name="close" size={26} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Search Bar */}
+                    <View style={styles.searchContainer}>
+                        <Icon name="search" size={20} color="#666" />
+                        <TextInput 
+                            style={styles.searchInput}
+                            placeholder="Search..."
+                            value={searchText}
+                            onChangeText={setSearchText}
+                            autoFocus
+                        />
+                    </View>
+
+                    {/* List */}
+                    <FlatList 
+                        data={getData()}
                         keyExtractor={(item) => item}
                         keyboardShouldPersistTaps="handled"
-                        renderItem={({ item, index }) => (
-                            <TouchableOpacity
-                                style={[
-                                    styles.dropdownItem,
-                                    index === list.length - 1 && styles.dropdownItemLast
-                                ]}
-                                onPress={() => {
-                                    setValue(item);
-                                    setShow(false);
-                                    Keyboard.dismiss();
-                                }}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity 
+                                style={styles.listItem} 
+                                onPress={() => handleSelect(item)}
                             >
-                                <Text style={styles.dropdownText}>{item}</Text>
+                                <Text style={styles.listItemText}>{item}</Text>
+                                <Icon name="chevron-forward" size={18} color="#ccc" />
                             </TouchableOpacity>
                         )}
                     />
                 </View>
-            )}
-        </View>
-    );
+            </View>
+        </Modal>
+
+      </SafeAreaView>
+    </ImageBackground>
+  );
 };
 
-/* ===== MAIN SCREEN ===== */
-export default function PreferredCityScreen({ navigation }: any) {
-    const [selectedState, setSelectedState] = useState("");
-    const [selectedCity, setSelectedCity] = useState("");
-    const [cityList, setCityList] = useState<string[]>([]);
+export default PreferredCityScreen;
 
-    // Update available cities when State changes
-    useEffect(() => {
-        // Check if the typed state matches a key in our object
-        const match = STATES_LIST.find(s => s.toLowerCase() === selectedState.toLowerCase());
-
-        if (match) {
-            setCityList(INDIA_LOCATIONS[match]);
-        } else {
-            setCityList([]);
-        }
-
-        // Only clear city if user is typing a new state (optional UX choice)
-        if (!match && selectedState.length > 0) {
-            setSelectedCity("");
-        }
-    }, [selectedState]);
-
-    const handleNext = () => {
-        if (!selectedState || !selectedCity) return;
-        navigation.navigate("SyncLoading");
-    };
-
-    return (
-        <ImageBackground
-            source={require("../assets/bg.jpg")} // Same BG as Education
-            style={styles.background}
-            resizeMode="cover"
-        >
-            <SafeAreaView style={styles.safeArea}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    style={{ flex: 1 }}
-                >
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                            <Icon name="chevron-back" size={26} color="#1F2937" />
-                        </TouchableOpacity>
-                    </View>
-
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={styles.titleContainer}>
-                            <Text style={styles.title}>Preferred Location</Text>
-                            <Text style={styles.subtitle}>Where would you like to work?</Text>
-                        </View>
-
-                        {/* Form Card */}
-                        <View style={styles.card}>
-
-                            {/* STATE SELECTION */}
-                            <AutoComplete
-                                label="State"
-                                placeholder="e.g. Maharashtra"
-                                value={selectedState}
-                                setValue={setSelectedState}
-                                data={STATES_LIST}
-                                zIndex={2000} // Higher z-index to float over City
-                                iconName="map-outline"
-                            />
-
-                            {/* CITY SELECTION */}
-                            <AutoComplete
-                                label="City"
-                                placeholder={cityList.length > 0 ? "Select City" : "Select State first..."}
-                                value={selectedCity}
-                                setValue={setSelectedCity}
-                                data={cityList}
-                                zIndex={1000}
-                                disabled={cityList.length === 0}
-                                iconName="location-outline"
-                            />
-
-                            {/* Info Tip */}
-                            <View style={styles.infoBox}>
-                                <Icon name="information-circle" size={20} color="#2563EB" />
-                                <Text style={styles.infoText}>
-                                    You can change your preferred location later in your profile settings.
-                                </Text>
-                            </View>
-
-                        </View>
-                    </ScrollView>
-
-                    {/* Bottom Button */}
-                    <View style={styles.bottomContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.finishButton,
-                                (!selectedCity || !selectedState) && styles.finishButtonDisabled
-                            ]}
-                            onPress={handleNext}
-                            disabled={!selectedCity || !selectedState}
-                        >
-                            <Text style={styles.finishButtonText}>Finish Setup</Text>
-                            <Icon name="checkmark-circle-outline" size={20} color="#fff" style={{ marginLeft: 8 }} />
-                        </TouchableOpacity>
-                    </View>
-
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        </ImageBackground>
-    );
-}
-
-/* ===== STYLES ===== */
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-        width: "100%",
-        height: "100%",
-    },
-    safeArea: {
-        flex: 1,
-        backgroundColor: "transparent",
-    },
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: "rgba(0,0,0,0.05)",
-    },
-    backButton: { marginRight: 15 },
-    progressBarContainer: {
-        flex: 1,
-        height: 6,
-        backgroundColor: "#E5E7EB",
-        borderRadius: 3,
-        marginRight: 15,
-    },
-    progressBarFill: {
-        width: "75%", // Progress at 75%
-        height: "100%",
-        backgroundColor: "#2563EB",
-        borderRadius: 3,
-    },
-    stepText: { fontSize: 12, fontWeight: "600", color: "#6B7280" },
+  background: { flex: 1 },
+  safeArea: { flex: 1 },
+  
+  header: { paddingHorizontal: 24, paddingTop: 10 },
+  backButton: { marginBottom: 10 },
 
-    scrollContent: { padding: 20 },
+  container: { flex: 1, paddingHorizontal: 24 },
+  
+  title: { fontSize: 28, fontWeight: "800", color: "#000", marginBottom: 8 },
+  subtitle: { fontSize: 15, color: "#444", marginBottom: 30 },
 
-    titleContainer: { marginBottom: 24, marginTop: 10 },
-    title: {
-        fontSize: 28,
-        fontWeight: "800",
-        color: "#111827",
-        marginBottom: 8,
-        textShadowColor: 'rgba(255, 255, 255, 0.5)',
-        textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 2,
-    },
-    subtitle: { fontSize: 15, color: "#4B5563", fontWeight: "500" },
+  /* Dropdown Styles */
+  label: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: "#333",
+      marginBottom: 8,
+      marginTop: 10,
+      marginLeft: 4
+  },
+  dropdownTrigger: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: "rgba(255, 255, 255, 0.7)", // Glass effect
+      paddingVertical: 18,
+      paddingHorizontal: 20,
+      borderRadius: 20,
+      borderWidth: 2,
+      borderColor: "transparent",
+      // Shadow
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 5,
+      elevation: 3,
+      marginBottom: 15
+  },
+  triggerContent: { flexDirection: "row", alignItems: "center" },
+  triggerText: { fontSize: 16, color: "#000", fontWeight: "600" },
+  placeholderText: { color: "#666", fontWeight: "400" },
 
-    card: {
-        backgroundColor: "#fff",
-        borderRadius: 20,
-        padding: 22,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 5,
-        marginBottom: 24,
-    },
+  infoBox: {
+      flexDirection: 'row',
+      marginTop: 10,
+      paddingHorizontal: 5
+  },
+  infoText: { marginLeft: 8, color: "#555", fontSize: 13 },
 
-    /* Input Styles */
-    inputContainer: { marginBottom: 20, position: 'relative' },
-    label: { fontSize: 14, fontWeight: "700", color: "#374151", marginBottom: 8 },
+  /* --- BOTTOM DRAWER STYLES --- */
+  bottomDrawer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: "#fff",
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
+      padding: 24,
+      paddingBottom: 40,
+      // Deep Shadow
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: -5 },
+      shadowOpacity: 0.2,
+      shadowRadius: 10,
+      elevation: 20,
+      alignItems: "center"
+  },
+  drawerHandle: {
+      width: 40,
+      height: 4,
+      backgroundColor: "#ddd",
+      borderRadius: 2,
+      marginBottom: 20,
+  },
+  drawerTitle: { fontSize: 20, fontWeight: "700", marginBottom: 15 },
+  locationSummary: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#f5f5f5",
+      padding: 16,
+      borderRadius: 16,
+      marginBottom: 24,
+      width: "100%",
+      justifyContent: "center"
+  },
+  summaryText: { fontSize: 18, fontWeight: "600", marginLeft: 10, color: "#000" },
+  
+  confirmButton: {
+      backgroundColor: "#000",
+      width: "100%",
+      paddingVertical: 18,
+      borderRadius: 30,
+      alignItems: "center",
+      marginBottom: 10,
+      flexDirection: 'row',
+      justifyContent: 'center'
+  },
+  confirmButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  
+  changeButton: { paddingVertical: 10 },
+  changeButtonText: { color: "#666", fontWeight: "600" },
 
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: "#F9FAFB",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        borderRadius: 12,
-        paddingHorizontal: 12,
-    },
-    inputWrapperFocused: {
-        borderColor: "#2563EB",
-        backgroundColor: "#fff",
-        borderWidth: 1.5,
-    },
-    inputWrapperDisabled: {
-        backgroundColor: "#F3F4F6",
-    },
-    inputBottomFlat: {
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-    },
-    inputIcon: { marginRight: 10 },
-    input: {
-        flex: 1,
-        paddingVertical: 14,
-        fontSize: 16,
-        color: "#111827",
-    },
-
-    /* Dropdown Styles */
-    dropdownOverlay: {
-        position: 'absolute',
-        top: 78,
-        left: 0,
-        right: 0,
-        backgroundColor: "#fff",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        borderTopWidth: 0,
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 10,
-    },
-    dropdownItem: {
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: "#F3F4F6",
-    },
-    dropdownItemLast: {
-        borderBottomWidth: 0,
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
-    },
-    dropdownText: { fontSize: 15, color: "#374151" },
-
-    /* Info Box */
-    infoBox: {
-        flexDirection: 'row',
-        backgroundColor: "#EFF6FF",
-        padding: 12,
-        borderRadius: 10,
-        marginTop: 10,
-        alignItems: 'center'
-    },
-    infoText: {
-        flex: 1,
-        marginLeft: 10,
-        fontSize: 13,
-        color: "#1E40AF",
-        lineHeight: 18
-    },
-
-    /* Footer */
-    bottomContainer: {
-        padding: 24,
-        paddingBottom: 10,
-    },
-    finishButton: {
-        backgroundColor: "#111827", // Black/Dark button for contrast
-        borderRadius: 30,
-        paddingVertical: 18,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        elevation: 8,
-    },
-    finishButtonDisabled: {
-        backgroundColor: "#9CA3AF",
-        shadowOpacity: 0,
-        elevation: 0
-    },
-    finishButtonText: {
-        color: "#fff",
-        fontSize: 18,
-        fontWeight: "700",
-    },
+  /* --- MODAL STYLES --- */
+  modalContainer: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "flex-end",
+  },
+  modalContent: {
+      backgroundColor: "#fff",
+      height: "90%", // Taller modal
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      padding: 24,
+  },
+  modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+  },
+  modalTitle: { fontSize: 24, fontWeight: "700", color: "#000" },
+  closeIcon: { padding: 5 },
+  
+  searchContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#f5f5f5",
+      borderRadius: 16,
+      paddingHorizontal: 15,
+      height: 55,
+      marginBottom: 20,
+  },
+  searchInput: {
+      flex: 1,
+      marginLeft: 10,
+      fontSize: 16,
+      color: "#000",
+  },
+  listItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 18,
+      borderBottomWidth: 1,
+      borderBottomColor: "#f0f0f0",
+  },
+  listItemText: { fontSize: 16, color: "#333", fontWeight: "500" },
 });

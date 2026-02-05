@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Modal,
   ImageBackground,
+  KeyboardAvoidingView, // 1. Added this
+  Platform, // 2. Added this
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -26,12 +28,12 @@ export default function FirstnameScreen() {
 
   const handleNext = () => {
     if (firstName.trim().length === 0) return;
-    setShowPopup(true); // show the popup instead of navigate
+    setShowPopup(true);
   };
 
   const handleGo = () => {
     setShowPopup(false);
-    navigation.navigate("BDAY"); // go to birthday screen
+    navigation.navigate("BDAY");
   };
 
   const handleEdit = () => {
@@ -44,76 +46,77 @@ export default function FirstnameScreen() {
       style={styles.background}
       resizeMode="cover"
     >
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        {/* Back button */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
+      <SafeAreaView style={styles.safe}>
+        {/* KeyboardAvoidingView pushes the button up when keyboard opens */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
         >
-          <Icon name="chevron-back" size={26} color="#000" />
-        </TouchableOpacity>
-
-        {/* Title */}
-        <Text style={styles.title}>What’s your first name?</Text>
-
-        {/* Input */}
-        <TextInput
-          style={styles.input}
-          value={firstName}
-          onChangeText={setFirstName}
-          placeholder="Your first name"
-          placeholderTextColor="rgba(255, 255, 255, 0.66)"
-        />
-
-        {/* Helper text */}
-        <Text style={styles.helperText}>
-          This is how it’ll appear on your profile.{"\n"}
-          <Text style={{ fontWeight: "600" }}>Can’t change it later.</Text>
-        </Text>
-      </View>
-
-      {/* Bottom Next Button */}
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity
-          style={[
-            styles.nextButton,
-            { opacity: firstName.trim().length === 0 ? 0.4 : 1 },
-          ]}
-          onPress={handleNext}
-          disabled={firstName.trim().length === 0}
-        >
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Popup Modal */}
-      <Modal
-        visible={showPopup}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowPopup(false)}
-      >
-        <View style={styles.overlay}>
-          <View style={styles.popup}>
-            <Text style={styles.wave}>👋</Text>
-            <Text style={styles.welcome}>Welcome, {firstName}!</Text>
-            <Text style={styles.subtitle}>
-              There’s a lot to discover out there.{"\n"}
-              But let’s get your profile set up first.
-            </Text>
-
-            <TouchableOpacity style={styles.goButton} onPress={handleGo}>
-              <Text style={styles.goButtonText}>Let’s go</Text>
+          <View style={styles.container}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+            >
+              <Icon name="chevron-back" size={26} color="#000" />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleEdit}>
-              <Text style={styles.editText}>Edit name</Text>
+            <Text style={styles.title}>What’s your first name?</Text>
+
+            <TextInput
+              style={styles.input}
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder="Your first name"
+              placeholderTextColor="rgba(255, 255, 255, 0.66)"
+              autoFocus={true} 
+            />
+
+            <Text style={styles.helperText}>
+              This is how it’ll appear on your profile.{"\n"}
+              <Text style={{ fontWeight: "600" }}>Can’t change it later.</Text>
+            </Text>
+          </View>
+
+          {/* Button at bottom */}
+          <View style={styles.bottomContainer}>
+            <TouchableOpacity
+              style={[
+                styles.nextButton,
+                { opacity: firstName.trim().length === 0 ? 0.5 : 1 },
+              ]}
+              onPress={handleNext}
+              disabled={firstName.trim().length === 0}
+            >
+              <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+
+        {/* Modal */}
+        <Modal
+          visible={showPopup}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowPopup(false)}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.popup}>
+              <Text style={styles.wave}>👋</Text>
+              <Text style={styles.welcome}>Welcome, {firstName}!</Text>
+              <Text style={styles.subtitle}>
+                There’s a lot to discover out there.{"\n"}
+                But let’s get your profile set up first.
+              </Text>
+              <TouchableOpacity style={styles.goButton} onPress={handleGo}>
+                <Text style={styles.goButtonText}>Let’s go</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleEdit}>
+                <Text style={styles.editText}>Edit name</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
     </ImageBackground>
   );
 }
@@ -137,23 +140,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   helperText: { fontSize: 14, color: "#ffffffff", lineHeight: 20 },
+
+  // --- CHANGED AREA ---
   bottomContainer: {
     paddingHorizontal: 24,
-    paddingBottom: 20,
+    paddingBottom: 10, // Small padding so it doesn't look cut off, but close to bottom
+    justifyContent: "flex-end",
   },
   nextButton: {
     backgroundColor: "#000",
-    borderRadius: 25,
+    borderRadius: 30, // 3. Kept the Radius as requested
     paddingVertical: 16,
-    paddingHorizontal: 30, // add this
     alignItems: "center",
-    minWidth: 120, // optional: ensures text fits
+    width: "100%",
   },
-
-
   nextButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  // --------------------
 
-  // Popup styles
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
