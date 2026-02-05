@@ -60,7 +60,7 @@ const EmployeeLogin = () => {
       return;
     }
     console.log("Employee Login:", email);
-    navigation.navigate("MainTabs");
+    navigation.navigate("Firstname");
   };
 
   return (
@@ -167,7 +167,7 @@ const EmployeeLogin = () => {
 
               <View style={styles.footer}>
                 <Text style={styles.footerText}>Don't have an account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate("EmployeeStep1")}>
+                <TouchableOpacity onPress={() => navigation.navigate("EmployeeAuthName")}>
                   <Text style={styles.registerText}>Sign Up</Text>
                 </TouchableOpacity>
               </View>

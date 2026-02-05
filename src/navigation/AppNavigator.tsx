@@ -67,6 +67,10 @@ import EmployerSetupContactNo from '../screens/Employer/EmployerSetupContactNo';
 import EmployerSetupContactPerson from '../screens/Employer/EmployerSetupContactPerson';
 import EmployerSetupFinalAddress from '../screens/Employer/EmployerSetupFinalAddress';
 import EmployerWelcomeDashboard from '../screens/Employer/EmployerWelcomeDashboard';
+import EmployeeAuthContact from '../screens/Employee/EmployeeAuthContact';
+import EmployeeAuthName from '../screens/Employee/EmployeeAuthName';
+import EmployeeAuthPassword from '../screens/Employee/EmployeeAuthPassword';
+import EmployeeWelcomeDashboard from '../screens/Employee/EmployeeWelcomeDashboard';
 //Etrust auth
 
 import CenterName from '../screens/ET-Center/CenterName';
@@ -131,6 +135,7 @@ export default function AppNavigator() {
           <Stack.Screen name="SyncLoading" component={SyncLoading} />
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
+          <Stack.Screen name="EmployeeWelcomeDashboard" component={EmployeeWelcomeDashboard} />
           <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
           <Stack.Screen name="EmployerRegistrationSuccessScreen" component={EmployerRegistrationSuccessScreen} />
           <Stack.Screen name="EmployerSetupContactNo" component={EmployerSetupContactNo} />
@@ -146,6 +151,9 @@ export default function AppNavigator() {
           <Stack.Screen name="EChatDetailScreen" component={EChatDetailScreen} />
           <Stack.Screen name="ETEditProfileScreen" component={ETEditProfileScreen} />
           <Stack.Screen name="CandidateListScreen" component={CandidateListScreen} />
+          <Stack.Screen name="EmployeeAuthContact" component={EmployeeAuthContact} />
+          <Stack.Screen name="EmployeeAuthName" component={EmployeeAuthName} />
+          <Stack.Screen name="EmployeeAuthPassword" component={EmployeeAuthPassword} />
           
           <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
           <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />

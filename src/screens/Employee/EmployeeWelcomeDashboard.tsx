@@ -1,4 +1,4 @@
-// src/screens/Employer/EmployerWelcomeDashboard.tsx
+// src/screens/Employee/EmployeeWelcomeDashboard.tsx
 
 import React, { useRef, useState, useEffect } from "react";
 import {
@@ -24,7 +24,7 @@ const SWIPE_BG = "#e0e0e0";
 const BUTTON_WIDTH = Dimensions.get("window").width - 80; 
 const SWIPE_THRESHOLD = BUTTON_WIDTH - 60; 
 
-export default function EmployerWelcomeDashboard() {
+export default function EmployeeWelcomeDashboard() {
     const navigation = useNavigation<any>();
     
     // --- ANIMATIONS ---
@@ -97,7 +97,7 @@ export default function EmployerWelcomeDashboard() {
             setTimeout(() => {
                 navigation.reset({
                     index: 0,
-                    routes: [{ name: "EmployerBottomNav" }],
+                    routes: [{ name: "EmployeeBottomNav" }],
                 });
             }, 500);
         });
@@ -123,8 +123,8 @@ export default function EmployerWelcomeDashboard() {
 
                     <Text style={styles.title}>All Set!</Text>
                     <Text style={styles.subtitle}>
-                        Your employer profile is complete. {"\n"}
-                        You are ready to post jobs and hire talent.
+                        Your employee profile is complete. {"\n"}
+                        You are ready to apply for jobs and find opportunities.
                     </Text>
 
                     <View style={styles.divider} />

@@ -98,8 +98,10 @@ ETChatDetailScreen: undefined;
   };
   ContactVerification: undefined;
   UploadLogo: undefined;
-
-
+  EmployeeAuthContact: undefined;
+  EmployeeAuthName: undefined;
+  EmployeeAuthPassword: undefined;
+  EmployeeWelcomeDashboard: undefined;
   // --- Employee Specific ---
   EmployeeLogin: undefined;
   EmployeeStep1: undefined;

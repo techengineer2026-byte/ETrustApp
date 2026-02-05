@@ -73,9 +73,9 @@ const LocationSelection = () => {
     }
   }, [selectedState, selectedDistrict]);
 
-  // --- HANDLERS ---
+  // --- HANDLERS ---r
   const openModal = (type: "STATE" | "DISTRICT") => {
-    if (type === "DISTRICT" && !selectedState) return; // Block district if no state
+    if (type === "DISTRICT" && !selectedState) return; // Block dis trict if no state
     setSelectionType(type);
     setSearchText("");
     setModalVisible(true);
@@ -95,7 +95,6 @@ const LocationSelection = () => {
   };
 
   const handleConfirm = () => {
-    // Navigate to Preferred Location (Screen 11)
     navigation.navigate("PreferredCity", {
         state: selectedState,
         district: selectedDistrict
