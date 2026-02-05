@@ -60,7 +60,11 @@ ETChatDetailScreen: undefined;
   EmployerBottomNav: undefined;
   EmployeeBottomNav: undefined;
   EtrustBottomNav: undefined;
-
+  EmployerRegistrationSuccessScreen: undefined;
+  EmployerSetupContactNo: undefined;
+  EmployerSetupContactPerson: undefined;
+  EmployerSetupFinalAddress: undefined;
+  EmployerWelcomeDashboard: undefined;
   // --- Extras ---
   invitefriend: undefined;
   ChatDetails: {
@@ -94,9 +98,7 @@ ETChatDetailScreen: undefined;
   };
   ContactVerification: undefined;
   UploadLogo: undefined;
-  ContactPersonScreen: any;
-  ContactNumberScreen: any;
-  OfficeAddressScreen: any;
+
 
   // --- Employee Specific ---
   EmployeeLogin: undefined;

@@ -61,11 +61,14 @@ import AllJobsScreen from '../screens/Employer/AllJobsScreen';
 import EditProfileScreen from '../screens/Employee/EditProfileScreen';
 import EChatDetailScreen from '../screens/Employee/EChatDetailScreen';
 import ContactVerificationScreen from '../screens/Employer/ContactVerificationScreen';
-import ContactNumberScreen from '../screens/Employer/ContactNumberScreen';
-import ContactPersonScreen from '../screens/Employer/ContactPersonScreen';
-import OfficeAddressScreen from '../screens/Employer/OfficeAddressScreen';
 import UploadLogo from '../screens/Employer/UploadLogo';
+import EmployerRegistrationSuccessScreen from '../screens/Employer/EmployerRegistrationSuccessScreen';
+import EmployerSetupContactNo from '../screens/Employer/EmployerSetupContactNo';
+import EmployerSetupContactPerson from '../screens/Employer/EmployerSetupContactPerson';
+import EmployerSetupFinalAddress from '../screens/Employer/EmployerSetupFinalAddress';
+import EmployerWelcomeDashboard from '../screens/Employer/EmployerWelcomeDashboard';
 //Etrust auth
+
 import CenterName from '../screens/ET-Center/CenterName';
 import EtrustBottomNav from './EtrustBottomTabNavigator';
 import ETcenteruser from '../screens/ETcenteruser';
@@ -129,22 +132,25 @@ export default function AppNavigator() {
           <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
           <Stack.Screen name="AddressScreen" component={AddressScreen} />
           <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
+          <Stack.Screen name="EmployerRegistrationSuccessScreen" component={EmployerRegistrationSuccessScreen} />
+          <Stack.Screen name="EmployerSetupContactNo" component={EmployerSetupContactNo} />
+          <Stack.Screen name="EmployerSetupContactPerson" component={EmployerSetupContactPerson} />
+          <Stack.Screen name="EmployerSetupFinalAddress" component={EmployerSetupFinalAddress} />
+          <Stack.Screen name="EmployerWelcomeDashboard" component={EmployerWelcomeDashboard} />
           <Stack.Screen name="Employeruser" component={Employeruser} />
           <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
           <Stack.Screen name="UploadLogo" component={UploadLogo} />
           <Stack.Screen name="EditEmployerProfileScreen" component={EditEmployerProfileScreen} />
-          <Stack.Screen name="ContactNumberScreen" component={ContactNumberScreen} />
-          <Stack.Screen name="OfficeAddressScreen" component={OfficeAddressScreen} />
           <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
           <Stack.Screen name="AllJobs" component={AllJobsScreen} />
           <Stack.Screen name="EChatDetailScreen" component={EChatDetailScreen} />
           <Stack.Screen name="ETEditProfileScreen" component={ETEditProfileScreen} />
           <Stack.Screen name="CandidateListScreen" component={CandidateListScreen} />
-          <Stack.Screen name="ContactPersonScreen" component={ContactPersonScreen} />
+          
           <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
-      <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
-
+          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
           <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
+
 
           <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
           <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
