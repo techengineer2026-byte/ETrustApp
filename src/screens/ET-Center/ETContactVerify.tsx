@@ -1,6 +1,6 @@
 // src/screens/ET-Center/ETContactVerify.tsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     View,
     Text,
@@ -9,262 +9,330 @@ import {
     ImageBackground,
     StyleSheet,
     Modal,
-    Alert,
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
+    Keyboard,
+    Animated,
+    Vibration,
+    StatusBar,
+    LayoutAnimation,
+    UIManager
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Icon from "react-native-vector-icons/Ionicons";
+
+// Enable LayoutAnimation for Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+// --- CONSTANTS ---
+const PRIMARY_COLOR = "#000000";
+const SUCCESS_COLOR = "#10B981"; // Green
+const ERROR_COLOR = "#d32f2f";   // Red
+const BG_GLASS = "rgba(255, 255, 255, 0.85)";
 
 export default function ETContactVerify() {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
-    // Merge previous params if any
     const prevData = route.params || {};
 
-    // 'email' or 'phone'
-    const [contactMode, setContactMode] = useState<"email" | "phone">("email");
-    const [inputValue, setInputValue] = useState("");
-
-    // Verification State
+    // --- STATE ---
+    const [mode, setMode] = useState<"email" | "phone">("email");
+    const [input, setInput] = useState("");
     const [isVerified, setIsVerified] = useState(false);
-    const [showOtpModal, setShowOtpModal] = useState(false);
+    
+    // UI State
     const [loading, setLoading] = useState(false);
-    const [otpCode, setOtpCode] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const shakeAnim = useRef(new Animated.Value(0)).current;
 
-    // Resend Timer State
+    // OTP State
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otp, setOtp] = useState("");
     const [timer, setTimer] = useState(30);
     const [canResend, setCanResend] = useState(false);
 
-    // Timer Logic for Resend
+    // --- TIMER LOGIC ---
     useEffect(() => {
-        let interval: number | null = null;
-
-        interval = setInterval(() => {
-            console.log("running");
-        }, 1000);
-
-        clearInterval(interval!);
-
+        let interval: NodeJS.Timeout;
+        if (showOtpModal && timer > 0) {
+            interval = setInterval(() => setTimer((t) => t - 1), 1000);
+        } else if (timer === 0) {
+            setCanResend(true);
+        }
+        return () => clearInterval(interval);
     }, [showOtpModal, timer]);
 
-    const validateInput = () => {
-        if (contactMode === "email") {
-            const emailRegex = /\S+@\S+\.\S+/;
-            return emailRegex.test(inputValue);
+    // --- ANIMATIONS ---
+    const triggerError = (msg: string) => {
+        setError(msg);
+        Vibration.vibrate(50);
+        Animated.sequence([
+            Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+        ]).start();
+    };
+
+    // --- HANDLERS ---
+    const switchMode = (newMode: "email" | "phone") => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setMode(newMode);
+        setInput("");
+        setIsVerified(false);
+        setError(null);
+    };
+
+    const handleTextChange = (text: string) => {
+        setError(null);
+        if (mode === "phone") {
+            setInput(text.replace(/[^0-9]/g, ""));
         } else {
-            return inputValue.length === 10;
+            setInput(text);
         }
+        setIsVerified(false);
+    };
+
+    const validate = () => {
+        if (!input.trim()) {
+            triggerError(`${mode === "email" ? "Email" : "Phone number"} is required.`);
+            return false;
+        }
+        if (mode === "email") {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(input)) {
+                triggerError("Invalid email format.");
+                return false;
+            }
+        } else {
+            if (input.length !== 10) {
+                triggerError("Phone number must be 10 digits.");
+                return false;
+            }
+        }
+        return true;
     };
 
     const handleSendOtp = () => {
-        if (!validateInput()) {
-            Alert.alert("Invalid Input", `Please enter a valid ${contactMode}.`);
-            return;
-        }
-        // Simulate API Call
+        Keyboard.dismiss();
+        if (!validate()) return;
+
         setLoading(true);
+        // Simulate API
         setTimeout(() => {
             setLoading(false);
-            setTimer(30); // Reset timer
+            setTimer(30);
             setCanResend(false);
+            setOtp("");
             setShowOtpModal(true);
-            setOtpCode(""); // Clear previous OTP
         }, 1000);
     };
 
-    const handleResendOtp = () => {
-        setTimer(30);
-        setCanResend(false);
-        // Logic to resend API would go here
-        Alert.alert("OTP Resent", "A new code has been sent.");
-    };
-
     const handleVerifyOtp = () => {
-        if (otpCode.length !== 4) return;
-
+        if (otp.length !== 4) return;
+        
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            if (otpCode === otpCode ) { // Mock check
+            if (otp === "1234") {
                 setShowOtpModal(false);
                 setIsVerified(true);
+                setError(null);
             } else {
-                Alert.alert("Error", "Invalid OTP Code");
+                alert("Wrong OTP (Try 1234)");
+                setOtp("");
             }
-        }, 1500);
+        }, 1000);
     };
 
-    const handleSubmit = () => {
+    const handleNext = () => {
         if (!isVerified) return;
 
-        // Pass data to next screen
         const payload = {
             ...prevData,
-            [contactMode]: inputValue // dynamically sets 'email': val or 'phone': val
+            [mode]: input
         };
-
-        console.log("Submitting:", payload);
-        // Navigate to next screen (e.g., Address or Success)
+        
+        // Navigate to Password Registration
         navigation.navigate("ETpasswordreg", payload);
-    };
-
-    const switchMode = (mode: "email" | "phone") => {
-        setContactMode(mode);
-        setInputValue("");
-        setIsVerified(false);
     };
 
     return (
         <ImageBackground
-            source={require("../../assets/bg.jpg")} // Ensure path is correct
+            source={require("../../assets/bg.jpg")}
             style={styles.background}
             resizeMode="cover"
         >
             <SafeAreaView style={styles.container}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                        <Icon name="arrow-left" size={24} color="#0f172a" />
-                    </TouchableOpacity>
-                    <Text style={styles.stepIndicator}>Step 1 of 2</Text>
-                </View>
-
-                {/* Progress Bar */}
-                <View style={styles.progressBarBg}>
-                    <View style={[styles.progressBarFill, { width: "50%" }]} />
-                </View>
-
-                <View style={styles.content}>
-                    <Text style={styles.title}>Contact Verification</Text>
-                    <Text style={styles.subtitle}>
-                        We need to verify your identity. Choose a method below.
-                    </Text>
-
-                    {/* Toggle Tabs */}
-                    <View style={styles.tabContainer}>
-                        <TouchableOpacity
-                            style={[styles.tab, contactMode === "email" && styles.activeTab]}
-                            onPress={() => switchMode("email")}
-                        >
-                            <Icon name="email-outline" size={20} color={contactMode === "email" ? "#fff" : "#64748B"} />
-                            <Text style={[styles.tabText, contactMode === "email" && styles.activeTabText]}>Email</Text>
+                <StatusBar barStyle="dark-content" />
+                
+                <KeyboardAvoidingView 
+                    behavior={Platform.OS === "ios" ? "padding" : "height"} 
+                    style={{ flex: 1 }}
+                >
+                    {/* --- HEADER --- */}
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
+                            <Icon name="arrow-back" size={24} color="#000" />
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.tab, contactMode === "phone" && styles.activeTab]}
-                            onPress={() => switchMode("phone")}
-                        >
-                            <Icon name="cellphone" size={20} color={contactMode === "phone" ? "#fff" : "#64748B"} />
-                            <Text style={[styles.tabText, contactMode === "phone" && styles.activeTabText]}>Phone</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Input Section */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>
-                            {contactMode === "email" ? "Official Email Address" : "Mobile Number"}
-                        </Text>
-                        <View style={styles.inputRow}>
-                            <TextInput
-                                style={[styles.input, { flex: 1, borderTopRightRadius: 0, borderBottomRightRadius: 0 }]}
-                                placeholder={contactMode === "email" ? "name@company.com" : "9876543210"}
-                                placeholderTextColor="#94a3b8"
-                                keyboardType={contactMode === "email" ? "email-address" : "number-pad"}
-                                autoCapitalize="none"
-                                maxLength={contactMode === "phone" ? 10 : 50}
-                                value={inputValue}
-                                onChangeText={(t) => {
-                                    setIsVerified(false);
-                                    setInputValue(contactMode === "phone" ? t.replace(/[^0-9]/g, "") : t);
-                                }}
-                                editable={!isVerified}
-                            />
-                            <TouchableOpacity
-                                style={[styles.verifyBtn, isVerified && styles.verifiedBtn]}
-                                onPress={handleSendOtp}
-                                disabled={isVerified}
-                            >
-                                {loading && !showOtpModal ? (
-                                    <ActivityIndicator color="#fff" size="small" />
-                                ) : isVerified ? (
-                                    <Icon name="check" size={20} color="#fff" />
-                                ) : (
-                                    <Text style={styles.verifyText}>Send OTP</Text>
-                                )}
-                            </TouchableOpacity>
+                        <View style={styles.stepContainer}>
+                            <Text style={styles.stepText}>Step 1 of 2</Text>
+                            <View style={styles.progressBar}>
+                                <View style={[styles.progressFill, { width: "50%" }]} />
+                            </View>
                         </View>
                     </View>
 
-                    {/* Submit Button */}
-                    <TouchableOpacity
-                        style={[styles.nextBtn, !isVerified && styles.disabledBtn]}
-                        onPress={handleSubmit}
-                        // disabled={!isVerified}
-                    >
-                        <Text style={styles.nextText}>Submit & Next</Text>
-                        <Icon name="arrow-right" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-
-                {/* OTP Modal */}
-                <Modal visible={showOtpModal} transparent animationType="fade">
-                    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalBg}>
-                        <View style={styles.modalCard}>
-                            <TouchableOpacity
-                                style={styles.closeModal}
-                                onPress={() => setShowOtpModal(false)}
-                            >
-                                <Icon name="close" size={20} color="#64748B" />
-                            </TouchableOpacity>
-
-                            <View style={styles.iconCircle}>
-                                <Icon name="lock-open-outline" size={28} color="#0f172a" />
-                            </View>
-
-                            <Text style={styles.modalTitle}>Enter Verification Code</Text>
-                            <Text style={styles.modalSub}>
-                                We sent a code to <Text style={{ fontWeight: '700', color: '#000' }}>{inputValue}</Text>
+                    <View style={styles.content}>
+                        <View style={styles.titleBlock}>
+                            <Text style={styles.title}>Contact Verification</Text>
+                            <Text style={styles.subtitle}>
+                                We need to verify your identity. Choose a method below.
                             </Text>
+                        </View>
 
-                            <TextInput
-                                style={styles.otpInput}
-                                placeholder="0000"
-                                placeholderTextColor="#cbd5e1"
-                                keyboardType="number-pad"
-                                maxLength={4}
-                                value={otpCode}
-                                onChangeText={setOtpCode}
-                                autoFocus
-                            />
-
-                            <TouchableOpacity
-                                style={styles.modalVerifyBtn}
-                                onPress={handleVerifyOtp}
+                        {/* --- TABS --- */}
+                        <View style={styles.tabWrapper}>
+                            <TouchableOpacity 
+                                style={[styles.tabItem, mode === "email" && styles.tabActive]}
+                                onPress={() => switchMode("email")}
                             >
-                                {loading ? (
-                                    <ActivityIndicator color="#fff" />
-                                ) : (
-                                    <Text style={styles.nextText}>Verify Code</Text>
-                                )}
+                                <Icon name="mail" size={18} color={mode === "email" ? "#fff" : "#666"} />
+                                <Text style={[styles.tabText, mode === "email" && styles.tabTextActive]}>Email</Text>
                             </TouchableOpacity>
+                            
+                            <TouchableOpacity 
+                                style={[styles.tabItem, mode === "phone" && styles.tabActive]}
+                                onPress={() => switchMode("phone")}
+                            >
+                                <Icon name="call" size={18} color={mode === "phone" ? "#fff" : "#666"} />
+                                <Text style={[styles.tabText, mode === "phone" && styles.tabTextActive]}>Phone</Text>
+                            </TouchableOpacity>
+                        </View>
 
-                            {/* Resend Logic */}
-                            <View style={styles.resendContainer}>
-                                {canResend ? (
-                                    <TouchableOpacity onPress={handleResendOtp}>
-                                        <Text style={styles.resendTextActive}>Resend Code</Text>
-                                    </TouchableOpacity>
-                                ) : (
-                                    <Text style={styles.resendTextDisabled}>
-                                        Resend code in <Text style={{ fontWeight: 'bold' }}>{timer}s</Text>
-                                    </Text>
+                        {/* --- INPUT CARD --- */}
+                        <Animated.View style={[
+                            styles.inputCard, 
+                            { transform: [{ translateX: shakeAnim }] },
+                            error ? styles.cardError : (isVerified ? styles.cardSuccess : {})
+                        ]}>
+                            <View style={styles.inputHeader}>
+                                <Text style={[styles.inputLabel, error && { color: ERROR_COLOR }]}>
+                                    {mode === "email" ? "Official Email" : "Mobile Number"}
+                                </Text>
+                                {isVerified && (
+                                    <View style={styles.badge}>
+                                        <Icon name="checkmark-circle" size={12} color="#fff" />
+                                        <Text style={styles.badgeText}>Verified</Text>
+                                    </View>
                                 )}
                             </View>
 
-                        </View>
-                    </KeyboardAvoidingView>
+                            <View style={styles.inputRow}>
+                                <TextInput
+                                    style={[styles.inputField, isVerified && { color: "#888" }]}
+                                    placeholder={mode === "email" ? "admin@etcentre.com" : "9876543210"}
+                                    placeholderTextColor="#999"
+                                    keyboardType={mode === "email" ? "email-address" : "number-pad"}
+                                    autoCapitalize="none"
+                                    maxLength={mode === "phone" ? 10 : 50}
+                                    value={input}
+                                    onChangeText={handleTextChange}
+                                    editable={!isVerified}
+                                />
+                                
+                                {!isVerified && (
+                                    <TouchableOpacity 
+                                        style={styles.verifyBtnSmall} 
+                                        onPress={handleSendOtp}
+                                        disabled={loading}
+                                    >
+                                        {loading ? <ActivityIndicator color="#000" size="small" /> : <Text style={styles.verifyText}>Verify</Text>}
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+
+                            {/* Error Message */}
+                            {error && (
+                                <View style={styles.errorRow}>
+                                    <Icon name="alert-circle" size={14} color={ERROR_COLOR} />
+                                    <Text style={styles.errorText}>{error}</Text>
+                                </View>
+                            )}
+                        </Animated.View>
+
+                    </View>
+
+                    {/* --- FOOTER --- */}
+                    <View style={styles.footer}>
+                        <TouchableOpacity
+                            style={[styles.mainBtn, !isVerified && styles.mainBtnDisabled]}
+                            disabled={!isVerified}
+                            onPress={handleNext}
+                        >
+                            <Text style={styles.mainBtnText}>Next Step</Text>
+                            <Icon name="arrow-forward" size={20} color="#fff" style={{ marginLeft: 8 }} />
+                        </TouchableOpacity>
+                    </View>
+                </KeyboardAvoidingView>
+
+                {/* --- OTP MODAL --- */}
+                <Modal visible={showOtpModal} transparent animationType="slide" onRequestClose={() => setShowOtpModal(false)}>
+                    <View style={styles.modalOverlay}>
+                        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalContainer}>
+                            
+                            <View style={styles.modalContent}>
+                                <View style={styles.modalIndicator} />
+                                
+                                <View style={styles.modalHeader}>
+                                    <Text style={styles.modalTitle}>Enter Code</Text>
+                                    <TouchableOpacity onPress={() => setShowOtpModal(false)} style={styles.closeModalBtn}>
+                                        <Icon name="close" size={24} color="#666" />
+                                    </TouchableOpacity>
+                                </View>
+                                
+                                <Text style={styles.modalDesc}>
+                                    We sent a code to <Text style={{fontWeight: '700', color: '#000'}}>{input}</Text>
+                                </Text>
+
+                                <View style={styles.otpContainer}>
+                                    <TextInput
+                                        style={styles.otpInput}
+                                        placeholder="----"
+                                        placeholderTextColor="#ccc"
+                                        keyboardType="number-pad"
+                                        maxLength={4}
+                                        autoFocus
+                                        value={otp}
+                                        onChangeText={setOtp}
+                                    />
+                                </View>
+
+                                <TouchableOpacity 
+                                    style={[styles.modalBtn, otp.length !== 4 && { opacity: 0.5 }]} 
+                                    onPress={handleVerifyOtp}
+                                    disabled={loading || otp.length !== 4}
+                                >
+                                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalBtnText}>Confirm Code</Text>}
+                                </TouchableOpacity>
+
+                                <View style={styles.resendRow}>
+                                    <Text style={styles.resendLabel}>Didn't receive it? </Text>
+                                    {canResend ? (
+                                        <TouchableOpacity onPress={() => { setTimer(30); setCanResend(false); }}>
+                                            <Text style={styles.resendLink}>Resend</Text>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <Text style={styles.resendTimer}>00:{timer < 10 ? `0${timer}` : timer}</Text>
+                                    )}
+                                </View>
+                            </View>
+                        </KeyboardAvoidingView>
+                    </View>
                 </Modal>
 
             </SafeAreaView>
@@ -276,55 +344,150 @@ const styles = StyleSheet.create({
     background: { flex: 1 },
     container: { flex: 1 },
 
-    // Header
-    header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 24, paddingBottom: 10 },
-    backBtn: { padding: 8, backgroundColor: "#f1f5f9", borderRadius: 8 },
-    stepIndicator: { fontWeight: "600", color: "#64748B" },
-    progressBarBg: { height: 4, backgroundColor: "#E2E8F0", marginHorizontal: 24, borderRadius: 2 },
-    progressBarFill: { height: "100%", backgroundColor: "#0f172a", borderRadius: 2 },
+    // HEADER
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 24,
+        paddingTop: 10,
+        marginBottom: 10,
+    },
+    iconBtn: { padding: 5 },
+    stepContainer: { alignItems: 'flex-end' },
+    stepText: { fontSize: 12, fontWeight: "600", color: "#666", marginBottom: 4 },
+    progressBar: { width: 60, height: 4, backgroundColor: "#e5e5e5", borderRadius: 2 },
+    progressFill: { height: "100%", backgroundColor: PRIMARY_COLOR, borderRadius: 2 },
 
-    // Content
-    content: { padding: 24, marginTop: 10 },
-    title: { fontSize: 26, fontWeight: "800", color: "#0f172a", marginBottom: 8 },
-    subtitle: { fontSize: 14, color: "#64748B", marginBottom: 24, lineHeight: 22 },
+    // CONTENT
+    content: { paddingHorizontal: 24, paddingTop: 10 },
+    titleBlock: { marginBottom: 25 },
+    title: { fontSize: 32, fontWeight: "800", color: "#000", marginBottom: 8, letterSpacing: -0.5 },
+    subtitle: { fontSize: 15, color: "#555", lineHeight: 22 },
 
-    // Tabs
-    tabContainer: { flexDirection: 'row', backgroundColor: '#f1f5f9', borderRadius: 12, padding: 4, marginBottom: 24 },
-    tab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 10 },
-    activeTab: { backgroundColor: '#0f172a', shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-    tabText: { marginLeft: 8, fontWeight: '600', color: '#64748B' },
-    activeTabText: { color: '#fff' },
+    // TABS
+    tabWrapper: {
+        flexDirection: "row",
+        backgroundColor: "#f2f2f2",
+        padding: 4,
+        borderRadius: 14,
+        marginBottom: 25,
+    },
+    tabItem: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 12,
+        borderRadius: 12,
+    },
+    tabActive: {
+        backgroundColor: PRIMARY_COLOR,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    tabText: { marginLeft: 6, fontSize: 14, fontWeight: "600", color: "#666" },
+    tabTextActive: { color: "#fff" },
 
-    // Input
-    inputGroup: { marginBottom: 30 },
-    label: { fontSize: 14, fontWeight: "600", color: "#334155", marginBottom: 8 },
-    inputRow: { flexDirection: "row", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
-    input: { borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 12, padding: 16, fontSize: 16, color: "#0f172a", backgroundColor: "#fff" },
+    // INPUT CARD
+    inputCard: {
+        backgroundColor: BG_GLASS,
+        borderRadius: 20,
+        padding: 20,
+        borderWidth: 1.5,
+        borderColor: "#fff",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+    },
+    cardError: {
+        borderColor: ERROR_COLOR,
+        backgroundColor: "rgba(255, 255, 255)", 
+    },
+    cardSuccess: {
+        borderColor: SUCCESS_COLOR,
+        backgroundColor: "rgba(16, 185, 129, 0.1)", // Light green tint
+    },
+    inputHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
+    inputLabel: { fontSize: 13, fontWeight: "700", color: "#333", textTransform: "uppercase", letterSpacing: 0.5 },
+    
+    badge: { flexDirection: 'row', alignItems: 'center', backgroundColor: SUCCESS_COLOR, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
+    badgeText: { color: "#fff", fontSize: 10, fontWeight: "700", marginLeft: 4 },
 
-    // Buttons
-    verifyBtn: { backgroundColor: "#0f172a", paddingHorizontal: 20, justifyContent: "center", borderTopRightRadius: 12, borderBottomRightRadius: 12 },
-    verifiedBtn: { backgroundColor: "#10B981" }, // Green
-    verifyText: { color: "#fff", fontWeight: "600", fontSize: 13 },
+    inputRow: { flexDirection: 'row', alignItems: 'center', height: 40 },
+    inputField: { flex: 1, fontSize: 18, fontWeight: "600", color: "#000", height: '100%' },
+    
+    verifyBtnSmall: { backgroundColor: "#eee", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
+    verifyText: { fontSize: 12, fontWeight: "700", color: "#000" },
 
-    nextBtn: { backgroundColor: "#0f172a", flexDirection: "row", justifyContent: "center", alignItems: "center", paddingVertical: 18, borderRadius: 30, marginTop: 10 },
-    disabledBtn: { opacity: 0.5, backgroundColor: "#94a3b8" },
-    nextText: { color: "#fff", fontSize: 16, fontWeight: "700", marginRight: 8 },
+    errorRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: "rgba(44,0,0,0.1)" },
+    errorText: { color: ERROR_COLOR, fontSize: 13, fontWeight: "600", marginLeft: 6 },
 
-    // Modal
-    modalBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center" },
-    modalCard: { width: "85%", backgroundColor: "#fff", padding: 24, borderRadius: 24, alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 10, elevation: 10 },
-    closeModal: { position: 'absolute', top: 16, right: 16, padding: 4 },
+    // FOOTER
+    footer: { padding: 24, paddingBottom: 20, flex: 1, justifyContent: "flex-end" },
+    mainBtn: {
+        backgroundColor: PRIMARY_COLOR,
+        borderRadius: 30,
+        paddingVertical: 18,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    mainBtnDisabled: { backgroundColor: "#ccc", shadowOpacity: 0, elevation: 0 },
+    mainBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 
-    iconCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#F1F5F9', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+    // MODAL
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+    modalContainer: { width: "100%" },
+    modalContent: {
+        backgroundColor: "#fff",
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 24,
+        paddingBottom: 40,
+        alignItems: "center",
+    },
+    modalIndicator: { width: 40, height: 4, backgroundColor: "#e0e0e0", borderRadius: 2, marginBottom: 20 },
+    modalHeader: { flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+    modalTitle: { fontSize: 24, fontWeight: "800", color: "#000" },
+    closeModalBtn: { padding: 5 },
+    modalDesc: { fontSize: 15, color: "#666", marginBottom: 30, textAlign: "center" },
 
-    modalTitle: { fontSize: 20, fontWeight: "800", color: "#0f172a", marginBottom: 8 },
-    modalSub: { color: "#64748B", marginBottom: 24, textAlign: 'center', fontSize: 14 },
-
-    otpInput: { borderWidth: 2, borderColor: "#E2E8F0", width: "100%", paddingVertical: 14, borderRadius: 12, fontSize: 28, textAlign: "center", letterSpacing: 8, marginBottom: 20, color: '#0f172a', fontWeight: '700' },
-
-    modalVerifyBtn: { backgroundColor: "#0f172a", width: "100%", padding: 16, borderRadius: 14, alignItems: "center" },
-
-    resendContainer: { marginTop: 20 },
-    resendTextActive: { color: "#0f172a", fontWeight: "700", fontSize: 14 },
-    resendTextDisabled: { color: "#94a3b8", fontSize: 14 }
+    otpContainer: { width: "100%", marginBottom: 20 },
+    otpInput: {
+        width: "100%",
+        height: 60,
+        backgroundColor: "#f9f9f9",
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: "#eee",
+        fontSize: 28,
+        fontWeight: "700",
+        textAlign: "center",
+        letterSpacing: 12,
+        color: "#000"
+    },
+    modalBtn: {
+        backgroundColor: PRIMARY_COLOR,
+        width: "100%",
+        paddingVertical: 16,
+        borderRadius: 16,
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    modalBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+    
+    resendRow: { flexDirection: 'row' },
+    resendLabel: { color: "#888", fontSize: 14 },
+    resendLink: { color: "#000", fontWeight: "700", fontSize: 14, textDecorationLine: "underline" },
+    resendTimer: { color: "#888", fontSize: 14, fontWeight: "600" },
 });

@@ -1,6 +1,7 @@
 // src/screens/Employeeuser.tsx
 
 import React, { useState, useRef } from "react";
+import { registerApi } from "../Apis/auth.api.ts";
 import {
   StyleSheet,
   View,
@@ -54,13 +55,43 @@ const EmployeeLogin = () => {
   };
   // -------------------------------
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+
+    console.log("Login Attempt:", { email, password }); // Debugging
+
     if (!email || !password) {
+      
+  // 4. THE API FUNCTION (Dynamic Logic)
+  // const submitRegistrationAPI = async () => {
+  //   setIsLoading(true);
+    try {
+      // THIS IS WHERE YOU CONNECT TO YOUR BACKEND
+      // Example JSON payload
+    //   const payload = {
+    //     name: registerData.fullName,
+    //     phone: registerData.contactNumber,
+    //     secret: registerData.password,
+    //     role: "employee"
+    //   };
+
+    console.log("Submitting Registration Data to API..."); // Debugging
+
+   const res = await registerApi({
+        email: email,
+        password:password,
+      });
+      // Alert.alert('Success', 'Registration successful');
+      console.log('after calling register api:', res);
+    } catch (err) {
+      console.log('Error', err);
+    }
+  // };
+
       showToast("Please enter both email and password."); // Replaced Alert
       return;
     }
     console.log("Employee Login:", email);
-    navigation.navigate("Firstname");
+   // navigation.navigate("Firstname");
   };
 
   return (

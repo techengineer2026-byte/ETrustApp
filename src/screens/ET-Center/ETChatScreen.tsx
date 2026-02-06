@@ -1,3 +1,5 @@
+// src/screens/ET-Center/ETChatScreen.tsx
+
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
