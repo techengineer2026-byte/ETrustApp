@@ -84,11 +84,11 @@ const WelcomeScreen = () => {
 
               {/* Secondary Style for ET Center to differentiate it */}
               <TouchableOpacity
-                style={[styles.button, styles.secondaryButton]}
+                style={[styles.button]}
                 activeOpacity={0.8}
                 onPress={() => navigation.navigate("ETcenteruser")}
               >
-                <Text style={[styles.buttonText, styles.secondaryButtonText]}>
+                <Text style={styles.buttonText}>
                   ET CENTER
                 </Text>
               </TouchableOpacity>

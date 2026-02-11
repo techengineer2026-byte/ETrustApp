@@ -15,7 +15,8 @@ import {
     Keyboard,
     Animated,
     Vibration,
-    StatusBar
+    StatusBar,
+    Alert
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -43,7 +44,7 @@ export default function EmployeeAuthContact() {
     const currentInputValue = mode === "email" ? email : phone;
     const isCurrentVerified = mode === "email" ? isEmailVerified : isPhoneVerified;
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: any;
         if (showOtpModal && timer > 0) {
             interval = setInterval(() => setTimer(t => t - 1), 1000);
         } else if (timer === 0) {
@@ -114,7 +115,7 @@ export default function EmployeeAuthContact() {
                 if (mode === "email") setIsEmailVerified(true);
                 else setIsPhoneVerified(true);
             } else {
-                alert("Wrong OTP (Try 1234)");
+                Alert.alert("Wrong OTP (Try 1234)");
                 setOtp("");
             }
         }, 1000);

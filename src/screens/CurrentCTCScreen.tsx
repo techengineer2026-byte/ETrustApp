@@ -17,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Slider from '@react-native-community/slider';
 import CheckBox from "@react-native-community/checkbox"; 
 
-type SalaryNavProp = NativeStackNavigationProp<RootStackParamList, "CMS">;
+type SalaryNavProp = NativeStackNavigationProp<RootStackParamList, "CurrentCTC">;
 
 export default function CurrentSalaryScreen() {
   const navigation = useNavigation<SalaryNavProp>();

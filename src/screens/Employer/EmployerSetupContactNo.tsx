@@ -47,7 +47,7 @@ export default function EmployerSetupContactNo() {
 
     // Timer Logic
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: any;
         if (showOtpModal && timer > 0) {
             interval = setInterval(() => setTimer(t => t - 1), 1000);
         } else if (timer === 0) {

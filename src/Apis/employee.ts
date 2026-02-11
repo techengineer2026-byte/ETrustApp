@@ -3,6 +3,6 @@
 import api from './client';
 // import { ENDPOINTS } from './endpoints';
 
-export const getEmployeeApi = () =>
+export const atEmployeeApi = () =>
   api.get("/employee");
 

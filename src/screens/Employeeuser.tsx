@@ -91,7 +91,7 @@ const EmployeeLogin = () => {
       return;
     }
     console.log("Employee Login:", email);
-   // navigation.navigate("Firstname");
+   navigation.navigate("Firstname");
   };
 
   return (

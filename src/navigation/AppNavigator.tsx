@@ -98,18 +98,16 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SplashScreen } from '../screens/SplashIntroScreen';
+// import SplashScreen from '../screens/SplashIntroScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
 
 
-          <Stack.Screen name="Splash" component={SplashScreen} />
+          {/* <Stack.Screen name="Splash" component={SplashScreen} /> */}
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="Firstname" component={FirstnameScreen} />
@@ -154,7 +152,7 @@ export default function AppNavigator() {
           <Stack.Screen name="EmployeeAuthContact" component={EmployeeAuthContact} />
           <Stack.Screen name="EmployeeAuthName" component={EmployeeAuthName} />
           <Stack.Screen name="EmployeeAuthPassword" component={EmployeeAuthPassword} />
-          
+
           <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
           <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
           <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
@@ -222,6 +220,5 @@ export default function AppNavigator() {
           <Stack.Screen name="Faq" component={FaqScreen} />
         </Stack.Navigator>
       </NavigationContainer>
-    </GestureHandlerRootView>
   );
 }

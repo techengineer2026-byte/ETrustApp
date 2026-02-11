@@ -34,7 +34,7 @@ export default function ReferenceScreen() {
     const handleNext = () => {
         if (!selectedRef) return;
         // Proceed to Sync/Loading or Dashboard
-        navigation.navigate("SyncLoading");
+        navigation.navigate("EmployeeWelcomeDashboard");
     };
 
     return (

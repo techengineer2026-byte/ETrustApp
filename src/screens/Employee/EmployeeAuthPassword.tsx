@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import {
-    View, Text, TextInput, TouchableOpacity, ImageBackground, StyleSheet, KeyboardAvoidingView, Platform
+    View, Text, TextInput, TouchableOpacity, ImageBackground, StyleSheet, KeyboardAvoidingView, Platform,
+    Alert
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,8 +23,8 @@ export default function EmployeeAuthPassword() {
     const [secure, setSecure] = useState(true);
 
     const handleRegister = () => {
-        if (!password || password.length < 6) return alert("Password too short");
-        if (password !== confirm) return alert("Passwords do not match");
+        if (!password || password.length < 6) return Alert.alert("Password too short");
+        if (password !== confirm) return Alert.alert("Passwords do not match");
 
         const finalData = {
             ...prevData,

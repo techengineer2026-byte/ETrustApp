@@ -8,5 +8,7 @@ export default function App() {
       <ChatProvider>
         <AppNavigator />
       </ChatProvider>
+
   );
-}
+} 
+

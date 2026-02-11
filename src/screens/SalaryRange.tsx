@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 
-type SalaryRangeProp = NativeStackNavigationProp<RootStackParamList, "EMS">;
+type SalaryRangeProp = NativeStackNavigationProp<RootStackParamList, "SalaryRange">;
 
 const SalaryRange = () => {
   const navigation = useNavigation<SalaryRangeProp>();
