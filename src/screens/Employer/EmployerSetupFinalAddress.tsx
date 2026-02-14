@@ -1,3 +1,5 @@
+// src/screens/Employer/EmployerSetupFinalAddress.tsx
+
 import React, { useState } from "react";
 import {
     View,
@@ -169,7 +171,7 @@ export default function EmployerSetupFinalAddress() {
         console.log("FINAL REGISTRATION DATA:", finalPayload);
         
         // Navigate to the Welcome Swipe Screen
-        navigation.navigate("EmployerWelcomeDashboard");
+        navigation.navigate("EmployerAuthPassword");
     };
 
     return (

@@ -59,6 +59,7 @@ ETChatDetailScreen: undefined;
   BottomTabNavigator: undefined;
   EmployerBottomNav: undefined;
   EmployeeBottomNav: undefined;
+  EmployerAuthPassword:undefined;
   EtrustBottomNav: undefined;
   EmployerRegistrationSuccessScreen: undefined;
   EmployerSetupContactNo: undefined;

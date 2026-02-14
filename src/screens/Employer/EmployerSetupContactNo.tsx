@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     ImageBackground,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     Keyboard,
@@ -95,7 +96,7 @@ export default function EmployerSetupContactNo() {
                 setIsVerified(true);
                 setError(null);
             } else {
-                alert("Wrong OTP. Try 1234.");
+                Alert.alert("Wrong OTP. Try 1234.");
                 setOtp("");
             }
         }, 1000);

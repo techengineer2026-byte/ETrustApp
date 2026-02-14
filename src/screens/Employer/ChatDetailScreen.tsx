@@ -12,27 +12,47 @@ import {
     StatusBar,
     Modal,
     Keyboard,
-    ActivityIndicator
+    LayoutAnimation,
+    UIManager,
+    ImageBackground,
+    Dimensions
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const PRIMARY_COLOR = '#2563EB';
-const BG_COLOR = '#F3F4F6';
+// Enable Layout Animation for Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const { width, height } = Dimensions.get('window');
+
+const COLORS = {
+    darkBg: '#0F172A',       // Header Background
+    primary: '#3B82F6',      // User Bubble
+    themBubble: '#FFFFFF',   // Sender Bubble
+    bgPattern: '#E2E8F0',    // Background
+    textDark: '#1E293B',
+    textLight: '#94A3B8',
+    danger: '#EF4444',
+    success: '#10B981'
+};
 
 const RANDOM_REPLIES = [
-    "Hey! Please I really need this job 🙏",
-    "Is there any salary deduction for sick leaves?",
-    "Sir, I can join immediately! When is the interview?",
-    "Can you pay me in cash? I don't have a bank account.",
-    "My previous boss was toxic, I hope you are nice.",
+    "Hello! Yes, I am very interested in this role.",
+    "Could you please share the job description PDF?",
+    "I have 4 years of experience in React Native.",
+    "Can we schedule a call for tomorrow?",
+    "Thanks for shortlisting me! 🙌",
 ];
 
 export default function ChatDetailScreen({ route, navigation }: any) {
-    // Get params safely
-    const { name, img, isOnline } = route.params || { name: 'Candidate', img: 'https://via.placeholder.com/150', isOnline: false };
+    const insets = useSafeAreaInsets();
+    
+    // Get params safely (Fallback to defaults)
+    const { userName = 'Candidate', userImg = 'https://randomuser.me/api/portraits/men/32.jpg' } = route.params || {};
 
     // --- STATE ---
     const [messages, setMessages] = useState<any[]>([
@@ -40,7 +60,7 @@ export default function ChatDetailScreen({ route, navigation }: any) {
     ]);
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
-
+    
     // UI States
     const [showAttachMenu, setShowAttachMenu] = useState(false);
     const [isCalling, setIsCalling] = useState(false);
@@ -50,29 +70,27 @@ export default function ChatDetailScreen({ route, navigation }: any) {
 
     // --- AUTO REPLY SIMULATION ---
     useEffect(() => {
-        // Only trigger auto-reply once on load for demo purposes
-        const typingTimer = setTimeout(() => setIsTyping(true), 1500);
+        const typingTimer = setTimeout(() => setIsTyping(true), 2000);
         const replyTimer = setTimeout(() => {
             setIsTyping(false);
             const randomMsg = RANDOM_REPLIES[Math.floor(Math.random() * RANDOM_REPLIES.length)];
             addMessage(randomMsg, 'them');
-        }, 3500);
+        }, 4500);
 
         return () => { clearTimeout(typingTimer); clearTimeout(replyTimer); };
     }, []);
 
-    // Scroll to bottom helper
     const scrollToBottom = () => {
         setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
     };
 
-    // Generic Add Message
     const addMessage = (content: string, sender: 'me' | 'them', type: 'text' | 'image' | 'file' = 'text') => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         const newMsg = {
             id: Date.now().toString(),
             text: content,
             sender,
-            type, // 'text', 'image', 'file'
+            type,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
         setMessages(prev => [...prev, newMsg]);
@@ -85,26 +103,21 @@ export default function ChatDetailScreen({ route, navigation }: any) {
         setInputText('');
     };
 
-    // --- FAKE ACTIONS ---
-
-    // 1. Simulate Attachment
+    // --- ACTIONS ---
     const handleAttachment = (type: 'camera' | 'gallery' | 'document') => {
         setShowAttachMenu(false);
-
         if (type === 'camera' || type === 'gallery') {
-            addMessage('https://picsum.photos/200/300', 'me', 'image');
+            addMessage('https://picsum.photos/300/200', 'me', 'image');
         } else {
-            addMessage('Resume_v2.pdf', 'me', 'file');
+            addMessage('Portfolio_v1.pdf', 'me', 'file');
         }
     };
 
-
-    // 2. Simulate Call
     const startCall = () => {
         setIsCalling(true);
         setCallDuration('Connecting...');
         setTimeout(() => setCallDuration('Ringing...'), 1500);
-        setTimeout(() => setCallDuration('00:01'), 3500); // Fake answer
+        setTimeout(() => setCallDuration('00:01'), 3500); 
     };
 
     const endCall = () => {
@@ -112,29 +125,21 @@ export default function ChatDetailScreen({ route, navigation }: any) {
         addMessage('Call ended • 45s', 'me', 'text');
     };
 
-    // --- RENDERERS ---
-
+    // --- RENDER MESSAGE ---
     const renderMessage = ({ item }: any) => {
         const isMe = item.sender === 'me';
-
-        // Render Content based on Type
+        
+        // Dynamic Content
         let content;
         if (item.type === 'image') {
-            content = (
-                <Image
-                    source={{ uri: item.text.startsWith('http') ? item.text : 'https://via.placeholder.com/150' }}
-                    style={styles.msgImage}
-                />
-            );
+            content = <Image source={{ uri: item.text.startsWith('http') ? item.text : 'https://via.placeholder.com/150' }} style={styles.msgImage} />;
         } else if (item.type === 'file') {
             content = (
                 <View style={styles.fileContainer}>
-                    <View style={styles.fileIcon}>
-                        <MaterialCommunityIcons name="file-document" size={24} color={PRIMARY_COLOR} />
+                    <View style={styles.fileIconBox}>
+                        <MaterialCommunityIcons name="file-document" size={20} color={isMe ? '#FFF' : COLORS.primary} />
                     </View>
-                    <Text style={[styles.msgText, isMe ? styles.meText : styles.themText, { textDecorationLine: 'underline' }]}>
-                        {item.text}
-                    </Text>
+                    <Text style={[styles.msgText, isMe ? styles.meText : styles.themText, { textDecorationLine: 'underline' }]}>{item.text}</Text>
                 </View>
             );
         } else {
@@ -142,188 +147,205 @@ export default function ChatDetailScreen({ route, navigation }: any) {
         }
 
         return (
-            <View style={[styles.msgWrapper, isMe ? styles.meWrapper : styles.themWrapper]}>
-                {!isMe && <Image source={{ uri: img }} style={styles.smallAvatar} />}
-                <View style={[styles.msgBubble, isMe ? styles.meBubble : styles.themBubble]}>
+            <View style={[styles.msgRow, isMe ? styles.meRow : styles.themRow]}>
+                <View style={[styles.bubble, isMe ? styles.meBubble : styles.themBubble]}>
                     {content}
-                    <Text style={[styles.msgTime, isMe ? { color: '#BFDBFE' } : { color: '#9CA3AF' }]}>{item.time}</Text>
+                    <Text style={[styles.timeText, isMe ? { color: 'rgba(255,255,255,0.7)' } : { color: COLORS.textLight }]}>{item.time}</Text>
                 </View>
             </View>
         );
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+        <View style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor={COLORS.darkBg} />
 
-            {/* HEADER */}
-            <View style={styles.header}>
+            {/* --- HEADER --- */}
+            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={24} color="#1F2937" />
+                    <Feather name="arrow-left" size={24} color="#FFF" />
                 </TouchableOpacity>
-                <Image source={{ uri: img }} style={styles.headerAvatar} />
-                <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text style={styles.headerName}>{name}</Text>
-                    <Text style={styles.headerStatus}>{isTyping ? 'Typing...' : isOnline ? 'Online' : 'Offline'}</Text>
+                
+                <View style={styles.headerProfile}>
+                    <Image source={{ uri: userImg }} style={styles.headerAvatar} />
+                    <View style={styles.onlineDot} />
                 </View>
-                <TouchableOpacity style={styles.iconBtn} onPress={startCall}>
-                    <Feather name="phone" size={20} color={PRIMARY_COLOR} />
-                </TouchableOpacity>
+
+                <View style={styles.headerInfo}>
+                    <Text style={styles.headerName}>{userName}</Text>
+                    <Text style={styles.headerStatus}>{isTyping ? 'Typing...' : 'Online'}</Text>
+                </View>
+
+                <View style={styles.headerActions}>
+                    <TouchableOpacity style={styles.headerIcon} onPress={startCall}>
+                        <Feather name="phone" size={20} color="#FFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.headerIcon}>
+                        <Feather name="more-vertical" size={20} color="#FFF" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
-            {/* CHAT LIST */}
-            <FlatList
-                ref={flatListRef}
-                data={messages}
-                keyExtractor={item => item.id}
-                renderItem={renderMessage}
-                contentContainerStyle={styles.chatContent}
-                onContentSizeChange={scrollToBottom}
-                ListFooterComponent={
-                    isTyping ? (
-                        <View style={styles.typingContainer}>
-                            <Image source={{ uri: img }} style={styles.smallAvatar} />
-                            <View style={styles.typingBubble}>
-                                <Text style={styles.typingDots}>•••</Text>
+            {/* --- CHAT AREA --- */}
+            <ImageBackground 
+                source={{ uri: 'https://i.pinimg.com/originals/97/c0/07/97c00759d90d786d9b6096d274ad3e07.png' }} // WhatsApp-like pattern
+                style={styles.chatBackground}
+                resizeMode="cover"
+            >
+                <FlatList
+                    ref={flatListRef}
+                    data={messages}
+                    keyExtractor={item => item.id}
+                    renderItem={renderMessage}
+                    contentContainerStyle={styles.listContent}
+                    onContentSizeChange={scrollToBottom}
+                    showsVerticalScrollIndicator={false}
+                    ListFooterComponent={
+                        isTyping ? (
+                            <View style={styles.typingWrapper}>
+                                <Image source={{ uri: userImg }} style={styles.tinyAvatar} />
+                                <View style={styles.typingBubble}>
+                                    <View style={styles.dot} /><View style={styles.dot} /><View style={styles.dot} />
+                                </View>
                             </View>
-                        </View>
-                    ) : null
-                }
-            />
+                        ) : null
+                    }
+                />
+            </ImageBackground>
 
-            {/* INPUT AREA */}
+            {/* --- INPUT BAR --- */}
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                <View style={styles.inputContainer}>
-                    <TouchableOpacity
-                        style={styles.attachBtn}
-                        onPress={() => {
-                            Keyboard.dismiss();
-                            setShowAttachMenu(!showAttachMenu);
-                        }}
+                <View style={[styles.inputContainer, { paddingBottom: insets.bottom > 0 ? insets.bottom : 10 }]}>
+                    <TouchableOpacity 
+                        style={styles.attachBtn} 
+                        onPress={() => { Keyboard.dismiss(); setShowAttachMenu(!showAttachMenu); }}
                     >
-                        <Feather name="plus" size={24} color="#6B7280" />
+                        <Feather name="plus" size={24} color={COLORS.primary} />
                     </TouchableOpacity>
 
                     <TextInput
-                        style={styles.input}
-                        placeholder="Type a message..."
+                        style={styles.textInput}
+                        placeholder="Message..."
+                        placeholderTextColor={COLORS.textLight}
                         value={inputText}
                         onChangeText={setInputText}
                         onFocus={() => setShowAttachMenu(false)}
+                        multiline
                     />
 
                     <TouchableOpacity style={styles.sendBtn} onPress={handleSendText}>
-                        <Ionicons name="send" size={18} color="white" />
+                        <Ionicons name="send" size={18} color="#FFF" />
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
 
-            {/* --- FAKE ATTACHMENT MENU --- */}
+            {/* --- ATTACHMENT MENU --- */}
             {showAttachMenu && (
-                <View style={styles.attachMenu}>
-                    <TouchableOpacity style={styles.attachItem} onPress={() => handleAttachment('camera')}>
-                        <View style={[styles.attachIcon, { backgroundColor: '#E0F2FE' }]}>
-                            <Feather name="camera" size={20} color="#0284C7" />
-                        </View>
-                        <Text style={styles.attachText}>Camera</Text>
+                <View style={[styles.attachSheet, { paddingBottom: insets.bottom + 20 }]}>
+                    <TouchableOpacity style={styles.sheetItem} onPress={() => handleAttachment('camera')}>
+                        <View style={[styles.sheetIcon, { backgroundColor: '#E0F2FE' }]}><Feather name="camera" size={24} color="#0284C7" /></View>
+                        <Text style={styles.sheetLabel}>Camera</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.attachItem} onPress={() => handleAttachment('gallery')}>
-                        <View style={[styles.attachIcon, { backgroundColor: '#FCE7F3' }]}>
-                            <Feather name="image" size={20} color="#DB2777" />
-                        </View>
-                        <Text style={styles.attachText}>Gallery</Text>
+                    <TouchableOpacity style={styles.sheetItem} onPress={() => handleAttachment('gallery')}>
+                        <View style={[styles.sheetIcon, { backgroundColor: '#FCE7F3' }]}><Feather name="image" size={24} color="#DB2777" /></View>
+                        <Text style={styles.sheetLabel}>Gallery</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.attachItem} onPress={() => handleAttachment('document')}>
-                        <View style={[styles.attachIcon, { backgroundColor: '#DCFCE7' }]}>
-                            <Feather name="file-text" size={20} color="#16A34A" />
-                        </View>
-                        <Text style={styles.attachText}>Document</Text>
+                    <TouchableOpacity style={styles.sheetItem} onPress={() => handleAttachment('document')}>
+                        <View style={[styles.sheetIcon, { backgroundColor: '#DCFCE7' }]}><Feather name="file-text" size={24} color="#16A34A" /></View>
+                        <Text style={styles.sheetLabel}>File</Text>
                     </TouchableOpacity>
                 </View>
             )}
 
-            {/* --- FAKE CALLING OVERLAY --- */}
-            <Modal visible={isCalling} animationType="slide" transparent={false}>
-                <View style={styles.callScreen}>
-                    <StatusBar barStyle="light-content" backgroundColor="#111827" />
-                    <View style={styles.callContent}>
-                        <Image source={{ uri: img }} style={styles.callAvatar} />
-                        <Text style={styles.callName}>{name}</Text>
-                        <Text style={styles.callStatus}>{callDuration}</Text>
-                    </View>
+            {/* --- CALL MODAL --- */}
+            <Modal visible={isCalling} animationType="fade" transparent={false}>
+                <ImageBackground 
+                    source={{ uri: userImg }} 
+                    blurRadius={20}
+                    style={styles.callScreen}
+                >
+                    <View style={styles.callOverlay}>
+                        <View style={styles.callTop}>
+                            <Image source={{ uri: userImg }} style={styles.callBigAvatar} />
+                            <Text style={styles.callName}>{userName}</Text>
+                            <Text style={styles.callTimer}>{callDuration}</Text>
+                        </View>
 
-                    <View style={styles.callActions}>
-                        <TouchableOpacity style={[styles.callBtn, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                            <Feather name="mic-off" size={24} color="white" />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.callBtn, { backgroundColor: '#EF4444', width: 70, height: 70 }]} onPress={endCall}>
-                            <Feather name="phone-off" size={32} color="white" />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.callBtn, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                            <Feather name="volume-2" size={24} color="white" />
-                        </TouchableOpacity>
+                        <View style={styles.callControls}>
+                            <TouchableOpacity style={styles.controlBtn}><Feather name="mic-off" size={24} color="#FFF" /></TouchableOpacity>
+                            <TouchableOpacity style={styles.endCallBtn} onPress={endCall}><MaterialCommunityIcons name="phone-hangup" size={32} color="#FFF" /></TouchableOpacity>
+                            <TouchableOpacity style={styles.controlBtn}><Feather name="volume-2" size={24} color="#FFF" /></TouchableOpacity>
+                        </View>
                     </View>
-                </View>
+                </ImageBackground>
             </Modal>
-
-            <SafeAreaView edges={['bottom']} style={{ backgroundColor: 'white' }} />
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F3F4F6' },
+    container: { flex: 1, backgroundColor: '#E2E8F0' },
 
     // Header
-    header: { flexDirection: 'row', alignItems: 'center', padding: 15, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
-    backBtn: { paddingRight: 10 },
-    headerAvatar: { width: 40, height: 40, borderRadius: 20 },
-    headerName: { fontSize: 16, fontWeight: '700', color: '#1F2937' },
-    headerStatus: { fontSize: 12, color: '#10B981', fontWeight: '500' },
-    iconBtn: { padding: 8, backgroundColor: '#EFF6FF', borderRadius: 20 },
+    header: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.darkBg, paddingHorizontal: 16, paddingBottom: 16 },
+    backBtn: { padding: 8, marginRight: 8 },
+    headerProfile: { position: 'relative' },
+    headerAvatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: '#1E293B' },
+    onlineDot: { position: 'absolute', bottom: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.success, borderWidth: 2, borderColor: COLORS.darkBg },
+    headerInfo: { flex: 1, marginLeft: 12 },
+    headerName: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+    headerStatus: { color: COLORS.success, fontSize: 12, fontWeight: '500' },
+    headerActions: { flexDirection: 'row', gap: 8 },
+    headerIcon: { padding: 8, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 12 },
 
     // Chat Area
-    chatContent: { padding: 15, paddingBottom: 20 },
-    msgWrapper: { flexDirection: 'row', marginBottom: 15, alignItems: 'flex-end' },
-    meWrapper: { justifyContent: 'flex-end' },
-    themWrapper: { justifyContent: 'flex-start' },
-    smallAvatar: { width: 28, height: 28, borderRadius: 14, marginRight: 8, marginBottom: 4 },
-    msgBubble: { maxWidth: '75%', padding: 12, borderRadius: 16 },
-    meBubble: { backgroundColor: PRIMARY_COLOR, borderBottomRightRadius: 2 },
-    themBubble: { backgroundColor: 'white', borderBottomLeftRadius: 2 },
+    chatBackground: { flex: 1 },
+    listContent: { padding: 16, paddingBottom: 20 },
+    
+    msgRow: { marginBottom: 16, flexDirection: 'row' },
+    meRow: { justifyContent: 'flex-end', alignSelf: 'flex-end', marginLeft: 'auto' }, // Right align
+    themRow: { justifyContent: 'flex-start', alignSelf: 'flex-start' }, // Left align
 
-    // Message Content
+    bubble: { maxWidth: width * 0.75, padding: 12, borderRadius: 18, elevation: 1, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
+    meBubble: { backgroundColor: COLORS.primary, borderBottomRightRadius: 4 },
+    themBubble: { backgroundColor: COLORS.themBubble, borderBottomLeftRadius: 4 },
+
     msgText: { fontSize: 15, lineHeight: 22 },
-    meText: { color: 'white' },
-    themText: { color: '#1F2937' },
-    msgTime: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
-    msgImage: { width: 200, height: 140, borderRadius: 8, marginBottom: 4 },
-    fileContainer: { flexDirection: 'row', alignItems: 'center' },
-    fileIcon: { backgroundColor: 'rgba(255,255,255,0.2)', padding: 4, borderRadius: 8, marginRight: 8 },
+    meText: { color: '#FFF' },
+    themText: { color: COLORS.textDark },
+    timeText: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
+
+    msgImage: { width: 200, height: 140, borderRadius: 12, marginBottom: 4 },
+    fileContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    fileIconBox: { backgroundColor: 'rgba(255,255,255,0.2)', padding: 6, borderRadius: 8 },
 
     // Typing
-    typingContainer: { flexDirection: 'row', alignItems: 'flex-end', marginLeft: 0, marginTop: 5 },
-    typingBubble: { backgroundColor: '#E5E7EB', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, borderBottomLeftRadius: 2 },
-    typingDots: { color: '#6B7280', fontWeight: 'bold', fontSize: 18, lineHeight: 18 },
+    typingWrapper: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 12 },
+    tinyAvatar: { width: 24, height: 24, borderRadius: 12, marginRight: 8 },
+    typingBubble: { flexDirection: 'row', backgroundColor: '#FFF', padding: 12, borderRadius: 16, borderBottomLeftRadius: 4, gap: 4 },
+    dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.textLight },
 
     // Input Bar
-    inputContainer: { flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'white', borderTopWidth: 1, borderTopColor: '#E5E7EB' },
+    inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', paddingHorizontal: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#E2E8F0' },
     attachBtn: { padding: 10 },
-    input: { flex: 1, backgroundColor: '#F3F4F6', borderRadius: 20, paddingHorizontal: 15, paddingVertical: 10, fontSize: 15, marginRight: 10, maxHeight: 100 },
-    sendBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
+    textInput: { flex: 1, backgroundColor: '#F1F5F9', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 10, fontSize: 15, color: COLORS.textDark, maxHeight: 100, marginHorizontal: 8 },
+    sendBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' },
 
-    // Fake Attachment Menu
-    attachMenu: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'white', paddingVertical: 20, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
-    attachItem: { alignItems: 'center' },
-    attachIcon: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: 5 },
-    attachText: { fontSize: 12, color: '#4B5563', fontWeight: '500' },
+    // Attach Sheet
+    attachSheet: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#FFF', paddingTop: 20, borderTopWidth: 1, borderTopColor: '#E2E8F0' },
+    sheetItem: { alignItems: 'center' },
+    sheetIcon: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+    sheetLabel: { fontSize: 12, color: COLORS.textDark, fontWeight: '500' },
 
-    // Fake Call Screen
-    callScreen: { flex: 1, backgroundColor: '#111827', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 60 },
-    callContent: { alignItems: 'center', marginTop: 50 },
-    callAvatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 20, borderWidth: 2, borderColor: 'white' },
-    callName: { color: 'white', fontSize: 28, fontWeight: '700', marginBottom: 10 },
-    callStatus: { color: '#9CA3AF', fontSize: 16 },
-    callActions: { flexDirection: 'row', width: '80%', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-    callBtn: { width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center' },
+    // Call Screen
+    callScreen: { flex: 1 },
+    callOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.85)', justifyContent: 'space-between', paddingVertical: 80, alignItems: 'center' },
+    callTop: { alignItems: 'center' },
+    callBigAvatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 24, borderWidth: 4, borderColor: 'rgba(255,255,255,0.1)' },
+    callName: { fontSize: 32, fontWeight: '700', color: '#FFF', marginBottom: 8 },
+    callTimer: { fontSize: 18, color: COLORS.success, fontWeight: '600' },
+    
+    callControls: { flexDirection: 'row', alignItems: 'center', gap: 24 },
+    controlBtn: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
+    endCallBtn: { width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.danger, justifyContent: 'center', alignItems: 'center', shadowColor: COLORS.danger, shadowOpacity: 0.5, shadowRadius: 20, elevation: 10 },
 });

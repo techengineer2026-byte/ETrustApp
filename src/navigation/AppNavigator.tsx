@@ -71,6 +71,7 @@ import EmployeeAuthContact from '../screens/Employee/EmployeeAuthContact';
 import EmployeeAuthName from '../screens/Employee/EmployeeAuthName';
 import EmployeeAuthPassword from '../screens/Employee/EmployeeAuthPassword';
 import EmployeeWelcomeDashboard from '../screens/Employee/EmployeeWelcomeDashboard';
+import EmployerAuthPassword from '../screens/Employer/EmployerAuthPassword';
 //Etrust auth
 
 import CenterName from '../screens/ET-Center/CenterName';
@@ -103,122 +104,123 @@ const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
 
 
-          {/* <Stack.Screen name="Splash" component={SplashScreen} /> */}
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="Firstname" component={FirstnameScreen} />
-          <Stack.Screen name="BDAY" component={BDAYScreen} />
-          <Stack.Screen name="EducationForm" component={EducationForm} />
-          <Stack.Screen name="Gender" component={GenderScreen} />
-          <Stack.Screen name="JobPostDashboard" component={JobPostDashboard} />
-          <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
-          <Stack.Screen name="JobType" component={JobType} />
-          <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
-          <Stack.Screen name='Employeeuser' component={Employeeuser} />
-          <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
-          <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
-          <Stack.Screen name="JobProfile" component={JobProfileScreen} />
-          <Stack.Screen name="LocationSelection" component={LocationSelection} />
-          <Stack.Screen name="ChatDetailScreen" component={ChatDetailScreen} />
-          <Stack.Screen name="CurrentCTC" component={CurrentCTCScreen} />
-          <Stack.Screen name="SalaryRange" component={SalaryRange} />
-          <Stack.Screen name="DistancePreference" component={DistancePreference} />
-          <Stack.Screen name="UploadResume" component={UploadResumeScreen} />
-          <Stack.Screen name="Reference" component={ReferenceScreen} />
-          <Stack.Screen name="PreferredCity" component={PreferredCityScreen} />
-          <Stack.Screen name="SyncLoading" component={SyncLoading} />
-          <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
-          <Stack.Screen name="AddressScreen" component={AddressScreen} />
-          <Stack.Screen name="EmployeeWelcomeDashboard" component={EmployeeWelcomeDashboard} />
-          <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
-          <Stack.Screen name="EmployerRegistrationSuccessScreen" component={EmployerRegistrationSuccessScreen} />
-          <Stack.Screen name="EmployerSetupContactNo" component={EmployerSetupContactNo} />
-          <Stack.Screen name="EmployerSetupContactPerson" component={EmployerSetupContactPerson} />
-          <Stack.Screen name="EmployerSetupFinalAddress" component={EmployerSetupFinalAddress} />
-          <Stack.Screen name="EmployerWelcomeDashboard" component={EmployerWelcomeDashboard} />
-          <Stack.Screen name="Employeruser" component={Employeruser} />
-          <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
-          <Stack.Screen name="UploadLogo" component={UploadLogo} />
-          <Stack.Screen name="EditEmployerProfileScreen" component={EditEmployerProfileScreen} />
-          <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
-          <Stack.Screen name="AllJobs" component={AllJobsScreen} />
-          <Stack.Screen name="EChatDetailScreen" component={EChatDetailScreen} />
-          <Stack.Screen name="ETEditProfileScreen" component={ETEditProfileScreen} />
-          <Stack.Screen name="CandidateListScreen" component={CandidateListScreen} />
-          <Stack.Screen name="EmployeeAuthContact" component={EmployeeAuthContact} />
-          <Stack.Screen name="EmployeeAuthName" component={EmployeeAuthName} />
-          <Stack.Screen name="EmployeeAuthPassword" component={EmployeeAuthPassword} />
+        {/* <Stack.Screen name="Splash" component={SplashScreen} /> */}
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="Firstname" component={FirstnameScreen} />
+        <Stack.Screen name="BDAY" component={BDAYScreen} />
+        <Stack.Screen name="EducationForm" component={EducationForm} />
+        <Stack.Screen name="Gender" component={GenderScreen} />
+        <Stack.Screen name="JobPostDashboard" component={JobPostDashboard} />
+        <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
+        <Stack.Screen name="JobType" component={JobType} />
+        <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
+        <Stack.Screen name='Employeeuser' component={Employeeuser} />
+        <Stack.Screen name="WorkStatus" component={WorkStatusScreen} />
+        <Stack.Screen name="WorkExperience" component={WorkExperienceScreen} />
+        <Stack.Screen name="JobProfile" component={JobProfileScreen} />
+        <Stack.Screen name="LocationSelection" component={LocationSelection} />
+        <Stack.Screen name="ChatDetailScreen" component={ChatDetailScreen} />
+        <Stack.Screen name="CurrentCTC" component={CurrentCTCScreen} />
+        <Stack.Screen name="SalaryRange" component={SalaryRange} />
+        <Stack.Screen name="DistancePreference" component={DistancePreference} />
+        <Stack.Screen name="UploadResume" component={UploadResumeScreen} />
+        <Stack.Screen name="Reference" component={ReferenceScreen} />
+        <Stack.Screen name="PreferredCity" component={PreferredCityScreen} />
+        <Stack.Screen name="SyncLoading" component={SyncLoading} />
+        <Stack.Screen name="CompanyScreen" component={CompanyScreen} />
+        <Stack.Screen name="AddressScreen" component={AddressScreen} />
+        <Stack.Screen name="EmployeeWelcomeDashboard" component={EmployeeWelcomeDashboard} />
+        <Stack.Screen name="BoostProfileScreen" component={BoostProfileScreen} />
+        <Stack.Screen name="EmployerRegistrationSuccessScreen" component={EmployerRegistrationSuccessScreen} />
+        <Stack.Screen name="EmployerSetupContactNo" component={EmployerSetupContactNo} />
+        <Stack.Screen name="EmployerSetupContactPerson" component={EmployerSetupContactPerson} />
+        <Stack.Screen name="EmployerSetupFinalAddress" component={EmployerSetupFinalAddress} />
+        <Stack.Screen name="EmployerWelcomeDashboard" component={EmployerWelcomeDashboard} />
+        <Stack.Screen name="Employeruser" component={Employeruser} />
+        <Stack.Screen name="ContactVerification" component={ContactVerificationScreen} />
+        <Stack.Screen name="UploadLogo" component={UploadLogo} />
+        <Stack.Screen name="EditEmployerProfileScreen" component={EditEmployerProfileScreen} />
+        <Stack.Screen name="AllApplicants" component={AllApplicantsScreen} />
+        <Stack.Screen name="AllJobs" component={AllJobsScreen} />
+        <Stack.Screen name="EChatDetailScreen" component={EChatDetailScreen} />
+        <Stack.Screen name="ETEditProfileScreen" component={ETEditProfileScreen} />
+        <Stack.Screen name="CandidateListScreen" component={CandidateListScreen} />
+        <Stack.Screen name="EmployeeAuthContact" component={EmployeeAuthContact} />
+        <Stack.Screen name="EmployeeAuthName" component={EmployeeAuthName} />
+        <Stack.Screen name="EmployeeAuthPassword" component={EmployeeAuthPassword} />
+        <Stack.Screen name="EmployerAuthPassword" component={EmployerAuthPassword} />
 
-          <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
-          <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
-          <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
+        <Stack.Screen name="EmployeeBottomNav" component={EmployeeBottomNav} />
+        <Stack.Screen name="EtrustBottomNav" component={EtrustBottomNav} />
+        <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} />
 
 
-          <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
-          <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
-          <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
-          <Stack.Screen name="ETChatDetailScreen" component={ETChatDetailScreen} />
-          <Stack.Screen name="ResetPassword" component={ResetPassword} />
-          <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
-          <Stack.Screen name="PostJobScreen" component={PostJobScreen} />
-          <Stack.Screen name="CenterName" component={CenterName} />
-          <Stack.Screen name="OfficeAddressET" component={OfficeAddressET} />
-          <Stack.Screen name='ETname' component={ETname} />
-          {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
+        <Stack.Screen name="ETcenteruser" component={ETcenteruser} />
+        <Stack.Screen name='ETContactVerify' component={ETContactVerify} />
+        <Stack.Screen name='ETpasswordreg' component={ETpasswordReg} />
+        <Stack.Screen name="ETChatDetailScreen" component={ETChatDetailScreen} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="SyncLoadingET" component={SyncLoadingET} />
+        <Stack.Screen name="PostJobScreen" component={PostJobScreen} />
+        <Stack.Screen name="CenterName" component={CenterName} />
+        <Stack.Screen name="OfficeAddressET" component={OfficeAddressET} />
+        <Stack.Screen name='ETname' component={ETname} />
+        {/* <Stack.Screen name="EmployerBottomNav" component={EmployerBottomNav} /> */}
 
-          <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
-          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-          <Stack.Screen name="OTPScreen" component={OTPScreen} />
+        <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="OTPScreen" component={OTPScreen} />
 
-          <Stack.Screen name='TransactionDetail' component={TransactionDetail} />
-          <Stack.Screen name='EmployerJobs' component={EmployerJobs} />
-          <Stack.Screen name='CompanyProfile' component={CompanyProfile} />
-          {/* <Stack.Screen name='SettingsScreen' component={SettingsScreen} /> */}
-          <Stack.Screen name="JobHistoryScreen" component={JobHistoryScreen} />
+        <Stack.Screen name='TransactionDetail' component={TransactionDetail} />
+        <Stack.Screen name='EmployerJobs' component={EmployerJobs} />
+        <Stack.Screen name='CompanyProfile' component={CompanyProfile} />
+        {/* <Stack.Screen name='SettingsScreen' component={SettingsScreen} /> */}
+        <Stack.Screen name="JobHistoryScreen" component={JobHistoryScreen} />
 
-          <Stack.Screen
-            name="ChangeMobileNumber"
-            component={ChangeMobileNumberScreen}
-            options={{ title: 'Change Mobile Number' }}
-          />
-          <Stack.Screen
-            name="EmailVerification"
-            component={EmailVerificationScreen}
-            options={{ title: 'Email Verification' }}
-          />
-          <Stack.Screen
-            name="KycDocuments"
-            component={KycDocumentsScreen}
-            options={{ title: 'KYC / Documents' }}
-          />
-          <Stack.Screen
-            name="LinkedAccounts"
-            component={LinkedAccountsScreen}
-            options={{ title: 'Linked Accounts' }}
-          />
-          <Stack.Screen
-            name="AccountStatus"
-            component={AccountStatusScreen}
-            options={{ title: 'Account Status' }}
-          />
-          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-          <Stack.Screen name="LogoutFromAllDevices" component={LogoutFromAllDevicesScreen} />
+        <Stack.Screen
+          name="ChangeMobileNumber"
+          component={ChangeMobileNumberScreen}
+          options={{ title: 'Change Mobile Number' }}
+        />
+        <Stack.Screen
+          name="EmailVerification"
+          component={EmailVerificationScreen}
+          options={{ title: 'Email Verification' }}
+        />
+        <Stack.Screen
+          name="KycDocuments"
+          component={KycDocumentsScreen}
+          options={{ title: 'KYC / Documents' }}
+        />
+        <Stack.Screen
+          name="LinkedAccounts"
+          component={LinkedAccountsScreen}
+          options={{ title: 'Linked Accounts' }}
+        />
+        <Stack.Screen
+          name="AccountStatus"
+          component={AccountStatusScreen}
+          options={{ title: 'Account Status' }}
+        />
+        <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+        <Stack.Screen name="LogoutFromAllDevices" component={LogoutFromAllDevicesScreen} />
 
-          {/* Subscription & Billing */}
-          <Stack.Screen name="UpgradePlan" component={UpgradePlanScreen} />
-          <Stack.Screen name="BillingHistory" component={BillingHistoryScreen} />
-          <Stack.Screen name="RefundPolicy" component={RefundPolicyScreen} />
+        {/* Subscription & Billing */}
+        <Stack.Screen name="UpgradePlan" component={UpgradePlanScreen} />
+        <Stack.Screen name="BillingHistory" component={BillingHistoryScreen} />
+        <Stack.Screen name="RefundPolicy" component={RefundPolicyScreen} />
 
-          {/* Legal & Support */}
-          <Stack.Screen name="Terms" component={TermsScreen} />
-          <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-          <Stack.Screen name="ContactSupport" component={ContactSupportScreen} />
-          <Stack.Screen name="Faq" component={FaqScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+        {/* Legal & Support */}
+        <Stack.Screen name="Terms" component={TermsScreen} />
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="ContactSupport" component={ContactSupportScreen} />
+        <Stack.Screen name="Faq" component={FaqScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }

@@ -1,4 +1,4 @@
-// src/screens/employer/ContactVerificationScreen.tsx
+// src/screens/Employer/ContactVerificationScreen.tsx
 
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -7,7 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     ImageBackground,
-    StyleSheet,
+    StyleSheet,Alert,
     Modal,
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -146,7 +146,7 @@ export default function ContactVerificationScreen() {
                 else setIsPhoneVerified(true);
 
             } else {
-                alert("Wrong OTP (Try 1234)");
+                Alert.alert("Wrong OTP (Try 1234)");
                 setOtp("");
             }
         }, 1000);
@@ -161,7 +161,7 @@ export default function ContactVerificationScreen() {
             contactMode: mode,
             contactValue: currentInputValue 
         };
-        navigation.navigate("EmployerRegistrationSuccessScreen", payload);
+        navigation.navigate("EmployerAuthPassword", payload);
     };
 
     const switchMode = (newMode: "email" | "phone") => {

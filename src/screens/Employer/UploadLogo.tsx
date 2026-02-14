@@ -90,7 +90,7 @@ export default function UploadLogoScreen() {
                     </View>
                     {/* Visual Progress: Start of the wizard */}
                     <View style={styles.progressCircle}>
-                        <Text style={styles.progressText}>1/7</Text>
+                        <Text style={styles.progressText}>1/4</Text>
                     </View>
                 </View>
 

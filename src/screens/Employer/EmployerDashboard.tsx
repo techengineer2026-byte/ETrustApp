@@ -160,93 +160,121 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = memo(({ userName, greeti
 ));
 
 // --- PREMIUM MODAL COMPONENT ---
+// --- CONSULTANCY / CUSTOM PACKAGE MODAL ---
 interface PremiumModalProps {
     visible: boolean;
     onClose: () => void;
-    recommendedPlan: typeof PLANS[0] | null;
 }
-const PremiumModal = ({ visible, onClose, recommendedPlan }: PremiumModalProps) => {
-    const [selectedPlan, setSelectedPlan] = useState<any>(PLANS[1]);
 
-    useEffect(() => {
-        if (visible && recommendedPlan) {
-            setSelectedPlan(recommendedPlan);
-        } else if (visible && !recommendedPlan) {
-            setSelectedPlan(PLANS[1]);
-        }
-    }, [visible, recommendedPlan]);
+const PremiumModal = ({ visible, onClose }: PremiumModalProps) => {
+    // Range: 1000 to 10000
+    const [contribution, setContribution] = useState(1000);
+
+    const handleIncrease = () => {
+        if (contribution < 10000) setContribution(prev => prev + 500);
+    };
+
+    const handleDecrease = () => {
+        if (contribution > 1000) setContribution(prev => prev - 500);
+    };
 
     return (
         <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
             <View style={premiumStyles.modalBackdrop}>
                 <TouchableOpacity style={premiumStyles.modalCloser} onPress={onClose} />
+
                 <View style={premiumStyles.modalContent}>
                     <View style={premiumStyles.modalHandle} />
-                    <Text style={premiumStyles.modalHeading}>Upgrade to Apply More</Text>
-                    <Text style={premiumStyles.modalSubHeading}>You've shortlised 5 candidates! Boost your chances now.</Text>
 
-                    {/* Horizontal Plan Selector */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 10, paddingVertical: 20 }}>
-                        {PLANS.map((plan) => {
-                            const isSelected = selectedPlan.id === plan.id;
-                            const isRecommended = recommendedPlan?.id === plan.id;
-                            return (
-                                <TouchableOpacity
-                                    key={plan.id}
-                                    activeOpacity={0.9}
-                                    onPress={() => setSelectedPlan(plan)}
-                                    style={[
-                                        premiumStyles.miniPlanCard,
-                                        isSelected && premiumStyles.miniPlanCardSelected,
-                                        { borderColor: isSelected ? plan.accent : 'transparent' }
-                                    ]}
-                                >
-                                    {/* Simulating Gradient with View since LinearGradient needs linking */}
-                                    <View style={[premiumStyles.miniGradient, { backgroundColor: plan.bgColor }]}>
-                                        {/* Dynamic Badge Logic */}
-                                        {isRecommended ? (
-                                            <View style={[premiumStyles.miniBadge, { backgroundColor: '#FF3B30' }]}>
-                                                <Text style={premiumStyles.miniBadgeText}>✨ RECOMMENDED</Text>
-                                            </View>
-                                        ) : plan.defaultBadge ? (
-                                            <View style={premiumStyles.miniBadge}>
-                                                <Text style={premiumStyles.miniBadgeText}>{plan.defaultBadge}</Text>
-                                            </View>
-                                        ) : <View style={{ height: 16 }} />}
-                                        <Text style={[premiumStyles.miniPlanTitle, { color: plan.accent }]}>{plan.title}</Text>
-                                        <Text style={premiumStyles.miniPlanPrice}>₹{plan.price}</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            )
-                        })}
-                    </ScrollView>
-
-                    {/* Selected Plan Details */}
-                    <View style={premiumStyles.detailsContainer}>
-                        <Text style={premiumStyles.sectionLabel}>WHAT'S INCLUDED IN {selectedPlan.title.toUpperCase()}</Text>
-                        {selectedPlan.features.slice(0, 4).map((item: string, index: number) => (
-                            <View key={index} style={premiumStyles.featureRow}>
-                                <MaterialCommunityIcons name="check-circle" size={18} color={selectedPlan.accent} />
-                                <Text style={premiumStyles.featureText}>{item}</Text>
-                            </View>
-                        ))}
+                    {/* Header */}
+                    <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                        <View style={premiumStyles.consultancyBadge}>
+                            <MaterialCommunityIcons name="briefcase-account" size={16} color="#FFF" />
+                            <Text style={premiumStyles.consultancyBadgeText}>EMPLOYMENT CONSULTANCY SERVICES</Text>
+                        </View>
+                        <Text style={premiumStyles.modalHeading}>Make Your Own Package</Text>
+                        <Text style={premiumStyles.modalSubHeading}>
+                            You have shortlisted 5 candidates! Create a custom package to hire them.
+                        </Text>
                     </View>
 
+                    {/* Custom Package Selector */}
+                    <View style={premiumStyles.customPackageContainer}>
+                        <Text style={premiumStyles.packageLabel}>PER CANDIDATE CONTRIBUTION</Text>
+
+                        <View style={premiumStyles.counterRow}>
+                            <TouchableOpacity
+                                style={[premiumStyles.counterBtn, contribution <= 1000 && premiumStyles.counterBtnDisabled]}
+                                onPress={handleDecrease}
+                                disabled={contribution <= 1000}
+                            >
+                                <Feather name="minus" size={24} color={contribution <= 1000 ? '#CBD5E1' : COLORS.primary} />
+                            </TouchableOpacity>
+
+                            <View style={premiumStyles.priceDisplay}>
+                                <Text style={premiumStyles.currencySymbol}>₹</Text>
+                                <Text style={premiumStyles.priceValue}>{contribution.toLocaleString()}</Text>
+                            </View>
+
+                            <TouchableOpacity
+                                style={[premiumStyles.counterBtn, contribution >= 10000 && premiumStyles.counterBtnDisabled]}
+                                onPress={handleIncrease}
+                                disabled={contribution >= 10000}
+                            >
+                                <Feather name="plus" size={24} color={contribution >= 10000 ? '#CBD5E1' : COLORS.primary} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={premiumStyles.rangeIndicator}>
+                            <Text style={premiumStyles.rangeText}>Min: ₹1k</Text>
+                            {/* Simple Visual Bar */}
+                            <View style={premiumStyles.rangeBarBg}>
+                                <View style={[premiumStyles.rangeBarFill, { width: `${(contribution / 10000) * 100}%` }]} />
+                            </View>
+                            <Text style={premiumStyles.rangeText}>Max: ₹10k</Text>
+                        </View>
+                    </View>
+
+                    {/* Features List */}
+                    <View style={premiumStyles.detailsContainer}>
+                        <Text style={premiumStyles.sectionLabel}>INCLUDED SERVICES</Text>
+                        <View style={premiumStyles.featureRow}>
+                            <MaterialCommunityIcons name="check-circle" size={18} color={COLORS.success} />
+                            <Text style={premiumStyles.featureText}>Verified Candidate Profiles</Text>
+                        </View>
+                        <View style={premiumStyles.featureRow}>
+                            <MaterialCommunityIcons name="check-circle" size={18} color={COLORS.success} />
+                            <Text style={premiumStyles.featureText}>Dedicated HR Support</Text>
+                        </View>
+                        <View style={premiumStyles.featureRow}>
+                            <MaterialCommunityIcons name="check-circle" size={18} color={COLORS.success} />
+                            <Text style={premiumStyles.featureText}>Replacement Guarantee (30 Days)</Text>
+                        </View>
+                    </View>
+
+                    {/* CTA Button */}
                     <TouchableOpacity
-                        style={[premiumStyles.modalCta, { backgroundColor: selectedPlan.buttonColor }]}
-                        onPress={() => { Alert.alert("Payment", `Processing payment for ${selectedPlan.title}`); onClose(); }}
+                        style={premiumStyles.modalCta}
+                        onPress={() => {
+                            Alert.alert("Success", `Package Created! \nContribution: ₹${contribution} per candidate.`);
+                            onClose();
+                        }}
                     >
-                        <Text style={premiumStyles.modalCtaText}>Pay ₹{selectedPlan.price} & Continue</Text>
+                        <Text style={premiumStyles.modalCtaText}>Create Package</Text>
                         <MaterialCommunityIcons name="arrow-right" size={18} color="#fff" />
                     </TouchableOpacity>
+
                     <TouchableOpacity onPress={onClose} style={{ marginTop: 15 }}>
-                        <Text style={{ color: '#999', fontSize: 13, textAlign: 'center' }}>No thanks, I'll continue swiping freely</Text>
+                        <Text style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', fontWeight: '500' }}>
+                            Skip for now
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </Modal>
     );
 };
+
 
 // --- EXISTING COMPONENTS ---
 interface CandidateProfileModalProps {
@@ -414,7 +442,6 @@ export default function EmployerDashboard({ navigation }: any) {
 
     // Premium Modal State
     const [showPremiumModal, setShowPremiumModal] = useState(false);
-    const [recommendedPlan, setRecommendedPlan] = useState<typeof PLANS[0] | null>(null);
 
     const translationX = useSharedValue(0);
     const activeApplicantIndex = useSharedValue(0);
@@ -443,22 +470,15 @@ export default function EmployerDashboard({ navigation }: any) {
 
     const onSwipeComplete = useCallback((direction: 'left' | 'right') => {
         if (direction === 'right') {
-            // Update shortlist count
             setShortlistedCount(prev => {
                 const newCount = prev + 1;
 
-                // --- TRIGGER LOGIC: Open modal every 5th shortlist ---
+                // TRIGGER: Every 5th shortlist
                 if (newCount > 0 && newCount % 5 === 0) {
-                    const randomIndex = Math.floor(Math.random() * PLANS.length);
-                    const randomPlan = PLANS[randomIndex];
-                    setRecommendedPlan(randomPlan);
-
-                    // Small delay to allow the swipe animation to finish visually
                     setTimeout(() => {
                         setShowPremiumModal(true);
                     }, 400);
                 }
-
                 return newCount;
             });
 
@@ -595,7 +615,6 @@ export default function EmployerDashboard({ navigation }: any) {
                 <PremiumModal
                     visible={showPremiumModal}
                     onClose={() => setShowPremiumModal(false)}
-                    recommendedPlan={recommendedPlan}
                 />
             </SafeAreaView>
         </GestureHandlerRootView>
@@ -649,7 +668,197 @@ const headerStyles = StyleSheet.create({
         borderColor: COLORS.surface,
     },
 });
+// --- PREMIUM MODAL STYLES (UPDATED) ---
+const premiumStyles = StyleSheet.create({
+    modalBackdrop: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    },
+    modalCloser: {
+        flex: 1,
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingTop: 15,
+        paddingBottom: 40,
+        paddingHorizontal: 20,
+        minHeight: SCREEN_HEIGHT * 0.6,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -5 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 20,
+    },
+    modalHandle: {
+        width: 40,
+        height: 5,
+        backgroundColor: '#D1D1D6',
+        borderRadius: 2.5,
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
 
+    // Header & Badge
+    consultancyBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.accent,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        marginBottom: 12,
+        gap: 6
+    },
+    consultancyBadgeText: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: '800',
+        letterSpacing: 0.5
+    },
+    modalHeading: {
+        fontSize: 24,
+        fontWeight: '800',
+        textAlign: 'center',
+        color: '#1e293b',
+        marginBottom: 8,
+    },
+    modalSubHeading: {
+        fontSize: 14,
+        color: '#64748b',
+        textAlign: 'center',
+        paddingHorizontal: 20,
+        lineHeight: 20
+    },
+
+    // Custom Package (Counter)
+    customPackageContainer: {
+        backgroundColor: '#F8FAFC',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: COLORS.border
+    },
+    packageLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#94A3B8',
+        marginBottom: 15,
+        textAlign: 'center',
+        letterSpacing: 1
+    },
+    counterRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20
+    },
+    counterBtn: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#FFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        elevation: 2
+    },
+    counterBtnDisabled: {
+        backgroundColor: '#F1F5F9',
+        borderColor: '#F1F5F9',
+        elevation: 0
+    },
+    priceDisplay: {
+        flexDirection: 'row',
+        alignItems: 'flex-start'
+    },
+    currencySymbol: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: COLORS.primary,
+        marginTop: 4
+    },
+    priceValue: {
+        fontSize: 42,
+        fontWeight: '800',
+        color: COLORS.primary,
+        letterSpacing: -1
+    },
+
+    // Range Bar
+    rangeIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10
+    },
+    rangeText: {
+        fontSize: 12,
+        color: '#64748B',
+        fontWeight: '600'
+    },
+    rangeBarBg: {
+        flex: 1,
+        height: 6,
+        backgroundColor: '#E2E8F0',
+        borderRadius: 3
+    },
+    rangeBarFill: {
+        height: '100%',
+        backgroundColor: COLORS.accent,
+        borderRadius: 3
+    },
+
+    // Features
+    detailsContainer: {
+        marginBottom: 25,
+        paddingHorizontal: 10
+    },
+    sectionLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#94A3B8',
+        marginBottom: 12,
+        letterSpacing: 0.5,
+    },
+    featureRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    featureText: {
+        fontSize: 14,
+        color: '#334155',
+        marginLeft: 10,
+        flex: 1,
+        fontWeight: '500'
+    },
+
+    // CTA
+    modalCta: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 18,
+        borderRadius: 16,
+        width: '100%',
+        backgroundColor: COLORS.primary,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    modalCtaText: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#fff',
+        marginRight: 8,
+    },
+});
 const modalStyles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
@@ -743,139 +952,7 @@ const modalStyles = StyleSheet.create({
     },
 });
 
-// --- PREMIUM MODAL STYLES ---
-const premiumStyles = StyleSheet.create({
-    modalBackdrop: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    },
-    modalCloser: {
-        flex: 1,
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        paddingTop: 15,
-        paddingBottom: 40,
-        paddingHorizontal: 20,
-        height: SCREEN_HEIGHT * 0.75, // Takes up 75% of screen
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -5 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 20,
-    },
-    modalHandle: {
-        width: 40,
-        height: 5,
-        backgroundColor: '#D1D1D6',
-        borderRadius: 2.5,
-        alignSelf: 'center',
-        marginBottom: 20,
-    },
-    modalHeading: {
-        fontSize: 24,
-        fontWeight: '800',
-        textAlign: 'center',
-        color: '#1e293b',
-        marginBottom: 8,
-    },
-    modalSubHeading: {
-        fontSize: 14,
-        color: '#64748b',
-        textAlign: 'center',
-        marginBottom: 10,
-        paddingHorizontal: 20,
-    },
-    miniPlanCard: {
-        width: 140,
-        height: 160,
-        marginRight: 12,
-        borderRadius: 16,
-        borderWidth: 2,
-        borderColor: 'transparent',
-        overflow: 'hidden',
-        backgroundColor: '#fff',
-    },
-    miniPlanCardSelected: {
-        // Border color handled in inline style
-        transform: [{ scale: 1.02 }],
-    },
-    miniGradient: {
-        flex: 1,
-        padding: 12,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    miniBadge: {
-        paddingHorizontal: 6,
-        paddingVertical: 3,
-        borderRadius: 4,
-        backgroundColor: '#F59E0B',
-        marginBottom: 5,
-    },
-    miniBadgeText: {
-        fontSize: 9,
-        fontWeight: '700',
-        color: '#fff',
-    },
-    miniPlanTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        textAlign: 'center',
-        marginTop: 5,
-    },
-    miniPlanPrice: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: '#0F172A',
-    },
-    detailsContainer: {
-        backgroundColor: '#F8FAFC',
-        padding: 20,
-        borderRadius: 16,
-        marginBottom: 20,
-    },
-    sectionLabel: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: '#94A3B8',
-        marginBottom: 12,
-        letterSpacing: 0.5,
-    },
-    featureRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    featureText: {
-        fontSize: 14,
-        color: '#334155',
-        marginLeft: 10,
-        flex: 1,
-    },
-    modalCta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
-        borderRadius: 16,
-        width: '100%',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    modalCtaText: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#fff',
-        marginRight: 8,
-    },
-});
+
 
 const customAlertModalStyles = StyleSheet.create({
     modalBackdrop: {

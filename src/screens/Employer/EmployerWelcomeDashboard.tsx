@@ -97,7 +97,7 @@ export default function EmployerWelcomeDashboard() {
             setTimeout(() => {
                 navigation.reset({
                     index: 0,
-                    routes: [{ name: "EmployerBottomNav" }],
+                    routes: [{ name: "PostJobScreen" }],
                 });
             }, 500);
         });

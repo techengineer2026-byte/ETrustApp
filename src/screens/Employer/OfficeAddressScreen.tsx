@@ -108,8 +108,15 @@ export default function OfficeAddressScreen({ navigation, route }: any) {
             gps: gpsData,
         };
 
-        console.log("FINAL SUBMISSION:", finalData);
-        navigation.navigate("EmployerBottomNav");
+        // 1. Send Data to API to save profile...
+        console.log("Saving Profile:", finalData);
+
+        // 2. SUCCESS! Now force them to Post a Job
+        // We use .reset() so they cannot go 'back' to the address screen
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'PostJobScreen' }], // Matches the name in your RootNavigator
+        });
     };
 
     return (
