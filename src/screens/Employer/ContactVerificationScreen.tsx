@@ -1,13 +1,13 @@
 // src/screens/Employer/ContactVerificationScreen.tsx
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
     View,
     Text,
     TextInput,
     TouchableOpacity,
     ImageBackground,
-    StyleSheet,Alert,
+    StyleSheet, Alert,
     Modal,
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -20,6 +20,7 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Ionicons";
+import { EmployerAuthContext } from "../../context/EmployerAuthContext";
 
 // --- CUSTOM COLORS ---
 const ERROR_COLOR = "#2c0000";
@@ -31,6 +32,7 @@ export default function ContactVerificationScreen() {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const prevData = route.params || {};
+    const { setData } = useContext(EmployerAuthContext);
 
     // --- SEPARATE STATE FOR EMAIL & PHONE ---
     const [mode, setMode] = useState<"email" | "phone">("email");
@@ -46,7 +48,7 @@ export default function ContactVerificationScreen() {
     // Shared UI State
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    
+
     // OTP State
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [otp, setOtp] = useState("");
@@ -133,14 +135,14 @@ export default function ContactVerificationScreen() {
 
     const handleVerifyOtp = () => {
         if (otp.length !== 4) return;
-        
+
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
             if (otp === "1234") {
                 setShowOtpModal(false);
                 setError(null);
-                
+
                 // Set specific verified state based on active mode
                 if (mode === "email") setIsEmailVerified(true);
                 else setIsPhoneVerified(true);
@@ -151,22 +153,27 @@ export default function ContactVerificationScreen() {
             }
         }, 1000);
     };
-
     const handleNext = () => {
         if (!isCurrentVerified) return;
-        
-        // Pass the relevant data based on which one is verified and selected
-        const payload = { 
-            ...prevData, 
+        if (!currentInputValue) {
+            Alert.alert("Please enter a valid contact.");
+            return;
+        }
+
+        const payload = {
+            ...(prevData || {}),
             contactMode: mode,
-            contactValue: currentInputValue 
+            contactValue: currentInputValue
         };
+
         navigation.navigate("EmployerAuthPassword", payload);
     };
 
+
+
     const switchMode = (newMode: "email" | "phone") => {
         setMode(newMode);
-        setError(null); 
+        setError(null);
         // We DO NOT clear input or verified status here anymore
     };
 
@@ -184,9 +191,9 @@ export default function ContactVerificationScreen() {
         >
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="dark-content" />
-                
-                <KeyboardAvoidingView 
-                    behavior={Platform.OS === "ios" ? "padding" : "height"} 
+
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
                     style={{ flex: 1 }}
                 >
                     {/* --- HEADER --- */}
@@ -212,28 +219,28 @@ export default function ContactVerificationScreen() {
 
                         {/* --- SEGMENTED TABS --- */}
                         <View style={styles.tabWrapper}>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 style={[styles.tabItem, mode === "email" && styles.tabActive]}
                                 onPress={() => switchMode("email")}
                             >
                                 <Icon name="mail" size={18} color={mode === "email" ? "#fff" : "#666"} />
                                 <Text style={[styles.tabText, mode === "email" && styles.tabTextActive]}>Email</Text>
-                                {isEmailVerified && <Icon name="checkmark-circle" size={16} color={SUCCESS_COLOR} style={{marginLeft: 5}} />}
+                                {isEmailVerified && <Icon name="checkmark-circle" size={16} color={SUCCESS_COLOR} style={{ marginLeft: 5 }} />}
                             </TouchableOpacity>
-                            
-                            <TouchableOpacity 
+
+                            <TouchableOpacity
                                 style={[styles.tabItem, mode === "phone" && styles.tabActive]}
                                 onPress={() => switchMode("phone")}
                             >
                                 <Icon name="call" size={18} color={mode === "phone" ? "#fff" : "#666"} />
                                 <Text style={[styles.tabText, mode === "phone" && styles.tabTextActive]}>Phone</Text>
-                                {isPhoneVerified && <Icon name="checkmark-circle" size={16} color={SUCCESS_COLOR} style={{marginLeft: 5}} />}
+                                {isPhoneVerified && <Icon name="checkmark-circle" size={16} color={SUCCESS_COLOR} style={{ marginLeft: 5 }} />}
                             </TouchableOpacity>
                         </View>
 
                         {/* --- INPUT CARD --- */}
                         <Animated.View style={[
-                            styles.inputCard, 
+                            styles.inputCard,
                             { transform: [{ translateX: shakeAnim }] },
                             error ? styles.cardError : (isCurrentVerified ? styles.cardSuccess : {})
                         ]}>
@@ -257,22 +264,22 @@ export default function ContactVerificationScreen() {
                                     keyboardType={mode === "email" ? "email-address" : "number-pad"}
                                     autoCapitalize="none"
                                     maxLength={mode === "phone" ? 10 : 50}
-                                    
+
                                     // Use derived values
                                     value={currentInputValue}
                                     onChangeText={handleTextChange}
-                                    
+
                                     // Disable input if verified
                                     editable={!isCurrentVerified}
                                 />
-                                
+
                                 {isCurrentVerified ? (
                                     <TouchableOpacity onPress={handleEdit} style={styles.editBtn}>
                                         <Text style={styles.editText}>Change</Text>
                                     </TouchableOpacity>
                                 ) : (
-                                    <TouchableOpacity 
-                                        style={styles.verifyBtnSmall} 
+                                    <TouchableOpacity
+                                        style={styles.verifyBtnSmall}
                                         onPress={handleSendOtp}
                                         disabled={loading}
                                     >
@@ -316,9 +323,9 @@ export default function ContactVerificationScreen() {
                                         <Icon name="close" size={24} color="#666" />
                                     </TouchableOpacity>
                                 </View>
-                                
+
                                 <Text style={styles.modalDesc}>
-                                    We sent a 4-digit code to <Text style={{fontWeight: '700', color: '#000'}}>{currentInputValue}</Text>
+                                    We sent a 4-digit code to <Text style={{ fontWeight: '700', color: '#000' }}>{currentInputValue}</Text>
                                 </Text>
 
                                 <View style={styles.otpContainer}>
@@ -334,8 +341,8 @@ export default function ContactVerificationScreen() {
                                     />
                                 </View>
 
-                                <TouchableOpacity 
-                                    style={[styles.modalBtn, otp.length !== 4 && { opacity: 0.5 }]} 
+                                <TouchableOpacity
+                                    style={[styles.modalBtn, otp.length !== 4 && { opacity: 0.5 }]}
                                     onPress={handleVerifyOtp}
                                     disabled={loading || otp.length !== 4}
                                 >
@@ -427,7 +434,7 @@ const styles = StyleSheet.create({
     },
     cardError: {
         borderColor: ERROR_COLOR,
-        backgroundColor: "rgba(255, 255, 255)", 
+        backgroundColor: "rgba(255, 255, 255)",
     },
     cardSuccess: {
         borderColor: SUCCESS_COLOR,
@@ -435,16 +442,16 @@ const styles = StyleSheet.create({
     },
     inputHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
     inputLabel: { fontSize: 13, fontWeight: "700", color: "#333", textTransform: "uppercase", letterSpacing: 0.5 },
-    
+
     badge: { flexDirection: 'row', alignItems: 'center', backgroundColor: SUCCESS_COLOR, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
     badgeText: { color: "#fff", fontSize: 10, fontWeight: "700", marginLeft: 4 },
 
     inputRow: { flexDirection: 'row', alignItems: 'center', height: 40 },
     inputField: { flex: 1, fontSize: 18, fontWeight: "600", color: "#000", height: '100%' },
-    
+
     verifyBtnSmall: { backgroundColor: "#eee", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
     verifyText: { fontSize: 12, fontWeight: "700", color: "#000" },
-    
+
     // New Edit Button styles
     editBtn: { paddingHorizontal: 10, paddingVertical: 8 },
     editText: { fontSize: 12, fontWeight: "700", color: "#666", textDecorationLine: "underline" },
@@ -510,7 +517,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     modalBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-    
+
     resendRow: { flexDirection: 'row' },
     resendLabel: { color: "#888", fontSize: 14 },
     resendLink: { color: "#000", fontWeight: "700", fontSize: 14, textDecorationLine: "underline" },

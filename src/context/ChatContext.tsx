@@ -1,3 +1,5 @@
+// src/context/ChatContext.tsx
+
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 // --- Types ---

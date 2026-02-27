@@ -15,8 +15,9 @@ const BG_GLASS = "rgba(255, 255, 255, 0.85)";
 export default function EmployerAuthPassword() {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
-    const prevData = route.params || {}; 
+    const prevData = route.params || {};
     // prevData contains: { fullName, contactMode, contactValue }
+    const [loading, setLoading] = useState(false);
 
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
@@ -26,15 +27,20 @@ export default function EmployerAuthPassword() {
         if (!password || password.length < 6) return Alert.alert("Password too short");
         if (password !== confirm) return Alert.alert("Passwords do not match");
 
+        setLoading(true);
+
         const finalData = {
-            ...prevData,
+            ...(prevData || {}),
             password
         };
 
         console.log("FINAL Employer DATA:", finalData);
-        
-        // Go to Login
-        navigation.navigate("EmployerWelcomeDashboard");
+
+        // Simulate async API call (optional)
+        setTimeout(() => {
+            setLoading(false);
+            navigation.navigate("EmployerWelcomeDashboard");
+        }, 500); // just to show loading effect
     };
 
     return (
@@ -51,26 +57,26 @@ export default function EmployerAuthPassword() {
 
                     <View style={styles.card}>
                         <View style={styles.inputBox}>
-                            <Icon name="lock-closed-outline" size={20} color="#666" style={{marginRight: 10}}/>
-                            <TextInput 
-                                style={styles.input} 
-                                placeholder="Create Password" 
-                                secureTextEntry={secure} 
-                                value={password} 
+                            <Icon name="lock-closed-outline" size={20} color="#666" style={{ marginRight: 10 }} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Create Password"
+                                secureTextEntry={secure}
+                                value={password}
                                 onChangeText={setPassword}
                             />
                             <TouchableOpacity onPress={() => setSecure(!secure)}>
-                                <Icon name={secure ? "eye-off-outline" : "eye-outline"} size={20} color="#999"/>
+                                <Icon name={secure ? "eye-off-outline" : "eye-outline"} size={20} color="#999" />
                             </TouchableOpacity>
                         </View>
 
-                        <View style={[styles.inputBox, {marginTop: 15}]}>
-                            <Icon name="lock-closed-outline" size={20} color="#666" style={{marginRight: 10}}/>
-                            <TextInput 
-                                style={styles.input} 
-                                placeholder="Confirm Password" 
-                                secureTextEntry={true} 
-                                value={confirm} 
+                        <View style={[styles.inputBox, { marginTop: 15 }]}>
+                            <Icon name="lock-closed-outline" size={20} color="#666" style={{ marginRight: 10 }} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Confirm Password"
+                                secureTextEntry={true}
+                                value={confirm}
                                 onChangeText={setConfirm}
                             />
                         </View>
@@ -78,8 +84,8 @@ export default function EmployerAuthPassword() {
                 </View>
 
                 <View style={styles.footer}>
-                    <TouchableOpacity 
-                        style={[styles.mainBtn, (!password || password !== confirm) && styles.disabled]} 
+                    <TouchableOpacity
+                        style={[styles.mainBtn, (!password || password !== confirm) && styles.disabled]}
                         onPress={handleRegister}
                     >
                         <Text style={styles.btnText}>Create Account</Text>

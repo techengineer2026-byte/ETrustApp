@@ -3,12 +3,15 @@
 import React from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ChatProvider } from './src/context/ChatContext';
+import { EmployerAuthProvider } from "./src/context/EmployerAuthContext";
+
 export default function App() {
   return (
-      <ChatProvider>
+    <ChatProvider>
+      <EmployerAuthProvider>
         <AppNavigator />
-      </ChatProvider>
-
+      </EmployerAuthProvider>
+    </ChatProvider>
   );
-} 
+}
 
